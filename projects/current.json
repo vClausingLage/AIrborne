@@ -1,0 +1,247 @@
+{
+  "game": "dcs",
+  "inputs": {
+    "briefing": "Callsign Sowol, Meldungen von Basis: Einleitung, Feindkontakt, Erfolg, Zeitlimit 25 Minuten.",
+    "enemy": "3 Lastwagen und 2 Jeeps unter Tarnnetzen im Huegelland, eine Jeep-Patrouille faehrt Richtung Kimpo.",
+    "player": "2x Il-10, KPAF, Luftstart ueber der Kueste westlich von Inchon, Raketen und Bomben.",
+    "resistance": "Zwei Bofors-Geschuetze beim Hauptversteck.",
+    "story": "September 1950, kurz vor der Landung bei Inchon. Nordkoreanische Il-10 sollen UN-Aufklaerungstrupps im Huegelland nordwestlich von Inchon ausschalten. Nachmittag, klares Wetter."
+  },
+  "plan": {
+    "game": "dcs",
+    "title": {
+      "de": "Tarnnetze bei Inchon",
+      "en": "Camouflage at Inchon"
+    },
+    "author": "Airborne",
+    "map": "korea",
+    "date": "1950-09-14",
+    "time": "15:35:00",
+    "weather": {
+      "cloudLevel": 1500,
+      "cloudHeight": 6000,
+      "precLevel": 0,
+      "cloudConfig": "summer\\00_Clear_00\\sky.ini",
+      "seaState": 3,
+      "turbulence": 5,
+      "windLayers": [
+        [
+          0,
+          150,
+          4
+        ],
+        [
+          500,
+          160,
+          5
+        ],
+        [
+          1000,
+          170,
+          6
+        ],
+        [
+          2000,
+          180,
+          8
+        ],
+        [
+          5000,
+          190,
+          10
+        ]
+      ]
+    },
+    "playerGroups": [
+      {
+        "name": "Sowol",
+        "aircraft": "il10",
+        "count": 2,
+        "country": 501,
+        "start": {
+          "type": "air",
+          "x": 86000,
+          "z": 249000,
+          "alt": 1000,
+          "heading": 50
+        },
+        "route": [
+          {
+            "x": 92500,
+            "z": 254500,
+            "alt": 700
+          },
+          {
+            "x": 91500,
+            "z": 261500,
+            "alt": 400
+          },
+          {
+            "x": 87500,
+            "z": 250500,
+            "alt": 800
+          }
+        ]
+      }
+    ],
+    "enemyGroups": [
+      {
+        "name": "Lastwagen",
+        "kind": "vehicle",
+        "script": "vehicles/studebakerus6",
+        "count": 3,
+        "country": 601,
+        "position": {
+          "x": 91480,
+          "z": 261470,
+          "heading": 15
+        },
+        "movement": {
+          "type": "static"
+        }
+      },
+      {
+        "name": "Versteck-Jeeps",
+        "kind": "vehicle",
+        "script": "vehicles/willysmb",
+        "count": 2,
+        "country": 601,
+        "position": {
+          "x": 91620,
+          "z": 261620,
+          "heading": 100
+        },
+        "movement": {
+          "type": "static"
+        }
+      },
+      {
+        "name": "Patrouille",
+        "kind": "vehicle",
+        "script": "vehicles/willysmb",
+        "count": 1,
+        "country": 601,
+        "position": {
+          "x": 93000,
+          "z": 263000,
+          "heading": 45
+        },
+        "movement": {
+          "type": "route"
+        },
+        "route": [
+          {
+            "x": 94700,
+            "z": 264800
+          },
+          {
+            "x": 96300,
+            "z": 266900
+          }
+        ]
+      }
+    ],
+    "flak": [
+      {
+        "script": "fixedobjects/boforsl60",
+        "count": 2,
+        "position": {
+          "x": 91720,
+          "z": 261280
+        },
+        "country": 601,
+        "engageable": true
+      }
+    ],
+    "statics": [
+      {
+        "kind": "block",
+        "script": "blocks/mil_camonet",
+        "count": 2,
+        "country": 601,
+        "positions": [
+          {
+            "x": 91500,
+            "z": 261550,
+            "heading": 12
+          },
+          {
+            "x": 91640,
+            "z": 261450,
+            "heading": 192
+          }
+        ]
+      }
+    ],
+    "objectives": [
+      {
+        "title": {
+          "de": "Feindaufklärung vernichten",
+          "en": "Destroy the recon vehicles"
+        },
+        "desc": {
+          "de": "Zerstört alle sechs Fahrzeuge: drei Lastwagen und zwei Jeeps im getarnten Versteck sowie einen Jeep auf dem Weg nach Kimpo.",
+          "en": "Destroy all six vehicles: three trucks and two jeeps in the camouflaged hideout plus one jeep heading for Kimpo."
+        },
+        "counter": 6
+      }
+    ],
+    "radioQueue": [
+      {
+        "trigger": "mission_begin_delay",
+        "delay": 10,
+        "speaker": "Basis",
+        "textDe": "Sowol, hier Basis. Feindaufklärungstruppen verstecken sich nordwestlich von Inchon — vernichtet ihre Fahrzeuge im Hügelland.",
+        "textEn": "Sowol, this is Base. Enemy recon troops are hiding northwest of Inchon — destroy their vehicles in the hills."
+      },
+      {
+        "trigger": "check_zone",
+        "zone": {
+          "x": 91500,
+          "z": 261500,
+          "r": 2500
+        },
+        "speaker": "Basis",
+        "textDe": "Sowol, ihr seid im Zielgebiet. Vorsicht, zwei Bofors-Geschütze sichern das Hauptversteck.",
+        "textEn": "Sowol, you are in the target area. Careful, two Bofors guns are guarding the main hideout."
+      },
+      {
+        "trigger": "all_destroyed",
+        "speaker": "Basis",
+        "textDe": "Sowol, alle Fahrzeuge vernichtet. Kehrt tief über der Küste zur Basis zurück.",
+        "textEn": "Sowol, all vehicles destroyed. Return to base low over the coast."
+      },
+      {
+        "trigger": "mission_begin_delay",
+        "delay": 1500,
+        "speaker": "Basis",
+        "textDe": "Sowol, das Zeitlimit ist abgelaufen. Bricht den Einsatz ab und kehrt heim.",
+        "textEn": "Sowol, the time limit has expired. Break off the mission and come home."
+      }
+    ],
+    "briefing": {
+      "de": "14. September 1950, am Vorabend der geplanten Landungsoperation bei Inchon. Feindaufklärungstrupps der UN haben sich im Hügelland nordwestlich von Inchon verschanzt und sammeln mit Lastwagen und Jeeps unter Tarnnetzen Informationen über unsere Küstenverteidigung. Ein Jeep ist auf dem Weg nach Kimpo, um seine Erkenntnisse zu melden. Ihr startet als Rotte Sowol mit zwei Il-10, bewaffnet mit Raketen und Bomben, per Luftstart über der Küste westlich von Inchon. Fliegt tief über das Wasser an, dreht dann ins Hügelland ein und vernichtet alle feindlichen Fahrzeuge, bevor sie entkommen. Achtung: Zwei Bofors-Flugabwehrgeschütze sichern das Hauptversteck — greift überraschend aus niedriger Höhe an. Nach dem Erfolg verlasst ihr das Zielgebiet über der Küste und kehrt zur Basis zurück.",
+      "en": "14 September 1950, on the eve of the planned landing operation at Inchon. UN reconnaissance teams have dug in in the hills northwest of Inchon, gathering information on our coastal defenses with trucks and jeeps under camouflage nets. One jeep is on its way to Kimpo to report its findings. You launch as flight Sowol with two Il-10s armed with rockets and bombs, airborne over the coast west of Inchon. Approach low over the water, turn into the hills, and destroy all enemy vehicles before they escape. Warning: two Bofors anti-aircraft guns guard the main hideout — attack by surprise from low altitude. After success, leave the target area over the coast and return to base."
+    },
+    "icons": [
+      {
+        "from": {
+          "x": 86000,
+          "z": 249000
+        },
+        "to": {
+          "x": 91500,
+          "z": 261500
+        },
+        "label": {
+          "de": "Zielgebiet",
+          "en": "Target area"
+        },
+        "desc": {
+          "de": "Anflugweg vom Luftstart über der Küste zum getarnten Versteck nordwestlich von Inchon.",
+          "en": "Approach from the air start over the coast to the camouflaged hideout northwest of Inchon."
+        }
+      }
+    ]
+  }
+}

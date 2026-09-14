@@ -1,0 +1,108 @@
+{
+  "id": "mountain-farp",
+  "name": "Mountain FARP",
+  "description": "FARP im Gelände mit vier Landeplätzen, drei Zelten, Tank- und Munitionslager, zwei Ural-375, geparkter Mi-8MT und Windsack",
+  "game": "dcs",
+  "country": "Russia",
+  "tags": [
+    "farp",
+    "helicopter",
+    "russia",
+    "mountain",
+    "forward-operating"
+  ],
+  "elements": [
+    {
+      "name": "FARP Pads",
+      "kind": "static",
+      "type": "FARP",
+      "category": "Heliports",
+      "shapeName": "FARPS",
+      "layout": "row",
+      "dx": 0,
+      "dy": 0,
+      "heading": 0
+    },
+    {
+      "name": "Parked Mi-8",
+      "kind": "helicopter",
+      "type": "Mi-8MT",
+      "category": "Helicopters",
+      "layout": "row",
+      "dx": 30,
+      "dy": -30,
+      "heading": 90
+    },
+    {
+      "name": "Tents",
+      "kind": "static",
+      "type": "FARP Tent",
+      "category": "Fortifications",
+      "shapeName": "PalatkaB",
+      "count": 3,
+      "spacing": 30,
+      "layout": "row",
+      "dx": 75,
+      "dy": -30,
+      "heading": 0
+    },
+    {
+      "name": "Fuel Depot",
+      "kind": "static",
+      "type": "FARP Fuel Depot",
+      "category": "Fortifications",
+      "shapeName": "GSM Rus",
+      "layout": "row",
+      "dx": -80,
+      "dy": 25,
+      "heading": 0
+    },
+    {
+      "name": "Ammo Dump",
+      "kind": "static",
+      "type": "FARP Ammo Dump Coating",
+      "category": "Fortifications",
+      "shapeName": "SetkaKP",
+      "layout": "row",
+      "dx": -80,
+      "dy": -45,
+      "heading": 0
+    },
+    {
+      "name": "Ural Trucks",
+      "kind": "vehicle",
+      "type": "Ural-375",
+      "count": 2,
+      "spacing": 15,
+      "layout": "row",
+      "dx": 75,
+      "dy": 55,
+      "heading": 90
+    },
+    {
+      "name": "Windsock",
+      "kind": "static",
+      "type": "Windsock",
+      "category": "Fortifications",
+      "shapeName": "H-Windsock_RW",
+      "layout": "row",
+      "dx": 0,
+      "dy": 70,
+      "heading": 0
+    },
+    {
+      "name": "Ammo Crates",
+      "kind": "static",
+      "type": "ammo_cargo",
+      "category": "Cargos",
+      "shapeName": "ammo_cargo",
+      "count": 2,
+      "spacing": 6,
+      "layout": "row",
+      "dx": -50,
+      "dy": -45,
+      "heading": 0
+    }
+  ],
+  "created": "2026-09-14T12:32:33+02:00"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "carrier-strike-group",
+  "name": "Carrier Strike Group",
+  "description": "CVN-73 George Washington mit zwei Arleigh-Burke-Zerstörern und einem Ticonderoga-Kreuzer als Eskorte; auf dem Deck sechs geparkte F/A-18C, ein E-2C Hawkeye, ein SH-60B und Container am Heck.",
+  "game": "dcs",
+  "country": "USA",
+  "tags": ["naval", "carrier", "usa", "modern"],
+  "elements": [
+    {"name": "Carrier", "kind": "ship", "type": "CVN_73", "group": "CSG", "dx": 0, "dy": 0, "heading": 0},
+    {"name": "Cruiser", "kind": "ship", "type": "TICONDEROG", "group": "CSG", "dx": 2500, "dy": 0, "heading": 0},
+    {"name": "Escort", "kind": "ship", "type": "USS_Arleigh_Burke_IIa", "group": "CSG", "count": 2, "layout": "row", "spacing": 3000, "dx": -1500, "dy": -1500, "heading": 0},
+    {"name": "Hornets aft", "kind": "plane", "type": "FA-18C_hornet", "count": 4, "layout": "row", "spacing": 14, "dx": -75, "dy": 24, "heading": 100, "linkTo": "Carrier"},
+    {"name": "Hornets bow", "kind": "plane", "type": "FA-18C_hornet", "count": 2, "layout": "row", "spacing": 14, "dx": 95, "dy": 20, "heading": 80, "linkTo": "Carrier"},
+    {"name": "Hawkeye", "kind": "plane", "type": "E-2C", "dx": -135, "dy": 16, "heading": 90, "linkTo": "Carrier"},
+    {"name": "Seahawk", "kind": "helicopter", "type": "SH-60B", "dx": -30, "dy": 28, "heading": 90, "linkTo": "Carrier"},
+    {"name": "Deck crates", "kind": "static", "type": "iso_container_small", "count": 3, "layout": "row", "spacing": 4, "dx": -150, "dy": 26, "heading": 0, "linkTo": "Carrier"}
+  ]
+}

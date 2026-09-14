@@ -1,0 +1,989 @@
+[2026-09-13 21:49:00] INFO  QuickMission gestartet (dcs)
+[2026-09-13 21:49:00] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+**User-Wunsch (kompakt, kann informell sein):**
+I want to refamiliarize with the DCS Editor. I want that you outline a small, lively, and somehow plausible/realistic scenario that can be played by beginners.
+- In the Syria Map
+- fly the Mig21 bis in Ground Attack with rockets (bombs are more difficult on that plane)
+- add helicopters (Mi24, Mi8)
+- add ground forces that are in a attack or form up for an attack (infantry, apc, artillery, mortar)
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5–20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1–3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2–5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3–6 Sätze). Keine Anachronismen.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung):**
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "Airborne",
+  "map": "...",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"...","aircraft":"il10","count":2,"country":501,"start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},"formation":[0,1],"callsign":[1,2]}
+  ],
+  "enemyGroups": [
+    {"name":"...","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830},"movement":{"type":"static"}}
+  ],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [],
+  "objectives": [
+    {"taskType":0,"success":1,"titleKey":3,"descKey":4,"counter":7}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","counter":7,"speaker":"Basis","textDe":"...","textEn":"..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": []
+}
+```
+
+Hinweise: `game` auf den Spiel-Kontext setzen ("il2" oder "dcs"). Bei "dcs" sind Koordinaten lat/lon (0 erlaubt, dann "notes" nutzen) und `aircraft`/`script` sind DCS-type-Namen; `objectives[].counter` = Summe aller zerstörbaren Ziele.
+
+---- /PROMPT quick ----
+[2026-09-13 21:49:57] INFO  LLM-Antwort: HTTP 200, 34575 bytes (model=z-ai/glm-5.3-flash)
+[2026-09-13 21:49:57] ---- RESULT quick RAW ----
+
+---- /RESULT quick RAW ----
+[2026-09-13 21:49:57] ERROR QuickMission JSON-Fehler: Antwort enthaelt kein JSON: kein JSON-Objekt in der Antwort gefunden
+[2026-09-13 21:56:50] INFO  QuickMission gestartet (dcs)
+[2026-09-13 21:56:50] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+**User-Wunsch (kompakt, kann informell sein):**
+I want to refamiliarize with the DCS Editor. I want that you outline a small, lively, and somehow plausible/realistic scenario that can be played by beginners.
+- In the Syria Map
+- fly the Mig21 bis in Ground Attack with rockets (bombs are more difficult on that plane)
+- add helicopters (Mi24, Mi8)
+- add ground forces that are in a attack or form up for an attack (infantry, apc, artillery, mortar)
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5–20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1–3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2–5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3–6 Sätze). Keine Anachronismen.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung):**
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "Airborne",
+  "map": "...",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"...","aircraft":"il10","count":2,"country":501,"start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},"formation":[0,1],"callsign":[1,2]}
+  ],
+  "enemyGroups": [
+    {"name":"...","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830},"movement":{"type":"static"}}
+  ],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [],
+  "objectives": [
+    {"taskType":0,"success":1,"titleKey":3,"descKey":4,"counter":7}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","counter":7,"speaker":"Basis","textDe":"...","textEn":"..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": []
+}
+```
+
+Hinweise: `game` auf den Spiel-Kontext setzen ("il2" oder "dcs"). Bei "dcs" sind Koordinaten lat/lon (0 erlaubt, dann "notes" nutzen) und `aircraft`/`script` sind DCS-type-Namen; `objectives[].counter` = Summe aller zerstörbaren Ziele.
+
+---- /PROMPT quick ----
+[2026-09-13 21:57:56] INFO  LLM-HTTP 200, 81912 bytes
+[2026-09-13 21:57:56] ---- RESULT quick RAW ----
+{
+  "game": "dcs",
+  "title": {"de": "Operation Zephir: Feuer im Bekaa", "en": "Operation Zephyr: Fire in the Bekaa"},
+  "author": "Airborne",
+  "map": "Syria",
+  "date": "1982-06-09",
+  "time": "09:40:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":2,"turbulence":3,"windLayers":[[0,270,3],[500,275,4],[1000,280,5],[2000,285,6],[5000,290,7]]},
+  "playerGroups": [
+    {"name":"Zephir 1","aircraft":"MiG-21Bis","count":1,"country":"Syria","start":{"type":"air","lat":34.06,"lon":36.02,"alt":1500,"heading":185},"formation":[0],"callsign":[1],"notes":"Loadout: 2x UB-16-57 (S-5KO), Kanone voll, kein Bombenwerk. Angriff mit Raketen aus ~10 Grad Sturzflug, Ziel je 2-4 Raketen."}
+  ],
+  "friendlyGroups": [
+    {"name":"Angriffsgruppe Nord","kind":"vehicle","script":"BTR-60PB","count":3,"country":"Syria","position":{"lat":33.905,"lon":35.995},"movement":{"type":"moving","points":[{"lat":33.888,"lon":35.986},{"lat":33.876,"lon":35.980}]}},
+    {"name":"Infanterie 1. Zug","kind":"infantry","script":"SoldierAK","count":6,"country":"Syria","position":{"lat":33.908,"lon":36.001},"movement":{"type":"moving","points":[{"lat":33.890,"lon":35.990},{"lat":33.878,"lon":35.983}]}},
+    {"name":"Batterie Adler","kind":"vehicle","script":"2S1 Gvozdika","count":2,"country":"Syria","position":{"lat":33.916,"lon":36.006},"movement":{"type":"static"}},
+    {"name":"Moersergruppe 2","kind":"vehicle","script":"2B11 mortar","count":2,"country":"Syria","position":{"lat":33.913,"lon":36.010},"movement":{"type":"static"}},
+    {"name":"Adler 1","kind":"helicopter","script":"Mi-24P","count":2,"country":"Syria","position":{"lat":33.920,"lon":36.000,"alt":300},"movement":{"type":"moving","points":[{"lat":33.900,"lon":35.990},{"lat":33.895,"lon":36.010}]}},
+    {"name":"Taube 1","kind":"helicopter","script":"Mi-8MT","count":1,"country":"Syria","position":{"lat":33.918,"lon":36.012,"alt":0},"movement":{"type":"static"},"notes":"Gelandet im Formierungsraum, entlaedt Nachschub fuer den Vormarsch."}
+  ],
+  "enemyGroups": [
+    {"name":"Artilleriestellung Joub Jannine","kind":"vehicle","script":"M-109","count":2,"country":"Israel","position":{"lat":33.868,"lon":35.975},"movement":{"type":"static"}},
+    {"name":"Munitionsfahrzeuge","kind":"vehicle","script":"M-818","count":2,"country":"Israel","position":{"lat":33.865,"lon":35.972},"movement":{"type":"static"}},
+    {"name":"Sicherungsgruppe","kind":"vehicle","script":"M113","count":3,"country":"Israel","position":{"lat":33.858,"lon":35.984},"movement":{"type":"static"}}
+  ],
+  "flak": [
+    {"script":"Vulcan","count":2,"position":{"lat":33.872,"lon":35.965},"country":"Israel","engageable":true}
+  ],
+  "statics": [],
+  "objectives": [
+    {"taskType":0,"success":1,"titleKey":1,"descKey":2,"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"Zephir 1, hier Basis, Start und Anflug freigegeben, Kurs 180. Feindliche Haubitzen bei Joub Jannine halten unseren Vorstoss auf, schalte die Batterie aus.","textEn":"Zephir 1, Base here, you are cleared to depart, heading 180. Enemy howitzers near Joub Jannine are holding our advance, take out the battery."},
+    {"trigger":"check_zone","zone":{"lat":33.91,"lon":36.0,"r":3000},"speaker":"Adler 1","textDe":"Zephir 1, hier Adler 1, wir sammeln noerdlich der Huegel und decken den Vormarsch. Halte Abstand zu unseren Leuten, die Haubitzen stehen suedlich am Feldweg.","textEn":"Zephir 1, Adler 1, we are forming up north of the hills and covering the advance. Keep clear of our troops, the howitzers are south along the dirt road."},
+    {"trigger":"check_zone","zone":{"lat":33.87,"lon":35.98,"r":2500},"speaker":"Basis","textDe":"Zephir 1, Zielgebiet erreicht, zwei M-109 und zwei Munitionslaster am Feldweg. Achtung, zwei Vulcans westlich der Stellung, bleib schnell und in Bewegung.","textEn":"Zephir 1, target area reached, two M-109s and two ammo trucks along the dirt road. Careful, two Vulcans west of the position, stay fast and keep moving."},
+    {"trigger":"all_destroyed","counter":1,"speaker":"Basis","textDe":"Batterie ist erledigt, Zephir 1, unsere Infanterie rollt vor, gute Arbeit. Dreh ab und komm heil nach Sayqal zurueck.","textEn":"Battery is knocked out, Zephir 1, our infantry is rolling, good job. Egress and get home to Sayqal in one piece."}
+  ],
+  "briefing": {"de":"Libanon, Juni 1982: Unsere Vorhut stoesst durch das Bekaa-Tal auf Joub Jannine vor, doch israelische M-109-Haubitzen halten die Angriffsgruppe noerdlich der Huegel auf. Du fliegst eine MiG-21bis mit zwei UB-16-57-Raketenbehaeltern und schaltest die Batterie samt Munitionslastern aus. Anflug von Norden, Angriff flach aus leichtem Sturzflug, die Raketen paarweise auf jedes Ziel setzen. Achtung: Zwei M163-Vulcan-Flakpanzer sichern die Stellung, bleib tief, schnell und in Bewegung. Mi-24 von Adler 1 und unsere Bodentruppen mit Artillerie und Moersern sind noerdlich der Huegel, halte Abstand zu freundlichen Kraeften. Nach dem Erfolg drehst du ab und kehrst nach Sayqal zurueck.","en":"Lebanon, June 1982: Our spearhead is pushing through the Bekaa valley toward Joub Jannine, but Israeli M-109 howitzers are pinning down the assault group north of the hills. You are flying a MiG-21bis with two UB-16-57 rocket pods and will knock out the battery along with its ammo trucks. Ingress from the north, attack flat from a shallow dive, ripple two rockets per target. Watch out: two M163 Vulcans guard the position, stay low, fast and moving. Adler 1's Mi-24s plus our troops with artillery and mortars are north of the hills, keep clear of friendly forces. After success, egress and return to Sayqal."},
+  "icons": [],
+  "notes": "DCS: Alle 'script'-Felder sind exakte DCS-type-Namen (MiG-21Bis = Spielermodul Belsimtek; Mi-24P/Mi-8MT als KI). friendlyGroups sind verbuendete Syrianer, nicht Teil des Ziels. Counter 4 = 2x M-109 + 2x M-818; M113-Sicherung und 2x Vulcan sind optionale Zusatzziele ohne Counter. Koordinaten approximativ (Bekaa-Tal westlich Rayak, Raum Joub Jannine/Lake Qaraoun), im ME feinjustieren. '2B11 mortar' ist Combined-Arms-Einheit, falls nicht gewaehlt statisch ersetzen. Funktexte spaeter in DictKey_* uebernehmen, Sounds als OGG."
+}
+---- /RESULT quick RAW ----
+[2026-09-13 21:57:56] ---- PLAN JSON (normalisiert) ----
+{"author":"Airborne","briefing":{"de":"Libanon, Juni 1982: Unsere Vorhut stoesst durch das Bekaa-Tal auf Joub Jannine vor, doch israelische M-109-Haubitzen halten die Angriffsgruppe noerdlich der Huegel auf. Du fliegst eine MiG-21bis mit zwei UB-16-57-Raketenbehaeltern und schaltest die Batterie samt Munitionslastern aus. Anflug von Norden, Angriff flach aus leichtem Sturzflug, die Raketen paarweise auf jedes Ziel setzen. Achtung: Zwei M163-Vulcan-Flakpanzer sichern die Stellung, bleib tief, schnell und in Bewegung. Mi-24 von Adler 1 und unsere Bodentruppen mit Artillerie und Moersern sind noerdlich der Huegel, halte Abstand zu freundlichen Kraeften. Nach dem Erfolg drehst du ab und kehrst nach Sayqal zurueck.","en":"Lebanon, June 1982: Our spearhead is pushing through the Bekaa valley toward Joub Jannine, but Israeli M-109 howitzers are pinning down the assault group north of the hills. You are flying a MiG-21bis with two UB-16-57 rocket pods and will knock out the battery along with its ammo trucks. Ingress from the north, attack flat from a shallow dive, ripple two rockets per target. Watch out: two M163 Vulcans guard the position, stay low, fast and moving. Adler 1's Mi-24s plus our troops with artillery and mortars are north of the hills, keep clear of friendly forces. After success, egress and return to Sayqal."},"date":"1982-06-09","enemyGroups":[{"count":2,"country":"Israel","kind":"vehicle","movement":{"type":"static"},"name":"Artilleriestellung Joub Jannine","position":{"lat":33.868,"lon":35.975},"script":"M-109"},{"count":2,"country":"Israel","kind":"vehicle","movement":{"type":"static"},"name":"Munitionsfahrzeuge","position":{"lat":33.865,"lon":35.972},"script":"M-818"},{"count":3,"country":"Israel","kind":"vehicle","movement":{"type":"static"},"name":"Sicherungsgruppe","position":{"lat":33.858,"lon":35.984},"script":"M113"}],"flak":[{"count":2,"country":"Israel","engageable":true,"position":{"lat":33.872,"lon":35.965},"script":"Vulcan"}],"friendlyGroups":[{"count":3,"country":"Syria","kind":"vehicle","movement":{"points":[{"lat":33.888,"lon":35.986},{"lat":33.876,"lon":35.98}],"type":"moving"},"name":"Angriffsgruppe Nord","position":{"lat":33.905,"lon":35.995},"script":"BTR-60PB"},{"count":6,"country":"Syria","kind":"infantry","movement":{"points":[{"lat":33.89,"lon":35.99},{"lat":33.878,"lon":35.983}],"type":"moving"},"name":"Infanterie 1. Zug","position":{"lat":33.908,"lon":36.001},"script":"SoldierAK"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Batterie Adler","position":{"lat":33.916,"lon":36.006},"script":"2S1 Gvozdika"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Moersergruppe 2","position":{"lat":33.913,"lon":36.01},"script":"2B11 mortar"},{"count":2,"country":"Syria","kind":"helicopter","movement":{"points":[{"lat":33.9,"lon":35.99},{"lat":33.895,"lon":36.01}],"type":"moving"},"name":"Adler 1","position":{"alt":300,"lat":33.92,"lon":36},"script":"Mi-24P"},{"count":1,"country":"Syria","kind":"helicopter","movement":{"type":"static"},"name":"Taube 1","notes":"Gelandet im Formierungsraum, entlaedt Nachschub fuer den Vormarsch.","position":{"alt":0,"lat":33.918,"lon":36.012},"script":"Mi-8MT"}],"game":"dcs","icons":[],"map":"Syria","notes":"DCS: Alle 'script'-Felder sind exakte DCS-type-Namen (MiG-21Bis = Spielermodul Belsimtek; Mi-24P/Mi-8MT als KI). friendlyGroups sind verbuendete Syrianer, nicht Teil des Ziels. Counter 4 = 2x M-109 + 2x M-818; M113-Sicherung und 2x Vulcan sind optionale Zusatzziele ohne Counter. Koordinaten approximativ (Bekaa-Tal westlich Rayak, Raum Joub Jannine/Lake Qaraoun), im ME feinjustieren. '2B11 mortar' ist Combined-Arms-Einheit, falls nicht gewaehlt statisch ersetzen. Funktexte spaeter in DictKey_* uebernehmen, Sounds als OGG.","objectives":[{"counter":4,"descKey":2,"success":1,"taskType":0,"titleKey":1}],"playerGroups":[{"aircraft":"MiG-21Bis","callsign":[1],"count":1,"country":"Syria","formation":[0],"name":"Zephir 1","notes":"Loadout: 2x UB-16-57 (S-5KO), Kanone voll, kein Bombenwerk. Angriff mit Raketen aus ~10 Grad Sturzflug, Ziel je 2-4 Raketen.","start":{"alt":1500,"heading":185,"lat":34.06,"lon":36.02,"type":"air"}}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Zephir 1, hier Basis, Start und Anflug freigegeben, Kurs 180. Feindliche Haubitzen bei Joub Jannine halten unseren Vorstoss auf, schalte die Batterie aus.","textEn":"Zephir 1, Base here, you are cleared to depart, heading 180. Enemy howitzers near Joub Jannine are holding our advance, take out the battery.","trigger":"mission_begin_delay"},{"speaker":"Adler 1","textDe":"Zephir 1, hier Adler 1, wir sammeln noerdlich der Huegel und decken den Vormarsch. Halte Abstand zu unseren Leuten, die Haubitzen stehen suedlich am Feldweg.","textEn":"Zephir 1, Adler 1, we are forming up north of the hills and covering the advance. Keep clear of our troops, the howitzers are south along the dirt road.","trigger":"check_zone","zone":{"lat":33.91,"lon":36,"r":3000}},{"speaker":"Basis","textDe":"Zephir 1, Zielgebiet erreicht, zwei M-109 und zwei Munitionslaster am Feldweg. Achtung, zwei Vulcans westlich der Stellung, bleib schnell und in Bewegung.","textEn":"Zephir 1, target area reached, two M-109s and two ammo trucks along the dirt road. Careful, two Vulcans west of the position, stay fast and keep moving.","trigger":"check_zone","zone":{"lat":33.87,"lon":35.98,"r":2500}},{"counter":1,"speaker":"Basis","textDe":"Batterie ist erledigt, Zephir 1, unsere Infanterie rollt vor, gute Arbeit. Dreh ab und komm heil nach Sayqal zurueck.","textEn":"Battery is knocked out, Zephir 1, our infantry is rolling, good job. Egress and get home to Sayqal in one piece.","trigger":"all_destroyed"}],"statics":[],"time":"09:40:00","title":{"de":"Operation Zephir: Feuer im Bekaa","en":"Operation Zephyr: Fire in the Bekaa"},"weather":{"cloudConfig":"summer\\00_Clear_00\\sky.ini","cloudHeight":6000,"cloudLevel":1500,"precLevel":0,"seaState":2,"turbulence":3,"windLayers":[[0,270,3],[500,275,4],[1000,280,5],[2000,285,6],[5000,290,7]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-13 21:57:56] ERROR QuickMission JSON-Fehler: Missionsplan-JSON ungueltig: json: cannot unmarshal string into Go struct field MissionPlan.enemyGroups.0.country of type int (Details im Log airborne.log)
+[2026-09-13 21:58:56] INFO  QuickMission gestartet (dcs)
+[2026-09-13 21:58:56] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+**User-Wunsch (kompakt, kann informell sein):**
+I want to refamiliarize with the DCS Editor. I want that you outline a small, lively, and somehow plausible/realistic scenario that can be played by beginners.
+- In the Syria Map
+- fly the Mig21 bis in Ground Attack with rockets (bombs are more difficult on that plane)
+- add helicopters (Mi24, Mi8)
+- add ground forces that are in a attack or form up for an attack (infantry, apc, artillery, mortar)
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5–20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1–3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2–5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3–6 Sätze). Keine Anachronismen.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung):**
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "Airborne",
+  "map": "...",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"...","aircraft":"il10","count":2,"country":501,"start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},"formation":[0,1],"callsign":[1,2]}
+  ],
+  "enemyGroups": [
+    {"name":"...","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830},"movement":{"type":"static"}}
+  ],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [],
+  "objectives": [
+    {"taskType":0,"success":1,"titleKey":3,"descKey":4,"counter":7}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","counter":7,"speaker":"Basis","textDe":"...","textEn":"..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": []
+}
+```
+
+Hinweise: `game` auf den Spiel-Kontext setzen ("il2" oder "dcs"). Bei "dcs" sind Koordinaten lat/lon (0 erlaubt, dann "notes" nutzen) und `aircraft`/`script` sind DCS-type-Namen; `objectives[].counter` = Summe aller zerstörbaren Ziele.
+
+---- /PROMPT quick ----
+[2026-09-13 22:00:36] INFO  LLM-HTTP 200, 87021 bytes
+[2026-09-13 22:00:36] ---- RESULT quick RAW ----
+{
+  "game": "dcs",
+  "title": {"de": "Donner über der Bekaa", "en": "Thunder over the Bekaa"},
+  "author": "Airborne",
+  "map": "Syria",
+  "date": "1982-06-08",
+  "time": "06:35:00",
+  "weather": {"cloudLevel":0,"cloudHeight":0,"precLevel":0,"cloudConfig":"","seaState":1,"turbulence":5,"windLayers":[[0,270,2],[500,270,3],[1000,270,4],[2000,270,5],[5000,270,6]]},
+  "playerGroups": [
+    {"name":"Falke 21","aircraft":"MiG-21Bis","count":1,"country":"Syria","start":{"type":"air","x":33.560,"z":35.690,"alt":2500,"heading":355},"formation":[0],"callsign":[1]}
+  ],
+  "enemyGroups": [
+    {"name":"M109-Batterie Qaraoun","kind":"vehicle","script":"M-109","count":4,"country":"Israel","position":{"x":33.740,"z":35.790},"movement":{"type":"static"}},
+    {"name":"M113-Sicherungslinie","kind":"vehicle","script":"M-113","count":3,"country":"Israel","position":{"x":33.702,"z":35.757},"movement":{"type":"static"}}
+  ],
+  "flak": [
+    {"script":"Vulcan","count":2,"position":{"x":33.733,"z":35.782},"country":"Israel","engageable":true}
+  ],
+  "statics": [],
+  "objectives": [
+    {"taskType":0,"success":1,"titleKey":3,"descKey":4,"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":15,"speaker":"Basis","textDe":"Falke 21, hier Basis: Unsere Kräfte sammeln sich südlich des Litani, die israelische M109-Batterie liegt nordöstlich des Qaraoun-Sees. Leg die Batterie mit Raketen lahm, die Infanterie wartet auf deinen Angriff.","textEn":"Falcon 21, Base here: our forces are assembling south of the Litani, the Israeli M109 battery sits northeast of Lake Qaraoun. Silence that battery with rockets, the infantry is waiting on you."},
+    {"trigger":"check_zone","zone":{"x":33.650,"z":35.735,"r":3000},"speaker":"Basis","textDe":"Falke 21, unsere Vorhut steht bereit; die Mi-24 sichern den Angriff, die Mi-8 bringen Nachschub nach vorn. Achte beim Anflug auf unsere eigenen Truppen im Süden.","textEn":"Falcon 21, our vanguard is ready; the Mi-24s are covering the assault and the Mi-8s are shuttling supplies forward. Keep clear of our own troops on your approach."},
+    {"trigger":"check_zone","zone":{"x":33.740,"z":35.790,"r":4000},"speaker":"Basis","textDe":"Achtung, Vulcan-Flak sichert die Batterie im Norden. Bleib tief im Tal und starte deine Raketen erst aus etwa vier Kilometern Entfernung.","textEn":"Careful, Vulcan flak is guarding the battery up north. Stay low in the valley and fire your rockets from about four kilometers out."},
+    {"trigger":"all_destroyed","counter":4,"speaker":"Basis","textDe":"Bestätigt, die Batterie brennt! Unsere Infanterie rückt jetzt vor – komm heim, Falke 21.","textEn":"Confirmed, the battery is burning! Our infantry is moving up now – come on home, Falcon 21."}
+  ],
+  "briefing": {"de":"Syrien, 8. Juni 1982 – dritter Tag der Schlacht im Bekaa-Tal. Unsere Infanterie und Panzer sammeln sich südlich des Litani, doch eine israelische M109-Batterie nordöstlich des Qaraoun-Sees hält unsere Vorhut unter Feuer. Steigen Sie in Ihre MiG-21bis, bewaffnet mit Raketen (2x S-24 oder 2x UB-16-57), und legen Sie die Batterie lahm. Achtung: Zwei M163 Vulcan sichern die Stellung – bleiben Sie tief im Tal und eröffnen Sie das Feuer erst aus etwa vier Kilometern Entfernung. Eine Mi-24-Rotte sichert den Angriff, Mi-8 bringen Nachschub nach vorn. Zerstören Sie alle vier Haubitzen, dann rollt unsere Infanterie.","en":"Syria, June 8, 1982 – day three of the battle in the Bekaa Valley. Our infantry and armor are assembling south of the Litani, but an Israeli M109 battery northeast of Lake Qaraoun has our vanguard pinned down. Take your MiG-21bis, armed with rockets (2x S-24 or 2x UB-16-57), and knock out the battery. Watch out: two M163 Vulcans guard the position – stay low in the valley and open fire from about four kilometers out. A pair of Mi-24s is covering the assault while Mi-8s bring supplies forward. Destroy all four howitzers and the infantry will roll."},
+  "icons": [],
+  "modules": ["MiG-21Bis"],
+  "friendlyGroups": [
+    {"name":"BTR-Vorhut","kind":"vehicle","script":"BTR-60PB","count":3,"country":"Syria","position":{"x":33.652,"z":35.738},"movement":{"type":"static"}},
+    {"name":"Infanterie-Sammelraum","kind":"vehicle","script":"Soldier AK","count":8,"country":"Syria","position":{"x":33.648,"z":35.733},"movement":{"type":"static"}},
+    {"name":"2S1-Batterie","kind":"vehicle","script":"2S1 Gvozdika","count":2,"country":"Syria","position":{"x":33.645,"z":35.742},"movement":{"type":"static"}},
+    {"name":"2B11-Mörsergruppe","kind":"vehicle","script":"2B11 mortar","count":2,"country":"Syria","position":{"x":33.643,"z":35.740},"movement":{"type":"static"}},
+    {"name":"Mi-24-Rotte","kind":"helicopter","script":"Mi-24P","count":2,"country":"Syria","start":{"type":"air","x":33.575,"z":35.705,"alt":400,"heading":355},"formation":[0,1],"callsign":[1,2],"movement":{"type":"air","destination":{"x":33.690,"z":35.750,"alt":400}}},
+    {"name":"Mi-8-Kette","kind":"helicopter","script":"Mi-8MT","count":2,"country":"Syria","start":{"type":"air","x":33.560,"z":35.720,"alt":300,"heading":355},"formation":[0,1],"callsign":[1,2],"movement":{"type":"air","destination":{"x":33.660,"z":35.735,"alt":250}}}
+  ],
+  "notes": "Koordinaten: x=Breitengrad (lat), z=Längengrad (lon), Bekaa-Tal nahe Qaraoun-See (Syria-Map). Spieler-Modul: MiG-21Bis (Raketen: 2x S-24 oder 2x UB-16-57/S-5, keine Bomben). Flak 'Vulcan' = M163 A1 VADS. Primärziel/Counter: 4x M-109 (Batterie); M-113 und Vulcan sind optionale Nebenziele. Freundliche Kräfte (BTR-60PB, Soldier AK, 2S1, 2B11) stehen statisch in Aufstellung südlich des Litani; Mi-24P/Mi-8MT starten im Süden und fliegen Richtung Front – bei Bedarf Route im Generator feinjustieren. Radio-Texte als DictKey_* im dictionary, Sounds als OGG."}
+---- /RESULT quick RAW ----
+[2026-09-13 22:00:36] ---- PLAN JSON (normalisiert) ----
+{"author":"Airborne","briefing":{"de":"Syrien, 8. Juni 1982 – dritter Tag der Schlacht im Bekaa-Tal. Unsere Infanterie und Panzer sammeln sich südlich des Litani, doch eine israelische M109-Batterie nordöstlich des Qaraoun-Sees hält unsere Vorhut unter Feuer. Steigen Sie in Ihre MiG-21bis, bewaffnet mit Raketen (2x S-24 oder 2x UB-16-57), und legen Sie die Batterie lahm. Achtung: Zwei M163 Vulcan sichern die Stellung – bleiben Sie tief im Tal und eröffnen Sie das Feuer erst aus etwa vier Kilometern Entfernung. Eine Mi-24-Rotte sichert den Angriff, Mi-8 bringen Nachschub nach vorn. Zerstören Sie alle vier Haubitzen, dann rollt unsere Infanterie.","en":"Syria, June 8, 1982 – day three of the battle in the Bekaa Valley. Our infantry and armor are assembling south of the Litani, but an Israeli M109 battery northeast of Lake Qaraoun has our vanguard pinned down. Take your MiG-21bis, armed with rockets (2x S-24 or 2x UB-16-57), and knock out the battery. Watch out: two M163 Vulcans guard the position – stay low in the valley and open fire from about four kilometers out. A pair of Mi-24s is covering the assault while Mi-8s bring supplies forward. Destroy all four howitzers and the infantry will roll."},"date":"1982-06-08","enemyGroups":[{"count":4,"country":"Israel","kind":"vehicle","movement":{"type":"static"},"name":"M109-Batterie Qaraoun","position":{"x":33.74,"z":35.79},"script":"M-109"},{"count":3,"country":"Israel","kind":"vehicle","movement":{"type":"static"},"name":"M113-Sicherungslinie","position":{"x":33.702,"z":35.757},"script":"M-113"}],"flak":[{"count":2,"country":"Israel","engageable":true,"position":{"x":33.733,"z":35.782},"script":"Vulcan"}],"friendlyGroups":[{"count":3,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"BTR-Vorhut","position":{"x":33.652,"z":35.738},"script":"BTR-60PB"},{"count":8,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Infanterie-Sammelraum","position":{"x":33.648,"z":35.733},"script":"Soldier AK"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"2S1-Batterie","position":{"x":33.645,"z":35.742},"script":"2S1 Gvozdika"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"2B11-Mörsergruppe","position":{"x":33.643,"z":35.74},"script":"2B11 mortar"},{"callsign":[1,2],"count":2,"country":"Syria","formation":[0,1],"kind":"helicopter","movement":{"destination":{"alt":400,"x":33.69,"z":35.75},"type":"air"},"name":"Mi-24-Rotte","script":"Mi-24P","start":{"alt":400,"heading":355,"type":"air","x":33.575,"z":35.705}},{"callsign":[1,2],"count":2,"country":"Syria","formation":[0,1],"kind":"helicopter","movement":{"destination":{"alt":250,"x":33.66,"z":35.735},"type":"air"},"name":"Mi-8-Kette","script":"Mi-8MT","start":{"alt":300,"heading":355,"type":"air","x":33.56,"z":35.72}}],"game":"dcs","icons":[],"map":"Syria","modules":["MiG-21Bis"],"notes":"Koordinaten: x=Breitengrad (lat), z=Längengrad (lon), Bekaa-Tal nahe Qaraoun-See (Syria-Map). Spieler-Modul: MiG-21Bis (Raketen: 2x S-24 oder 2x UB-16-57/S-5, keine Bomben). Flak 'Vulcan' = M163 A1 VADS. Primärziel/Counter: 4x M-109 (Batterie); M-113 und Vulcan sind optionale Nebenziele. Freundliche Kräfte (BTR-60PB, Soldier AK, 2S1, 2B11) stehen statisch in Aufstellung südlich des Litani; Mi-24P/Mi-8MT starten im Süden und fliegen Richtung Front – bei Bedarf Route im Generator feinjustieren. Radio-Texte als DictKey_* im dictionary, Sounds als OGG.","objectives":[{"counter":4,"descKey":4,"success":1,"taskType":0,"titleKey":3}],"playerGroups":[{"aircraft":"MiG-21Bis","callsign":[1],"count":1,"country":"Syria","formation":[0],"name":"Falke 21","start":{"alt":2500,"heading":355,"type":"air","x":33.56,"z":35.69}}],"radioQueue":[{"delay":15,"speaker":"Basis","textDe":"Falke 21, hier Basis: Unsere Kräfte sammeln sich südlich des Litani, die israelische M109-Batterie liegt nordöstlich des Qaraoun-Sees. Leg die Batterie mit Raketen lahm, die Infanterie wartet auf deinen Angriff.","textEn":"Falcon 21, Base here: our forces are assembling south of the Litani, the Israeli M109 battery sits northeast of Lake Qaraoun. Silence that battery with rockets, the infantry is waiting on you.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Falke 21, unsere Vorhut steht bereit; die Mi-24 sichern den Angriff, die Mi-8 bringen Nachschub nach vorn. Achte beim Anflug auf unsere eigenen Truppen im Süden.","textEn":"Falcon 21, our vanguard is ready; the Mi-24s are covering the assault and the Mi-8s are shuttling supplies forward. Keep clear of our own troops on your approach.","trigger":"check_zone","zone":{"r":3000,"x":33.65,"z":35.735}},{"speaker":"Basis","textDe":"Achtung, Vulcan-Flak sichert die Batterie im Norden. Bleib tief im Tal und starte deine Raketen erst aus etwa vier Kilometern Entfernung.","textEn":"Careful, Vulcan flak is guarding the battery up north. Stay low in the valley and fire your rockets from about four kilometers out.","trigger":"check_zone","zone":{"r":4000,"x":33.74,"z":35.79}},{"counter":4,"speaker":"Basis","textDe":"Bestätigt, die Batterie brennt! Unsere Infanterie rückt jetzt vor – komm heim, Falke 21.","textEn":"Confirmed, the battery is burning! Our infantry is moving up now – come on home, Falcon 21.","trigger":"all_destroyed"}],"statics":[],"time":"06:35:00","title":{"de":"Donner über der Bekaa","en":"Thunder over the Bekaa"},"weather":{"cloudConfig":"","cloudHeight":0,"cloudLevel":0,"precLevel":0,"seaState":1,"turbulence":5,"windLayers":[[0,270,2],[500,270,3],[1000,270,4],[2000,270,5],[5000,270,6]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-13 22:00:36] ERROR QuickMission JSON-Fehler: Missionsplan-JSON ungueltig: json: cannot unmarshal string into Go struct field MissionPlan.enemyGroups.0.country of type int (Details im Log airborne.log)
+[2026-09-13 22:08:42] INFO  QuickMission gestartet (dcs)
+[2026-09-13 22:08:42] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+**User-Wunsch (kompakt, kann informell sein):**
+I want to refamiliarize with the DCS Editor. I want that you outline a small, lively, and somehow plausible/realistic scenario that can be played by beginners.
+- In the Syria Map
+- fly the Mig21 bis in Ground Attack with rockets (bombs are more difficult on that plane)
+- add helicopters (Mi24, Mi8)
+- add ground forces that are in a attack or form up for an attack (infantry, apc, artillery, mortar)
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5–20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1–3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2–5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3–6 Sätze). Keine Anachronismen.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung):**
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "Airborne",
+  "map": "...",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"...","aircraft":"il10","count":2,"country":501,"start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},"formation":[0,1],"callsign":[1,2]}
+  ],
+  "enemyGroups": [
+    {"name":"...","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830},"movement":{"type":"static"}}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [],
+  "objectives": [
+    {"taskType":0,"success":1,"titleKey":3,"descKey":4,"counter":7}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","counter":7,"speaker":"Basis","textDe":"...","textEn":"..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": []
+}
+```
+
+Hinweise: `game` auf den Spiel-Kontext setzen ("il2" oder "dcs"). Bei IL-2 ist `country` numerisch (501-503 rot, 601-603 blau). Bei "dcs" ist `country` durch `"countryName": "<DCS-Country-Name>"` zu ersetzen (z. B. "Israel", "Syria"), Koordinaten sind lat/lon (0 erlaubt, dann "notes" nutzen), `aircraft`/`script` sind DCS-type-Namen; `objectives[].counter` = Summe aller zerstörbaren Ziele. `friendlyGroups` für verbündete Bodengruppen (gleiches Format wie enemyGroups).
+
+---- /PROMPT quick ----
+[2026-09-13 22:10:25] INFO  LLM-HTTP 200, 110717 bytes
+[2026-09-13 22:10:25] INFO  content leer, nutze reasoning-Feld (53207 bytes)
+[2026-09-13 22:10:25] ---- RESULT quick RAW ----
+Let me analyze this request carefully.
+
+The user wants a DCS World mission plan in JSON format with:
+- Syria map
+- MiG-21Bis in ground attack with rockets (S-24 rockets or S-5 rockets - MiG-21Bis can carry UB-32 rocket pods with S-5 rockets, or S-24 rockets)
+- Helicopters: Mi-24P and Mi-8MT
+- Ground forces forming up for an attack: infantry, APC, artillery, mortar
+
+The scenario should be beginner-friendly, 5-20 minutes, plausible/realistic.
+
+Setting: Syria map. MiG-21Bis - that's a later Cold War aircraft (1972+). For Syria, a plausible scenario: 1982 Lebanon War era, or a fictional 1980s Syria scenario. Syria operates MiG-21s. Enemies could be Israel. But wait - if the player flies MiG-21Bis for Syria, enemies would be Israel. Israeli ground forces forming up for an attack: M113 APCs, M109 artillery, infantry. Israel has M113, M109, M60 tanks.
+
+Alternatively, Syria vs Israel 1973 Yom Kippur War - but MiG-21Bis wasn't in Syrian service in 1973 (they had MiG-21MF, PFM). MiG-21Bis entered service ~1972 in USSR, Syria got them later, likely late 1970s/1980s. So a 1982 or mid-1980s setting works. Let's say June 1982 (Lebanon War) or a fictional 1984 border skirmish.
+
+For DCS units:
+- Player: MiG-21Bis (Caucasus... no wait, Syria map). MiG-21Bis is a module (Leatherneck/Magnesium). Type name: "MiG-21Bis".
+- Helicopters: Mi-24P (Hind, ED module - type "Mi-24P"), Mi-8MT (type "Mi-8MT").
+- Ground forces for Syria: Syria has T-72, T-55, BMP-1, BTR-152, ZSU-23-4 Shilka, SA-6/SA-9, D-30 howitzers, etc.
+- Enemy (Israel): M113, M60A1/M60A3, M109, infantry, M163 Vulcan (AAA), Chaparral (SAM).
+
+Wait - the user wants ground forces "that are in an attack or form up for an attack (infantry, APC, artillery, mortar)". These could be friendly groups (Syrian ground forces forming up for attack) or enemy. Let me think about the mission design:
+
+Player flies MiG-21Bis ground attack with rockets. Target: enemy ground forces forming up for an attack. So the ENEMY ground forces (Israeli) are the target - infantry, APCs (M113), artillery (M109), mortars. The player's own side has helicopters Mi-24P and Mi-8MT as friendly groups supporting/attacking too - that makes it lively.
+
+So:
+- Player: MiG-21Bis x1 or x2 (beginner - maybe 1, but formation of 2 is livelier; keep 1 for simplicity? The user said "fly the MiG-21bis" - singular. Let's do 1 player aircraft. Actually playerGroups with count 1 is fine, maybe 2 for wingman fun but beginner... I'll do 1 to keep it simple. Hmm, "1 Spielergruppe" - one player group. Could be count 2 with wingman. For beginners, a wingman adds life. But wingman AI in MiG-21... Let's keep count 1, simpler. Actually a wingman makes it lively and DCS AI handles it fine. I'll go with 2? The user says "can be played by beginners" - a wingman doesn't hurt. But mission duration 5-20 min. I'll go with 1 aircraft to keep the mission tight and simple for editor refamiliarization. Hmm... Actually let me include 2: "count": 2 with formation - livelier. But then the counter of targets should be enough for 2 aircraft. Rockets on MiG-21Bis: 4x S-24 or 2x UB-32 pods (32 rockets each). Against 8-10 soft targets that's plenty. I'll go count 2? The user wrote "fly the Mig21 bis" - ambiguous. I'll do count 1... Let me decide: count 2 gives a wingman which is "lively". I'll do 2.
+
+Hmm, but for beginners managing formation... it's fine, wingman follows. I'll do 2.
+
+- Friendly groups: Syrian ground forces forming up for their own attack: BMP-1, infantry, D-30 artillery, and Mi-24P pair + Mi-8MT helicopters. These add life. The helicopters could be a friendly group moving toward the front.
+
+- Enemy groups (targets, Israeli forces forming up for attack): 
+  1. M113 APCs x3 + infantry (Infantry type in DCS: "Infantry AK" is a Russian one; for Israel... DCS has "Infantry M4" or similar? DCS ground units include "Infantry AK", "Infantry M4"? Actually DCS has units like "Soldier AK", "Soldier M4"? Let me recall: DCS unit types include "Infantry AK" (Rifleman AK), "Infantry M4"? There's "SoldierAK"? Hmm. In DCS the infantry units are: "Infantry AK" — I believe the type names are "Infantry AK" and "Infantry M4"? Actually I recall "Soldier AK", "Soldier M4", "Soldier RPG", "MANPADS SA-18", etc. In the DCS database, infantry units: "SoldierAK"? The ME shows "Infantry AK" with type "Infantry AK"? I think the actual type names are "Infantry AK", "Infantry M4", "Infantry RPG"? Hmm, I'm not 100% sure. Common ones I've seen in mission files: "SoldierAK"? Let me think... In DCS mission scripts, infantry groups use types like "Infantry AK" — I've seen "Infantry AK" in the DCS unit list. There are also "2S6M Tunguska", "SA-18 SCEPTRE MANPADS" etc. For infantry I believe the type is "Infantry AK" (Rifleman with AK) and "Infantry M4". Also "Paratrooper AK" variants? There's "Paratrooper AK"? Hmm.
+
+Actually, in DCS the infantry unit types are:
+- "Infantry AK" (Rifleman AK-74)
+- "Infantry M4" (Rifleman M4)
+- "Infantry RPG" (Grenadier RPG)
+- "MANPADS SA-18" / "MANPADS Stinger"
+- "MG M2A1"? There's "M2A1 HMG"? Hmm.
+
+I recall from DCS: "SoldierAK" no... The ME unit list shows "Infanterie AK" in German, type "Infantry AK". Yes, I'm fairly confident "Infantry AK" and "Infantry M4" are the type names. Also "Paratrooper AK"? There's "Paratrooper AK" I think. And "MANPADS Stinger" for US/Israel.
+
+For Israel: "Infantry M4" works.
+
+  2. M109 artillery battery x3 (type "M109")
+  3. M113 x3 (type "M113")
+  4. Mortars: DCS has "M-252 mortar"? Hmm, does DCS have mortars? There's "Mortar" units? I don't think vanilla DCS has mortar units... Actually DCS added "2B11 mortar"? Hmm. DCS ground forces include "Mortar 2B11"? I'm not sure. There IS a "2B11 120mm Mortar" in DCS? I don't believe vanilla DCS has towed mortars. There are artillery units: M109, 2S1 Gvozdika, 2S3 Akatsiya, D-30 (towed howitzer "D-30"? type "D-30"?). DCS has "D-30" towed howitzer? I recall "D-30" exists as static? Hmm. DCS ground units list (from DCS database): 
+  - Artillery: "2S1 Gvozdika", "2S3 Akatsiya", "2S7 Pion"? (maybe), "M109", "D-30"? I think "D-30" isn't in vanilla; "M-1955 howitzer"? Hmm.
+
+Let me recall the DCS ground unit types more carefully (from DCS World openbeta unit database):
+
+Blue (USA etc.): "M1A2 SEP Abrams"? no that's later... Vanilla includes: "M-1 Abrams"? Actually type names: "M1A2 SEP Abrams"? Hmm, vanilla DCS has "M-1 Abrams"? I recall "M1A2 SEP Abrams" isn't vanilla... Vanilla US armor: "M-1 Abrams"? Let me think of what I know for sure from mission files:
+
+- "M113" — yes, exists.
+- "M60" — yes ("M60A3"? I think type is "M60A3"? There's "M60 Patton"? Hmm. I believe vanilla has "M60A3 Patton"? The type name might be "M60A3". Hmm.)
+- "M109" — yes, exists ("M109").
+- "M2A2 Bradley"? Vanilla has "M2A2 Bradley"? I don't think vanilla DCS has Bradley... Actually yes, DCS has "M2A2 Bradley"? Hmm, I'm not sure. Combined Arms included M2 Bradley? I believe vanilla DCS includes "M2A2 Bradley"? Hmm... I recall in DCS unit list: "M2A2 Bradley" does exist? Not sure.
+- "M163 Vulcan" — yes.
+- "Chaparral" — yes ("M48 Chaparral"? type "Chaparral").
+- "Hawk" SAM — yes ("Hawk SR", "Hawk TR", "Hawk cwar", "Hawk ln").
+- "Patriot" — yes.
+- "Stinger MANPADS" — "MANPADS Stinger".
+- Infantry: "Infantry M4"? Hmm.
+
+Red (Russia/Syria): "T-72B"? type "T-72B" or "T-72B3"? Vanilla: "T-72B" exists? I recall "T-72B" yes, and "T-72B3" added later? Hmm. "T-55" exists? "T-55" yes I think. "T-90" exists? Vanilla has "T-90"? I think yes ("T-90"). "BMP-1", "BMP-2", "BMP-3" exist. "BTR-80", "BTR-82A" exist. "ZSU-23-4 Shilka" exists ("ZSU-23-4 Shilka"). "SA-6", "SA-8", "SA-9 Gaskin"? "SA-13"? "SA-11"? "SA-15"? "SA-19"? etc. Artillery: "2S1 Gvozdika", "2S3 Akatsiya", "2S7 Pion"? Hmm "2S7"? Not sure. "BM-21 Grad" MLRS exists ("BM-21 Grad"). Towed: "D-30"? I don't think vanilla has D-30. Hmm, actually I recall "D-30" being in DCS? There's "D-30" towed howitzer added at some point? I'm not certain.
+
+Mortars: I don't believe vanilla DCS has mortar units. Hmm. But the user explicitly asked for mortar. Options: use "2B11 mortar"? If it doesn't exist, that's an anachronism/error. Alternative: represent mortars with a static or use infantry RPG. Hmm.
+
+Wait — actually, DCS does have mortar units? Let me think... In DCS World there's "Mortar 2B11"? I have some memory of "2B11" being added... I genuinely can't confirm. There's also "SPG-9"? Hmm.
+
+Given uncertainty, I could use "Infantry RPG" as mortar-ish? No. Better: I can note in "notes" that mortars are represented by [unit] and the builder can substitute. The instructions say: use exact DCS type names, check era plausibility. If unsure about mortar, I can use a plausible substitute and note it.
+
+Hmm, actually I now recall DCS added "Mortar" units? No... In DCS, artillery units: M109, 2S1, 2S3, 2S7?, BM-21, BM-27? (Hurricane added?), Tornado-S? For modern. Towed: "D-30"? Hmm, I think DCS does have "D-30" towed howitzer? I've seen "D-30" in some mission... Actually yes! I'm fairly confident DCS has "D-30" towed howitzers — they appear in many Syria missions as Syrian artillery. Hmm, but is it "D-30" or "D30"? I believe the type is "D-30". Hmm wait, I also recall "SA-18" etc.
+
+Let me just go with what I'm most confident about:
+- "M109" (Israeli artillery) — confident it exists.
+- "M113" — confident.
+- "Infantry M4"? Hmm. Actually I want to double check infantry names. In DCS unit database, infantry: "Infantry AK" — I've definitely seen "Infantry AK" in mission files. And "Infantry M4"? I've seen "Infantry M4"? Hmm, I recall "SoldierM4"? No... In DCS, US infantry unit is "Infantry M4"? I think the display name is "Infantry M4 (Rifleman)" and type "Infantry M4". Yes, I'll go with "Infantry M4". Also "Infantry RPG" exists for red. And "MANPADS Stinger" type is "MANPADS Stinger"? I recall "Stinger MANPADS"? The type name I believe is "MANPADS Stinger"? Hmm, in mission files I've seen "MANPADS SA-18" and "MANPADS Stinger"? I think it's "MANPADS Stinger". OK.
+
+Mortar: I'll check memory again... DCS 2.7/2.8 ground units include: "2B11 Mortar"? Hmm, I have a vague feeling that DCS added "2B11 120mm mortar" for Russia... I really can't verify. Safer approach: represent the mortar element with... hmm.
+
+Alternative: Use "SPG-9 Recoilless Gun"? Not sure either.
+
+OK here's my decision: I'll include mortars as part of the enemy force using a type I flag in notes. Actually, you know what — I do now recall that DCS World has "Mortar" units added around 2022? There was "M-252"? No, that's Arma. Hmm.
+
+Let me reconsider: The instruction says "Pruefe die Aera-Plausibilitaet" and use exact type names. If I'm unsure, better to use units I'm confident exist. For the "mortar" requirement, I could use "Infantry RPG" (grenadiers) and note that DCS lacks a dedicated mortar unit, or use the 2S1 Gvozdika? No wait, that's Syrian side. Enemy is Israel: M109 covers artillery. For mortar, hmm.
+
+Actually wait — maybe flip the scenario: The player is Syrian MiG-21Bis attacking Israeli forces forming up. The user wants "ground forces that are in an attack or form up for an attack (infantry, apc, artillery, mortar)". These are the target ground forces (enemy). So enemy needs infantry, APC, artillery, mortar. Israel: Infantry M4, M113, M109, and mortar... 
+
+Hmm, does DCS have an Israeli mortar? No. Does DCS have any mortar at all? I keep going back and forth. Let me settle: I'm now fairly sure vanilla DCS does NOT have mortar units (no 2B11, no M-252). Wait, actually... I recall "Mortar" in the DCS static objects? There's a static "mortar"? Hmm no.
+
+Hmm, hold on. I actually think I remember seeing "2B11 Mortar" in DCS unit lists... In the DCS "Ground units" there's a category "Artillery" with: 2S1 Gvozdika, 2S3 Akatsiya, 2S7 Pion? , 2S19 Msta? (added?), BM-21, BM-27?, BM-30?, M109, D-30?, M-1955? Hmm.
+
+I'll make a decision: Use "Infantry RPG" for the mortar-ish infantry support and add a note that DCS has no dedicated mortar unit; alternatively use "2S1 Gvozdika" if the enemy were Syrian... but enemy is Israel.
+
+Hmm wait, alternative scenario: Player flies MiG-21Bis for SYRIA attacking ISRAELI forces. Friendly: Syrian Mi-24P and Mi-8MT helicopters + Syrian ground forces (BMP-1, Infantry AK, D-30?) forming up for counterattack. Enemy: Israeli force forming up for attack: M113 x3, Infantry M4 x4, M109 x2, M163 Vulcan (light flak, engageable), maybe a Chaparral? For beginners, keep flak light: 1x M163 Vulcan is good (it's a moving AAA that can shoot at the MiG-21 — lively but survivable). Maybe also add "M48 Chaparral"? That might be too deadly for beginners with IR SAMs. Skip it or make it static far away. I'll include just the M163.
+
+Mortar: I'll represent as... hmm. OK here's another thought: DCS DOES have "Mortar" — I now genuinely recall that in DCS 2.8/2.9 they added "2B11 120mm Mortar"? Hmm... There was news about DCS adding mortars? I don't remember that. CROODILE (CH-47) era added... no.
+
+Decision: I'll not risk a non-existent type. Instead: the "mortar" element will be represented by "Infantry RPG" teams positioned like a mortar line, with a note explaining the substitution ("DCS führt keine eigene Mörser-Einheit; vertreten durch RPG-Trupps / ersatzweise 2B11 falls im Mod-Set verfügbar"). Hmm, but the user explicitly asked for mortar. Alternatively, make the enemy artillery "M109" AND add "M106" (M113-based mortar carrier)? Does DCS have "M106"? I don't think so.
+
+Hmm, hmm. Actually — wait. I DO now recall that DCS added mortar units: "2B11 Mortar" for Russia and... no, I think I'm confusing with "2S9 Nona"? Does DCS have 2S9 Nona? Hmm, no.
+
+Let me think about what ground units I know 100% exist in DCS vanilla from mission files I've seen:
+- Tanks: T-72B, T-72B3?, T-55?, T-90?, T-80UD?, M-1 Abrams? Hmm, vanilla US tank is "M-1 Abrams"? I've seen "M1A2 SEP Abrams" in newer DCS (2.9 added M1A2 SEP Abrams with the new AI?). Actually yes! DCS 2.9 added M1A2 SEP Abrams and Leopard 2A6? No wait, that's not right either. DCS has "M-1 Abrams"? Ugh.
+
+OK, units I'm highly confident about (seen many times in DCS mission scripts):
+- "M113" ✓
+- "M109" ✓ (hmm, or is it "M109A6"? I believe vanilla type is "M109".)
+- "M60A3"? I've seen "M60A3"? Hmm, I've also seen "M60 Patton"? I'll avoid tanks anyway.
+- "M163 Vulcan" ✓? Hmm, I've seen "M163 Vulcan Air Defense System VADS"? The type is "VADS"? Hmm! I recall the DCS type might be "VADS" with display "M163 Vulcan"? Hmm... In mission files I've seen "VADS". Yes, I'm fairly sure the type name is "VADS" (display "M163 Vulcan"). Hmm, risky. Alternatively "M163"? 
+
+Ugh, exact type names are hard. Let me recall DCS unit type names from the DCS database (DCSUnitDatabase):
+- SAM/AAA red: "SA-6 Buk"? no — types are like "SA-6 Buk Launcher", "SA-6 Buk SR"? Hmm no. I recall: "Kubelwagen"? no lol.
+
+OK let me carefully reconstruct from actual DCS mission file knowledge. In a .miz, ground units have "type" like:
+- "2S6M Tunguska" ✓ (I'm sure about this one)
+- "SA-11 Buk LN", "SA-11 Buk SR", "SA-11 Buk CC" ✓ (sure)
+- "SA-6 Buk"? no. SA-6: "2K12 Kub LN", "2K12 Kub TR"? Hmm, I think SA-6 units are "2K12 Kub LN" etc. 
+- "ZSU-23-4 Shilka" ✓ (sure, type "ZSU-23-4 Shilka"? or "ZSU23-4"? I believe "ZSU-23-4 Shilka" with display "ZSU-23-4 Shilka (AAA)". Hmm, I've seen "ZSU-23-4 Shilka" as type. OK.)
+- "Ural-375 ZIL-131 AAA"? no. The ZU-23 truck: "Ural-375 ZU-23 AAA" ✓ I think that's right.
+- "BMP-1" ✓, "BMP-2" ✓, "BMP-3" ✓
+- "BTR-80" ✓, "BTR-82A" ✓
+- "T-72B" ✓? I've seen "T-72B" yes. Also "T-72B3"? added later? I'll use "T-72B" if needed.
+- "T-55" ✓? Hmm, I think "T-55" exists? I've seen "T-55" in DCS? Hmm... not sure. Syria has T-55s... I might not need it.
+- "BM-21 Grad" ✓
+- "2S1 Gvozdika" ✓, "2S3 Akatsiya" ✓
+- "D-30"? Hmm... I have seen "D-30" in DCS? I believe DCS added towed D-30 howitzers? Actually YES — I'm now recalling DCS has "D-30" towed howitzer (static-ish artillery). Hmm, but I'm not certain. I recall Syria missions with "D-30" artillery groups. I'll say 70% confident. 
+- "Infantry AK" ✓ (sure), "Infantry RPG" ✓ (sure), "MANPADS SA-18" ✓ (sure)
+- Blue: "Infantry M4"? Hmm... I've seen "Infantry M4"? I believe yes. "MANPADS Stinger"? Hmm, I've seen "Stinger MANPADS"? I think type is "MANPADS Stinger"? Hmm. I recall in DCS the unit display is "Stinger MANPADS" and type... ugh. I'll avoid MANPADS for blue anyway (beginner mission).
+- "M1043 HMMWV Armament Carrier"? exists ("M1043 HMMWV Armament Carrier") ✓ I think.
+- "M-1 Abrams"? Hmm. Vanilla blue tank: I've seen "M-1 Abrams"? Hmm, hmm. I recall type "M-1 Abrams" exists? Or "M1A2 SEP Abrams"? DCS 2.9.x added "M1A2 SEP Abrams" as new AI model replacing? I think both may exist now. I'll avoid.
+- "M2A2 Bradley"? Hmm, I believe DCS does NOT have Bradley... wait, no! DCS DOES have "M2A2 Bradley"? I recall Bradley in Combined Arms... Hmm. I genuinely can't recall. Avoid.
+- "M109" — I'm fairly confident. Display "M109 (SPH)". Type "M109". ✓
+- "M113" — confident. Display "M113 (APC)". Type "M113". ✓
+- "M163"? vs "VADS": I now think the DCS type is "VADS" — display "M163 Vulcan Air Defense System (VADS)". Hmm, but I've also seen "M163 Vulcan"... In mission files, I'm fairly sure I've seen type "VADS". Let me go with "VADS"? Risky. Alternative light flak for Israel: "M45 Quadmount"? no. "M167 Vulcan"? Hmm. 
+
+Hmm, what about using "Hawk ln"? Too deadly.
+
+Actually, for the flak entry in the schema, there's a "flak" array with "script" — in the example it's "fixedobjects/boforsl60" (IL-2 style). For DCS, flak would be AAA units like "ZSU-23-4 Shilka" (Syrian) or "VADS"/"M163" (Israeli). Since player is Syrian, enemy flak should be Israeli: M163/VADS or M48 Chaparral. Hmm.
+
+Alternatively, flip sides: Player flies MiG-21Bis... but for whom? Syria operates MiG-21Bis. Could the player be flying for Syria against Israel — most plausible. Israeli AAA in DCS: "VADS" (M163), "Chaparral", "Hawk". For beginner: one VADS near the target area, engageable. Hmm, but if type name is wrong, mission breaks. 
+
+Alternatively, I could put a Syrian ZSU-23-4 as friendly flak and give the enemy only soft targets + maybe one M163. The user asked "optional Flak/Statics (realistisch dosiert)". A single M163 that engages is nice for "lively" — it'll shoot tracers at the player. 
+
+Let me try to settle the M163 type name. DCS unit database: I recall "M163 Vulcan Air Defense System" with type "VADS". Yes — in many DCS scripts I've seen "VADS". E.g., groups with unit type "VADS". I'm going to go with "VADS". Hmm, wait, but I also have memory of "M163"... In the DCS "Encyclopedia" the ID might be "M163_VADS"? The ME dropdown shows "M163 Vulcan Air Defense System (VADS)" and the underlying type is "VADS". I'm going with "VADS".
+
+Hmm, actually, let me reconsider. I want to minimize risk. What if I make the enemy flak a static? Statics in DCS: "M-8 shelter"? no. Hmm.
+
+Alternatively, skip enemy flak entirely and give the enemy a couple of "M113" with M2 .50cal? All M113s have machine guns that will shoot back lightly. That's beginner-friendly. But "lively" benefits from some AAA. The VADS tracers look great and are dodgeable. I'll include one VADS group (2 vehicles) as flak, engageable, and note it. If type is slightly off, the builder can adjust — but I should be as accurate as possible. I'll go "VADS".
+
+Hmm, wait. Let me reconsider once more... I have seen DCS mission files with units: {"type": "VADS", ...}? I believe yes. OK, "VADS" it is. Actually hold on — I also recall "M163" being a type in newer DCS versions (2.9 added "M163"? no...). I'll commit to "VADS".
+
+Mortar problem: Let me think really hard about whether DCS has mortars. DCS ground units categories: Infantry, Artillery, Armor, Air Defense, Unarmed, Infantry equipment?... Artillery units in DCS (as of 2.9): 2S1 Gvozdika, 2S3 Akatsiya, 2S7 Pion? (I think 2S7 exists? hmm), 2S19 Msta? (hmm), BM-21 Grad, BM-27 Uragan? (added 2.9?), BM-30 Smerch? (exists? I think BM-30 exists? hmm), M109, D-30 (towed, added? I think yes, "D-30" exists — I recall seeing D-30 in Syria missions as Syrian artillery), M-1955 howitzer? Hmm no.
+
+Mortars: I have a weak memory of "2B11 Mortar" being added to DCS... I think there was an update that added "2B11 120mm Mortar" and "M-252"? No... I really don't think so. Hmm, wait — actually! I recall DCS added "Mortar" units in 2.9? There was something about "Mortar" in the CH-47F or Iraq map era? Hmm, no.
+
+I'll make the call: DCS vanilla has no dedicated mortar unit → represent mortars via a note. But the user explicitly wants mortar... Alternatively, I can use "2S1 Gvozdika" as the Syrian friendly artillery and give the enemy "M109" artillery, and for "mortar" use "Infantry RPG" with note "Mörser-Trupps durch RPG-Infanterie dargestellt (DCS besitzt keine eigene Mörser-Einheit)". Hmm, that's a bit of a cop-out but honest and safe.
+
+Wait, actually — I just remembered! DCS DOES have mortar units? "M252"? No... Hmm, "Mortar" hmm. OK here's another angle: CROs... "CH-47F" module... "mortar" hmm no.
+
+Actually, hmm, I recall the DCS unit "2B11" might exist as part of the "Artillery" category added around 2023-2024? There WAS an update adding "2B11 Mortar"? I genuinely can't confirm. Given uncertainty, safest is to include a mortar-like element using a type I'm confident in, and add a note. 
+
+Hmm, alternatively — what about making the mortar the target via static objects? Statics like "M-8 shelter"? no. 
+
+Decision: Enemy group "Mörserstellung" = 2x "Infantry RPG" + note explaining substitution. Hmm, but RPG infantry in the open looks like infantry, not mortars. It's fine — mortar teams would be infantry anyway; DCS infantry models don't show mortars regardless.
+
+Actually WAIT. I think I should double-check my memory: I'm now recalling the DCS 2.9 changelog... "Added 2B11 mortar"? Hmm... There's also the "M-252"? No. I also recall "Mk19"? no that's a grenade launcher on HMMWV.
+
+Hmm, hold on, hold on. I DO remember something: DCS added "Mortar" units with the "Kola" map? No... With "Afghanistan" map (2024)? Hmm, the Afghanistan map era added "Technical" units? I recall "Technical" being added? Hmm.
+
+OK final decision: I'll use "Infantry RPG" for the mortar element and clearly note it. This is the safest accurate choice. Actually, you know what? Let me reconsider using "2S1 Gvozdika" for enemy... no, enemy is Israel, Gvozdika is Soviet. M109 is the Israeli artillery. Fine.
+
+Hmm, actually, one more idea: make the SCENARIO such that the enemy ground force is Syrian? No — player flies MiG-21Bis, which is Syrian (or could be Cuban, Indian, etc., but on Syria map, Syria). Unless... the player could fly for Israel? No, Israel didn't operate MiG-21s (well, they captured some, but not plausible for a mission). So player = Syria, enemy = Israel. Era: 1982 Lebanon War or 1980s border skirmish. Let's set date: 1982-06-06? That's the actual invasion start. Or a fictional training-ish scenario: "1984-11-12". Let me pick 1982-06-08 (during Lebanon War, Bekaa Valley). Location: Bekaa Valley / near Lake Qaraoun? Or Golan: 1974? MiG-21Bis not in 1973. 
+
+Let's do: Lebanon War 1982, Bekaa Valley. Player strikes Israeli artillery/armor column forming up near Qaraoun/Rachaiya? Coordinates on Syria map: Bekaa Valley around Rayak airbase (33.85? Rayak is ~33.85N, 35.93E? Hmm). Syria map coordinates: Beirut ~33.9N 35.5E; Damascus ~33.5N 36.3E; Bekaa: Zahle ~33.85N 35.98E; Rayak airbase ~33.85N 35.95E? Actually Rayak is at approximately 33.848N, 35.957E. Lake Qaraoun: ~33.58N, 35.70E. Mount Hermon ~33.4N 35.85E. 
+
+I can give approximate lat/lon. The instruction says lat/lon, 0 allowed with notes. I'll provide plausible lat/lon and also notes with relative descriptions. Since exact DCS Syria map coordinates are hard to verify, approximate real-world lat/lon should be fine because the Syria map is georeferenced to real-world coordinates (mostly). Rayak: 33.85, 35.95. Bekaa valley between Zahle and Qaraoun: 33.7N, 35.8E.
+
+Mission flow:
+- Player spawns at Sayqal? No — Sayqal is Syrian airbase near Damascus (33.28N, 36.47E?). Hmm, Sayqal: ~33.27N, 36.47E? Or Mezzeh (Damascus, 33.48N, 36.23E)? Or fly from Damascus area north into Bekaa. Distance Damascus→Bekaa ~60-80 km. MiG-21 at ~500 km/h ground attack speed → ~10 min transit. That's a bit long for a 5-20 min mission but OK-ish. Better: spawn player already airborne closer, e.g., over Damascus outskirts heading NW, target ~50 km away. Or spawn near the Lebanese border. For beginners, spawn airborne 30-40 km from target, ~8 min flight. 
+
+Let me set player start: airborne east of Damascus? Hmm, Bekaa is NW of Damascus. Spawn point: ~33.6N, 36.6E (east of Damascus outskirts), heading ~300 (NW), target at 33.72N, 35.78E → distance ~70 km. At 550 km/h ≈ 8 min. Plus attack + RTB ≈ 15-18 min total. Good.
+
+Alternatively spawn at 33.55N 36.35E (near Damascus) heading 315. Fine.
+
+- Friendly groups (Syrian): 
+  1. "Sagger-Infanterie / Panzergrenadiere" forming up: BMP-1 x3 + Infantry AK x6? Group with mixed types is allowed in DCS (a group can have different unit types). In the JSON schema here, each group has one "script"/"aircraft" type and count. So separate groups: BMP-1 x3 (moving north), Infantry AK x4 (moving), 2S1 Gvozdika x3 (static, firing support? or moving). Hmm, user said "add ground forces that are in an attack or form up for an attack (infantry, apc, artillery, mortar)". Reading again: "add ground forces that are in a attack or form up for an attack" — this could mean the friendly ground forces forming up for THEIR attack, which the player supports. And the enemy would be... hmm. Actually re-reading: "I want that you outline a small, lively, and somehow plausible/realistic scenario... fly the Mig21 bis in Ground Attack with rockets... add helicopters (Mi24, Mi8)... add ground forces that are in a attack or form up for an attack (infantry, apc, artillery, mortar)".
+
+So the user wants: player MiG-21 ground attack, helicopters Mi-24/Mi-8, ground forces (infantry, APC, artillery, mortar) attacking or forming up. It doesn't specify friend vs foe for the ground forces. Most natural lively design: 
+- Friendly Syrian force forming up for a counterattack (infantry, APC, artillery) — adds life, no threat to player.
+- Enemy Israeli force forming up for their attack = player's targets (infantry, APC, artillery, mortar) — gives the ground-attack targets.
+- Friendly Mi-24P x2 attacking ahead of player (lively, they engage ground targets), Mi-8MT x2 (casevac/reinforcement landing — lively).
+- Enemy light flak (VADS) for some challenge.
+
+That covers everything: helicopters both types, ground forces on both sides, ground attack with rockets.
+
+But wait — the schema has "friendlyGroups" for allied ground groups. Helicopters: are they playerGroups? No — playerGroups is the player-flown aircraft. Friendly AI helicopters would go in... hmm. The schema: playerGroups (aircraft), enemyGroups (kind vehicle/air?), friendlyGroups (ground, "gleiches Format wie enemyGroups"). Where do friendly AI helicopters go? The schema example only shows enemyGroups with "kind":"vehicle". I could put friendly helicopters in friendlyGroups with kind "air"? The hint says "friendlyGroups für verbündete Bodengruppen (gleiches Format wie enemyGroups)". Hmm — "verbündete Bodengruppen" = allied ground groups. So friendly helos don't fit there strictly. But enemyGroups presumably can have "kind":"air"? The example shows kind "vehicle". 
+
+Options: Put Mi-24/Mi-8 as friendlyGroups with kind "air" (stretching the definition), or as a separate category. The schema is fixed; I must output exactly this schema. I think putting friendly AI helicopters in "friendlyGroups" with kind "air" is the pragmatic choice — the builder will understand. Alternatively, put them in enemyGroups? No, they're friendly.
+
+Hmm, wait — maybe better: make the Mi-24s part of the mission as friendly air support. The schema's friendlyGroups "gleiches Format wie enemyGroups" — enemyGroups format includes "kind":"vehicle" and "script". For helicopters, kind would be "air" and script = "Mi-24P" / "Mi-8MT". I'll do that and add notes. Since the output must be exactly the schema, I'll add a "notes" field? The schema doesn't include "notes" at top level... The instructions mention "notes" for positions ("dann 'notes' mit relativer Beschreibung fuellen"). So groups can have a "notes" field. I'll add "notes" to groups where helpful. The schema shows specific fields but adding "notes" seems sanctioned by the instructions. I'll be careful to keep everything else exact.
+
+Actually, the instruction says: "Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und 'notes' mit relativer Beschreibung fuellen (Generator/platzieren spaeter)." So notes is an expected field on groups/objects. I'll include "notes" on groups with placement hints. Good.
+
+Now DCS specifics:
+- countryName: player = "Syria"? Wait — Syria map, MiG-21Bis, enemy Israel. But hold on: is Israel a playable country on Syria map in DCS? Yes, Israel is a country in the Syria map theater (with IDF units? DCS added Israeli units? Hmm — DCS Syria map includes Israel as a country, and with the Middle East map there are Israeli units? The Syria map added "Israel" country with... I recall the Syria map added Israeli ground forces? Hmm, actually DCS's Israel country uses... In DCS, Israel exists as a country in Syria/PersianGulf theaters. Ground units for Israel: DCS assigned blue/US-type units? I believe the Syria map update added Israeli-specific units? Hmm, I don't think DCS has unique Israeli vehicles; Israel country likely uses US/UK equipment (M60? M113?). The Syria map (2021) DID add Israeli units? I recall "Israel" got... hmm, I remember the Syria map included new Israeli units like "M113", "M60A1"? Actually yes! The Syria map added a bunch of Israeli ground units: M60A1, Magach? Hmm, I genuinely recall that the Syria map added Israeli armor: "M60A3", "M113", "M109", "M163"? Hmm hmm. I think the Syria map DID add Israeli units (Magach 6? M60A1? M113? M109? M163 Vulcan? M48 Chaparral? MIM-23 Hawk?). Yes — I'm fairly confident the Syria map added Israeli ground forces including Magach tanks, M113 APCs, M109 SPHs, M163 VADS, Chaparral SAMs, Hawk batteries. 
+
+So Israeli units exist on Syria map. Type names: "M60A1"? Hmm. I recall types like "Magach 3"? Not sure. Let me stick with safest: "M113", "M109", "VADS", "Infantry M4"? Hmm, does Israel have "Infantry M4"? DCS infantry for blue is generic "Infantry M4"? I think blue infantry type is "Infantry M4". Hmm, wait — is it "Infantry M4" or "Soldier M4"? I'm fairly sure I've seen "Infantry M4" hmm... Actually now I doubt myself. Let me think about DCS infantry types again: In DCS mission editor, infantry units: "Infantry AK (Rifleman)", "Infantry AK (Paratrooper)"? "Infantry RPG (Grenadier)", "Infantry M4 (Rifleman)"? Hmm... I've also seen "MANPADS SA-18 Igla" and "MANPADS Stinger". I'm going to commit: "Infantry AK", "Infantry RPG", "Infantry M4", "MANPADS Stinger". These look right.
+
+Hmm wait, actually I want to double check "Infantry M4": In DCS, the US rifleman... I've seen mission files with "Infantry M4". Yes, e.g., units type "Infantry M4" appear in US infantry groups. OK.
+
+- MiG-21Bis type name: "MiG-21Bis" ✓ (DCS module by Leatherneck/Magnesium? It's "MiG-21Bis" in ME). ✓
+- Mi-24P: type "Mi-24P" ✓ (ED module, type "Mi-24P").
+- Mi-8MT: type "Mi-8MT" ✓.
+- Syrian artillery: "2S1 Gvozdika" ✓ (I'm confident this exists) — Syria used 2S1. Good for friendly artillery. Or "D-30"? I'll use 2S1 Gvozdika (safer).
+- Syrian APC: "BMP-1" ✓ (Syria used BMP-1). 
+- Syrian infantry: "Infantry AK" ✓.
+- Enemy Israeli: "M113" x3, "Infantry M4" x4, "M109" x3, mortar→"Infantry RPG"? Hmm wait, RPG for Israelis is weird (RPG-7 is Soviet weapon; "Infantry RPG" is the red-side grenadier). For Israel, better: just more "Infantry M4". Or use... hmm. The mortar substitution with "Infantry RPG" on the Israeli side is an anachronism-ish (RPG-7s were captured/used by some, but eh). Alternative: make the mortar element part of the FRIENDLY Syrian force: Syrian mortar = "Infantry RPG"? Still RPG≠mortar.
+
+Hmm OK wait, let me reconsider the whole side assignment. What if the ground forces forming up for attack are the ENEMY (Israeli) — that's what the player attacks. The user listed "infantry, apc, artillery, mortar" for these ground forces. So the enemy force should include a mortar element. Israeli mortars: M106 120mm? M125? DCS doesn't have those. DCS blue mortar... none.
+
+Alternatively, make the mortar a static object? DCS statics don't include mortars either.
+
+OK, executive decision: The enemy force gets infantry (Infantry M4), APC (M113), artillery (M109), and a "mortar position" represented by Infantry M4 dug in near vehicles with a note: "Mörsertrupp durch Infanterie dargestellt (DCS hat keine Mörser-Einheit)". Hmm, that feels weak for the user's explicit request.
+
+Alternative: flip — put the mortars on the FRIENDLY Syrian side as "Infantry RPG" with note. Still not a mortar.
+
+Hmm, hmm, hmm. Let me try once more to recall if DCS has mortars... Searching memory: "DCS 2B11" ... I have a faint image of the DCS unit list "Artillery" showing: 2S1 Gvozdika, 2S3 Akatsiya, 2S7 Pion? no... "BM-21 Grad", "BM-27 Uragan"? (added with 2.9? I think BM-27 exists now?), "BM-30 Smerch"? hmm, "M109", "D-30"? ... and mortars: I really don't recall any mortar. 
+
+Hmm, actually WAIT. I now remember! DCS added "Mortar" units? No... but you know what exists: "SPM-18"? no. "M-240"? no that's a machine gun. OK, no mortars in DCS. Confirmed decision: represent mortar teams with infantry + note.
+
+Actually, hmm, one more consideration: maybe I misremember and DCS HAS "2B11 Mortar". If I include "2B11 Mortar" and it doesn't exist, mission breaks. If I include "Infantry RPG"/"Infantry M4" it definitely works. Safety wins. I'll note the substitution clearly so the user (refamiliarizing with the editor) can swap in a mortar unit if they have one (e.g., from a mod). Actually, for the user learning the editor, this note is even helpful.
+
+Hmm, wait, actually — hold on. I just recalled: DCS World DOES have mortar units as of 2.9? There was a changelog "Added M-252 81mm mortar"? ... I keep flip-flopping. Let me think about the "Iraq" map announcement (2024-2025): it mentioned new Middle East units? The "M-252"? Hmm no.
+
+FINAL: infantry-based mortar teams with note. Done deliberating.
+
+Actually, wait — one more idea that's cleaner: I can make the mortar element Syrian-FRIENDLY using "2S1 Gvozdika"? No, that's a howitzer not mortar. Hmm, what about "BM-21 Grad" for friendly artillery fire support — very lively (Grad barrage)! And enemy gets M109. Then "mortar" → I'll do "Infantry RPG" teams on the enemy side near their staging area labeled "Mörsertrupp (dargestellt)". Hmm, RPG on Israeli side... Actually "Infantry RPG" is just the model name; the DCS blue-side equivalent grenadier? Blue has "Infantry M4" only I think. So enemy mortar teams = "Infantry M4" x2 with note. Fine. OR I put the mortar teams on the friendly side: Syria definitely used RPG-7s, so "Infantry RPG" fits Syria perfectly. And the user's list "(infantry, apc, artillery, mortar)" applies to "ground forces that are in an attack or form up for an attack" — if that's the FRIENDLY Syrian force forming up for their attack, then: Infantry AK + Infantry RPG (as mortar teams), BMP-1 (APC), 2S1 Gvozdika (artillery). That covers all four categories on the friendly side plausibly! And the ENEMY force (targets) gets: M113 x3, Infantry M4 x4, M109 x2, VADS (flak).
+
+Hmm, but then the primary objective targets are the Israeli force. The user wanted ground forces forming up — I'll have BOTH: friendly Syrians forming up (with all four unit types incl. RPG-as-mortar) AND enemy Israelis forming up (the targets). That's lively and covers the request fully.
+
+Wait, but actually, re-reading the user wish once more: "add ground forces that are in a attack or form up for an attack (infantry, apc, artillery, mortar)". I think they mean the ground battle context overall. Having both sides forming up = "lively". 
+
+Now, mission design details:
+
+Map: "Syria" (DCS theatre name is "Syria"). 
+
+Date: 1982-06-09 (Lebanon War, Battle of Jezzine / Bekaa). MiG-21Bis plausibly in Syrian service by then? Syria received MiG-21bis in late 70s. Yes, plausible. Time: 06:45 (dawn attack) or afternoon. Dawn is atmospheric: 06:10. Weather: clear, light wind. Summer config.
+
+Coordinates (Syria map, real-world georef):
+- Bekaa Valley target area: near Qaraoun Lake / western Bekaa: lat 33.60, lon 35.72? Lake Qaraoun: 33.585N, 35.698E. Let's put enemy staging at ~33.62N, 35.75E (east of lake, Litani river area). Hmm, or north Bekaa near Zahle: 33.85N, 35.95E. 
+
+Actually, for a 1982 Lebanon War scenario, the Bekaa or the Beirut-Damascus highway (Mount Lebanon) works. Let's use the western Bekaa near Joub Jannine/Qaraoun: lat 33.62, lon 35.72.
+
+- Player start: airborne over Syria, e.g., near Damascus: lat 33.45, lon 36.55, alt 3000 m, heading 290. Distance to target: Δlat 0.17 (~19 km), Δlon 0.83 (~76 km at this latitude, 1° lon ≈ 92.6 km) → ~78 km. At 600 km/h ≈ 8 min. Good.
+
+Hmm, alternatively start closer: lat 33.55, lon 36.35 (east of Damascus) → ~55 km, 6 min. Let's do that. Actually Sayqal airbase is at ~33.28N 36.47E. Anakala? Let me just say start airborne SE of the target. Start: 33.50N, 36.40E, heading 300, alt 2500 m.
+
+- Friendly Syrian ground forming up: north of the enemy, at ~33.70N, 35.80E, moving south (toward enemy). BMP-1 x3, Infantry AK x4, 2S1 Gvozdika x3 (static, providing fire support), Infantry RPG x2 (mortar line).
+
+Hmm wait, careful: if friendly forces are 8 km north of enemy moving south, and player attacks enemy — fine, no blue-on-blue risk if player attacks south of the FLOT... I'll place friendly forming-up area clearly north, and note "Angriffsachse Süd; Zielfläche südlich der Linie".
+
+- Friendly helicopters: Mi-24P x2 (flight of two) ahead of friendly ground, attacking enemy positions (they'll engage, lively); Mi-8MT x2 trailing (bringing forward observers/evac). Position them between friendly ground and enemy: Mi-24 at ~33.66N, 35.76E moving south; Mi-8 at ~33.72N, 35.82E.
+
+- Enemy groups (targets):
+  1. "M113 Konvoi" x3 M113, moving north (forming up for attack toward Syrian lines), position ~33.62N, 35.74E.
+  2. "Israelische Infanterie" x4 Infantry M4, static (staging), ~33.61N, 35.76E.
+  3. "M109 Batterie" x2 M109, static (registered firing positions), ~33.60N, 35.71E.
+  4. Mortar teams: 2x Infantry M4 near a truck? Hmm, or skip and note. I'll add "Mörsertrupp" as 2x Infantry M4 static with note "stellt Mörsertrupp dar (DCS führt keine Mörser-Einheit)". Hmm... eh. Actually, let me reconsider AGAIN whether to include this. The user asked for mortar. If I include a group labeled mortar with infantry units + note, it shows intent. I'll include it. Hmm, wait — actually, hmm, what about using "M1064"? no. OK including infantry-as-mortar with note.
+
+Hmm, actually hold on, let me reconsider using "2B11 Mortar" one final time... You know, I have a genuine memory of seeing "2B11" in DCS somewhere... maybe from the "2B11 Mortar" in... arma? War Thunder? Hmm. War Thunder doesn't have it either. I'll stay with infantry + note. FINAL.
+
+  5. Flak: "VADS" x2 (M163 Vulcan) near the staging area, engageable — will shoot at the MiG-21. Also maybe "Chaparral"? Too deadly for beginners (IR SAM). Skip. One VADS pair is enough. Actually, should flak be its own array item per schema ("flak": [...])? Yes — schema has "flak" array. I'll put VADS there with engageable true.
+
+Wait, but for DCS, does the "flak" concept translate? The schema's flak entry has script/count/position/country/engageable. I'll use it with script "VADS". Good.
+
+Counter/objective: primary objective = destroy the Israeli artillery battery + APCs? "genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge)". So one objective with counter = total destroyable targets. Let's define targets: M113 x3 + M109 x2 + mortar teams x2 = 7? Or include infantry? Counting infantry kills is messy; better counter = vehicles: 3 M113 + 2 M109 + 2 mortar-team-infantry? Hmm, infantry in counter is OK in DCS (unit destroyed events fire for infantry too). But for beginners, hitting individual infantry soldiers with rockets is hard. Let me make counter = 5 (3 M113 + 2 M109) and the infantry/mortar teams are bonus/flavor. Hmm, but the "mortar" then isn't in the objective... 
+
+Alternative: counter = 7 including the 2 mortar teams (infantry). Eh. Let me think about what's cleanest: Objective "Zerstöre die israelische Angriffsgruppe: 3 M113 + 2 M109" → counter 5. Mortar teams and infantry are part of the scene (and the radio can mention them). Actually, hmm, the user might want the mortar to matter. Let me include mortar teams in the counter: 3 M113 + 2 M109 + 2 Mörsertrupps = 7. With UB-32 pods (64 rockets) or 4x S-24, 7 soft targets is very doable for 2 aircraft. I'll go counter 7. Hmm, but wait: if mortar teams are "Infantry M4" units, the builder needs to know they're objective targets. Notes will clarify. Also success threshold: schema objective has "success":1 — maybe success = 1 means all destroyed? I'll keep success 1 and counter 7. Hmm, actually "success":1 might mean "success condition type". Keep as in template.
+
+Hmm, actually, let me reconsider: for beginners, requiring ALL 7 might be frustrating. But rockets pods make it easy (area saturation). UB-32: 2 pods × 32 = 64 S-5 rockets. Very forgiving. OK counter 7. Hmm, or should the player carry bombs? User said rockets because bombs are harder on the MiG-21 (correct — the MiG-21Bis bombing is tricky; rockets with the ASP scope are easier). Payload note: 2x UB-32 + 2x R-3S? or 4x S-24? For ground attack beginner: 2x UB-32A-1 pods on inner pylons + 2x R-3S for self-defense? Or 4x S-24 heavy rockets (precision-ish, 1 per pass). For beginners, UB-32 pods are more forgiving (spray). I'll specify in notes: "2× UB-32 (S-5) + 2× R-3S" — wait, can MiG-21Bis carry 2 UB-32 + 2 R-3S simultaneously? The MiG-21Bis has 4 underwing pylons; typical load: 4x R-60? no wait, MiG-21Bis carries R-60? Hmm — MiG-21Bis in DCS can carry R-3R/R-3S and R-60? I believe the DCS MiG-21Bis can carry R-3S, R-3R, R-60? Hmm, the real MiG-21bis could carry R-60? I think R-60 was integrated on MiG-21bis? Actually the MiG-21bis (Izdeliye 75A) could carry K-13M (R-3S) and... R-60 came with later variants/upgrade? In DCS, the MiG-21Bis weapon options include: R-3S, R-3R, R-60? Hmm, I believe DCS MiG-21Bis can carry R-60s? I recall the DCS MiG-21 can carry R-3R, R-3S, and... I think R-60 is NOT available on DCS MiG-21Bis? Hmm. Actually I'm fairly sure DCS MiG-21Bis payloads include R-3S/R-3R AAMs, UB-16/UB-32 rocket pods? Hmm — does DCS MiG-21 have UB-32? I recall rocket pods: "UB-16-57UMP"? Hmm. The DCS MiG-21Bis ground attack loadout: S-24 rockets? and UB-16/UB-32 pods? I believe both exist in DCS MiG-21: S-24B and UB-16-57? Hmm hmm. I recall the MiG-21 in DCS can carry: FAB-100, FAB-250, ZB-500? bombs, S-24 rockets, UB-16 and UB-32 pods? I think yes — the Leatherneck MiG-21 has UB-16-57UMP pods? Hmm, wait, actually I recall only UB-32? Let me think... DCS MiG-21Bis weapons: R-3S, R-3R, R-60 (I now think R-60 IS available? hmm), FAB-100/250, S-24B, UB-16-57UMP, UB-32A? ... 
+
+I'm fairly confident S-24 and UB-32 pods exist for the DCS MiG-21. I'll recommend "2× UB-32 + 2× R-3S" in notes with fallback "4× S-24". Hmm, wait: can it carry 2 UB-32 + 2 R-3S at once? 4 pylons: inner 2 UB-32, outer 2 R-3S — plausible. In DCS I believe there's a preset like that. OK.
+
+Actually for safety, I'll phrase notes: "Bewaffnung: 2× UB-32-Raketenbehälter (S-5) auf inneren Pylonen; alternativ 4× S-24." That's guidance, not hard schema.
+
+Radio messages (2-5, max 2 sentences each, authentic tone):
+1. mission_begin_delay (10s after start): Basis/Forward Air Command: "Zebra 21, hier Luftwaffenkommando Ost — israelische Kampfsammelstelle westlich des Litani gemeldet. Freigabe für Raketenangriff, Feuer frei." (2 sentences)
+2. check_zone (approaching target zone): "Zebra 21, Sichtmeldung bestätigt — feindliche Kolonne in Stellungsraum, Achtung Flak, M163 im Zielgebiet." Hmm, or a status call from the wingman? Speaker could be "Kettengruppe" hmm. Let me do: trigger check_zone, speaker "Basis": "Zebra 21, Sie sind 5 km vom Zielflugplatz... " no. Keep: "Zebra 21, Zielgebiet in Sichtweite — Panzerkolonne und Artillerie auf freiem Feld. Achtung, feindliche Flak (M163) im Stellungsraum."
+3. Maybe a mid-mission BDA/status: trigger "all_destroyed" is success. Could add a "unit_destroyed" style trigger? The schema radioQueue triggers shown: "mission_begin_delay", "check_zone", "all_destroyed". I can add another "check_zone" for the friendly helicopter area? Or a second zone check for the FLOT. Let me add 4 messages:
+   - intro (mission_begin_delay, delay 10)
+   - approach (check_zone r=3000 around target): warning about flak
+   - helicopters check-in (check_zone around Mi-24 position? or mission time trigger?) Hmm, triggers available seem limited: mission_begin_delay, check_zone, all_destroyed. Maybe also "mission_end"? I'll stick to the three trigger types shown, maybe reuse check_zone twice with different zones.
+   - success (all_destroyed): "Zebra 21, hervorragende Arbeit — feindliche Sammelstelle zerschlagen. Rückflug auf geplanter Route, Landung in Sayqal." Hmm wait, do they land at Sayqal? Player start is airborne; egress note: "Kehrt nach Osten zurück, Landung Sayqal." Fine.
+
+Speakers: "Basis" (ground controller), maybe "Staffel" (wingman) for liveliness: wingman: "Führender, ich habe Rauch auf der Artilleriestellung — Ihre Raketen sitzen." That's lively. Speaker names are free text. Let me craft:
+
+1. trigger mission_begin_delay, delay 10, speaker "Basis": DE: "Zebra 21, hier Forward-Posten Dschub dschannin. Israelische Kampfsammelstelle westlich des Litani gemeldet: Schützenpanzer, Artillerie, Infanterie. Freigabe erteilt — Raketenangriff, Feuer frei." Hmm that's 3 sentences; max 2. Trim: "Zebra 21, hier Vorwärts-Posten Bekaa. Israelische Angriffsgruppe westlich des Litani gemeldet — Raketenangriff freigegeben, Feuer frei." 2 sentences ✓. EN: "Zebra 21, this is Bekaa forward post. Israeli battlegroup forming up west of the Litani — rocket attack cleared, weapons free."
+
+2. trigger check_zone (zone at target, r 3500), speaker "Basis": DE: "Zebra 21, Zielgebiet erreicht — Achtung, feindlicher M163-Flakpanzer im Stellungsraum. Bleiben Sie tief und schnell im Anflug." EN: "Zebra 21, target area ahead — watch out for enemy M163 flak in the staging area. Stay low and fast on approach."
+
+3. trigger check_zone (zone at friendly Mi-24 area? or second zone near FLOT), speaker "Kette Hind" (the Mi-24 flight): DE: "Zebra 21, hier Hind 01 — wir drücken von Norden auf die Infanteriestellung. Nehmen Sie die Artillerie, wir erledigen die leichten Ziele." EN: "Zebra 21, Hind 01 — we're pushing onto the infantry from the north. Take the artillery, we'll handle the soft targets." — This adds liveliness and explains the heli presence. Zone: around Mi-24 position r 2000.
+
+4. trigger all_destroyed, counter 7, speaker "Basis": DE: "Zebra 21, bestätigt — feindliche Sammelstelle zerschlagen, keine Artillerie mehr aktiv. Hervorragende Arbeit, kehrt nach Sayqal zurück." EN: "Zebra 21, confirmed — enemy staging area destroyed, no more artillery active. Outstanding work, return to Sayqal."
+
+Maybe a 5th: wingman status after first kill? Trigger types limited... I could use "check_zone" again mid-area. Eh, 4 messages is within 2-5. Good.
+
+Wait — "all_destroyed" with counter 7: success message. But if counter includes infantry, all_destroyed triggers only when ALL destroyed. OK.
+
+Hmm, one concern: objective counter counts "zerstörbare Ziele" = sum of all destroyable targets. Does that include the VADS flak? If VADS counts, counter = 9. The flak is "optional Flak" — typically not part of objective. I'll set counter = 7 (M113 x3, M109 x2, mortar teams x2) and note that VADS/flak and infantry are not counted. Hmm, but the mortar teams ARE infantry (Infantry M4)... then "infantry not counted" is inconsistent. Let me define clearly in notes: "Zielliste (Counter=7): 3× M113, 2× M109, 2× Mörsertrupp (Infantry M4). Nicht gezählt: Sicherungsinfanterie, VADS-Flak." Hmm, but mortar teams and security infantry are both Infantry M4 — the builder distinguishes by group. That works: the mortar group (2 men) counts, the infantry group (4 men) doesn't. OK.
+
+Hmm, wait. Actually, maybe simplify: make the mortar teams part of... you know what, let me restructure the enemy force to be cleaner:
+
+Enemy (Israel) at Bekaa staging area (~33.61-33.63N, 35.70-35.76E):
+- Group "M113-Gruppe" (vehicle, M113, count 3, moving north slowly — "forming up", column)
+- Group "M109-Batterie" (vehicle, M109, count 2, static)
+- Group "Mörsertrupps" (vehicle? infantry... kind: for infantry, DCS kind is still "vehicle" group type? In DCS, infantry groups are ground groups ("vehicle" category in mission file terms — ground units category). In the JSON, "kind":"vehicle" for ground. Infantry = ground units, so kind "vehicle" is fine.) count 2, static, note mortar representation.
+- Group "Sicherungsinfanterie" (Infantry M4, count 4, static) — flavor, not counted.
+- Flak: VADS x2, engageable.
+
+Friendly (Syria):
+- Group "BMP-Vorausgruppe" (BMP-1, count 3, moving south toward FLOT — forming up for attack)
+- Group "Infanteriegruppe" (Infantry AK, count 4, moving south)
+- Group "2S1-Batterie" (2S1 Gvozdika, count 3, static — fire support)
+- Group "Mörserlinie" (Infantry RPG, count 2, static) — covers "mortar" on friendly side too. Hmm, is that redundant with enemy mortar teams? The user asked for mortar once; I have it twice (one real-ish each side). Fine — "lively".
+- Heli group "Hind-Angriffsgruppe" (Mi-24P, count 2, air, moving toward enemy)
+- Heli group "Mi-8-Transport" (Mi-8MT, count 2, air, trailing)
+
+Player: MiG-21Bis x2? Hmm, decide: count 2 with wingman adds life; but beginner + wingman is fine (AI wingman). Actually — wait, if the player group has 2 aircraft, the second is AI-flown and will also attack. That's lively. But formation/callsign fields: formation [0,1], callsign [1,2]. The schema example shows exactly that. I'll do count 2. Hmm, but the user said "fly the Mig21 bis" — singular player. With count 2, one is AI. For a beginner refamiliarizing with the editor, a wingman is nice. I'll go count 2. Hmm, actually... let me reconsider: mission 5-20 min, 7 targets, 2 aircraft — easy. Fine, count 2. Actually, hmm, one more thought: the MiG-21 AI wingman might do dumb things, but it's fine. Keep 2.
+
+Wait, actually, I realize I should double check the callsign format: "callsign":[1,2] — numbers. OK keep.
+
+Player start: type "air", coordinates lat/lon? The schema for playerGroups start: {"type":"air","x":86500,"z":244000,"alt":1000,"heading":40} — for DCS, x/z become lat/lon. The instructions: "Bei 'dcs' ... Koordinaten sind lat/lon". So start: {"type":"air","lat":33.50,"lon":36.40,"alt":2500,"heading":300}. Hmm, alt in meters. 2500 m ≈ 8000 ft, fine for rocket attack approach. Heading 300 (toward WNW/target). 
+
+Hmm wait, is 36.40E, 33.50N on the Syria map? Syria map covers Syria, Lebanon, Israel, parts of Jordan/Turkey/Cyprus/Iraq? Eastern edge ~ 38-39E? Damascus 36.3E is well within. 33.5N 36.4E is ~30 km ESE of Damascus — on map ✓.
+
+Enemy position: 33.62N, 35.74E — western Bekaa near Litani/Qaraoun. On map ✓ (Lebanon included). 
+
+Distances: start (33.50, 36.40) → target (33.62, 35.74): Δlon 0.66° ≈ 60 km, Δlat 0.12° ≈ 13 km → ~61 km. At ~500-600 km/h → 6-7 min. 
+
+Friendly ground forming up at 33.70N, 35.80E — that's ~9 km north of enemy. Hmm, but wait: in June 1982, the front line was actually further north (Syrians were withdrawing from the Bekaa by mid-June). For plausibility, let's set date earlier in the war or a fictional 1983 border skirmish? Alternatively set it in the eastern Bekaa near the Beirut-Damascus highway. Honestly, for a skirmish scenario, approximate plausibility is fine: June 9-10, 1982, Syrian counterattacks in the central Bekaa around Lake Qaraoun/Joub Jannine actually happened (Syrian counterattack with T-62s near Joub Jannine? Hmm, there was fighting around Ain Zhalta, Jezzine, and the Bekaa). A Syrian MiG-21 strike on Israeli artillery assembling west of the Litani... plausible enough for a game. Date: 1982-06-10. Time: 06:25 (early morning, good light, low wind). Actually dawn ~5:30 in June Lebanon; 06:25 gives nice low sun. Weather: clear (cloudConfig "summer\00_Clear_00\sky.ini"? For DCS the weather schema differs, but the template shows IL-2 weather fields. Since output
+---- /RESULT quick RAW ----
+[2026-09-13 22:10:25] ERROR QuickMission JSON-Fehler: JSON ungueltig: invalid character '.' looking for beginning of object key string
+[2026-09-13 22:19:13] INFO  QuickMission gestartet (dcs)
+[2026-09-13 22:19:13] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+**User-Wunsch (kompakt, kann informell sein):**
+I want to refamiliarize with the DCS Editor. I want that you outline a small, lively, and somehow plausible/realistic scenario that can be played by beginners.
+- In the Syria Map
+- fly the Mig21 bis in Ground Attack with rockets (bombs are more difficult on that plane)
+- add helicopters (Mi24, Mi8)
+- add ground forces that are in a attack or form up for an attack (infantry, apc, artillery, mortar)
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5–20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1–3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2–5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3–6 Sätze). Keine Anachronismen.
+
+**WICHTIG: Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung). Deine finale Antwort besteht ausschließlich aus dem JSON-Objekt – ohne Markdown, ohne Erklärung. Stelle sicher, dass das JSON vollständig ist.**
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung):**
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "Airborne",
+  "map": "...",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"...","aircraft":"il10","count":2,"country":501,"start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},"formation":[0,1],"callsign":[1,2]}
+  ],
+  "enemyGroups": [
+    {"name":"...","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830},"movement":{"type":"static"}}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [],
+  "objectives": [
+    {"taskType":0,"success":1,"titleKey":3,"descKey":4,"counter":7}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","counter":7,"speaker":"Basis","textDe":"...","textEn":"..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": []
+}
+```
+
+Hinweise: `game` auf den Spiel-Kontext setzen ("il2" oder "dcs"). Bei IL-2 ist `country` numerisch (501-503 rot, 601-603 blau). Bei DCS ist `country` ein String mit dem Country-Namen (z. B. "Syria", "Israel", "USA"). Koordinaten sind lat/lon (0 erlaubt, dann "notes" nutzen), `aircraft`/`script` sind DCS-type-Namen; `objectives[].counter` = Summe aller zerstörbaren Ziele. `friendlyGroups` für verbündete Bodengruppen (gleiches Format wie enemyGroups).
+
+---- /PROMPT quick ----
+[2026-09-13 22:19:38] INFO  LLM-HTTP 200, 22655 bytes
+[2026-09-13 22:19:38] ---- RESULT quick RAW ----
+{"game":"dcs","title":{"de":"Operation Morgenhauch – Wadi-Schlag","en":"Operation Morning Breath – Wadi Strike"},"author":"Airborne","map":"Syria","date":"1982-06-10","time":"06:40:00","weather":{"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":2,"turbulence":3,"windLayers":[[0,150,3],[500,160,4],[1000,170,5],[2000,180,6],[5000,190,8]]},"playerGroups":[{"name":"Rakete 21","aircraft":"MiG-21Bis","count":1,"country":"Syria","start":{"type":"air","x":33.25,"z":36.00,"alt":2500,"heading":245},"formation":[0],"callsign":[1],"notes":"Air start east of the Golan front line, heading west toward the Wadi target area. Loadout: UB-16-57 rocket pods (S-5KO)."}],"enemyGroups":[{"name":"Feindkolonne M113","kind":"vehicle","script":"M-113","count":4,"country":"Israel","position":{"x":33.10,"z":35.72},"movement":{"type":"static"},"notes":"Israeli APC column forming up in the wadi, spaced 30-50 m, west of the Golan cease-fire line."},{"name":"Feindpanzer M60","kind":"vehicle","script":"M60A3","count":2,"country":"Israel","position":{"x":33.095,"z":35.73},"movement":{"type":"static"},"notes":"Two tanks at the southern edge of the staging area, covering the wadi entrance."}],"friendlyGroups":[{"name":"Schwalbe Mi-24","kind":"helicopter","script":"Mi-24P","count":2,"country":"Syria","position":{"x":33.15,"z":35.86},"movement":{"type":"static"},"notes":"Two gunships holding at the Syrian staging area, set to take off after the strike."},{"name":"Schwalbe Mi-8","kind":"helicopter","script":"Mi-8MT","count":2,"country":"Syria","position":{"x":33.16,"z":35.87},"movement":{"type":"static"},"notes":"Transport helos waiting at the staging area for follow-up insertion."},{"name":"Angriffsgruppe Damaskus","kind":"vehicle","script":"Infantry AK","count":6,"country":"Syria","position":{"x":33.16,"z":35.84},"movement":{"type":"static"},"notes":"Infantry platoon forming up in attack column facing west."},{"name":"Angriffsgruppe BMP","kind":"vehicle","script":"BMP-1","count":3,"country":"Syria","position":{"x":33.155,"z":35.845},"movement":{"type":"static"},"notes":"APC section lined up behind the infantry, ready to advance."},{"name":"Artilleriegruppe Homs","kind":"vehicle","script":"D-30","count":2,"country":"Syria","position":{"x":33.17,"z":35.85},"movement":{"type":"static"},"notes":"Towed howitzers in firing position, muzzle direction west."},{"name":"Mörsergruppe Damaskus","kind":"vehicle","script":"2B11 mortar","count":2,"country":"Syria","position":{"x":33.165,"z":35.855},"movement":{"type":"static"},"notes":"Mortar team dug in near the howitzers."}],"flak":[{"script":"M163 Vulcan","count":1,"position":{"x":33.108,"z":35.715},"country":"Israel","engageable":true,"notes":"Vulcan AA at the northern edge of the Israeli staging area, active threat to low-level attack runs."}],"statics":[],"objectives":[{"taskType":0,"success":1,"titleKey":3,"descKey":4,"counter":6}],"radioQueue":[{"trigger":"mission_begin_delay","delay":15,"speaker":"Frontkontrolle","textDe":"Rakete 21, hier Frontkontrolle. Eine israelische Kolonne sammelt sich im Wadi westlich der Linie – greife mit Raketen aus niedriger Höhe an.","textEn":"Rocket 21, this is Forward Control. An Israeli column is forming up in the wadi west of the line – attack with rockets from low altitude."},{"trigger":"check_zone","zone":{"x":33.10,"z":35.72,"r":3000},"speaker":"Frontkontrolle","textDe":"Rakete 21, Feindkontakt bestätigt: Schützenpanzer und Panzer im Wadi. Achtung, Vulcan-Flugabwehr am Nordrand des Lagers.","textEn":"Rocket 21, enemy contact confirmed: APCs and tanks in the wadi. Warning, Vulcan AA on the north edge of the camp."},{"trigger":"all_destroyed","counter":6,"speaker":"Frontkontrolle","textDe":"Gute Arbeit, Rakete 21 – die Kolonne ist zerschlagen! Unsere Bodengruppe rückt jetzt vor, kehr nach Hause zurück.","textEn":"Good work, Rocket 21 – the column is smashed! Our ground group is advancing now, return to base."}],"briefing":{"de":"Rakete 21, deine MiG-21Bis ist mit zwei UB-16-Raketenbehältern bestückt – Bomben fliegen heute nicht. Eine israelische Kolonne aus vier Schützenpanzern und zwei Panzern sammelt sich im Wadi westlich der Frontlinie und muss zerschlagen werden, bevor sie angreift. Unsere eigene Angriffsgruppe mit Infanterie, BMP, Haubitzen und Mörsern formiert sich derweil östlich der Linie, Mi-24 und Mi-8 stehen bereit. Achte auf die Vulcan-Flugabwehr am Nordrand des Lagers und bleib tief. Zerstöre alle sechs Fahrzeuge, dann kehr zur Basis zurück.","en":"Rocket 21, your MiG-21Bis carries two UB-16 rocket pods – no bombs today. An Israeli column of four APCs and two tanks is forming up in the wadi west of the front line and must be smashed before it attacks. Meanwhile our own assault group with infantry, BMPs, howitzers and mortars is forming up east of the line, with Mi-24 and Mi-8 on standby. Watch for the Vulcan AA on the north edge of the camp and stay low. Destroy all six vehicles, then return to base."},"icons":[]}
+---- /RESULT quick RAW ----
+[2026-09-13 22:19:38] ---- PLAN JSON (normalisiert) ----
+{"author":"Airborne","briefing":{"de":"Rakete 21, deine MiG-21Bis ist mit zwei UB-16-Raketenbehältern bestückt – Bomben fliegen heute nicht. Eine israelische Kolonne aus vier Schützenpanzern und zwei Panzern sammelt sich im Wadi westlich der Frontlinie und muss zerschlagen werden, bevor sie angreift. Unsere eigene Angriffsgruppe mit Infanterie, BMP, Haubitzen und Mörsern formiert sich derweil östlich der Linie, Mi-24 und Mi-8 stehen bereit. Achte auf die Vulcan-Flugabwehr am Nordrand des Lagers und bleib tief. Zerstöre alle sechs Fahrzeuge, dann kehr zur Basis zurück.","en":"Rocket 21, your MiG-21Bis carries two UB-16 rocket pods – no bombs today. An Israeli column of four APCs and two tanks is forming up in the wadi west of the front line and must be smashed before it attacks. Meanwhile our own assault group with infantry, BMPs, howitzers and mortars is forming up east of the line, with Mi-24 and Mi-8 on standby. Watch for the Vulcan AA on the north edge of the camp and stay low. Destroy all six vehicles, then return to base."},"date":"1982-06-10","enemyGroups":[{"count":4,"country":"Israel","kind":"vehicle","movement":{"type":"static"},"name":"Feindkolonne M113","notes":"Israeli APC column forming up in the wadi, spaced 30-50 m, west of the Golan cease-fire line.","position":{"x":33.1,"z":35.72},"script":"M-113"},{"count":2,"country":"Israel","kind":"vehicle","movement":{"type":"static"},"name":"Feindpanzer M60","notes":"Two tanks at the southern edge of the staging area, covering the wadi entrance.","position":{"x":33.095,"z":35.73},"script":"M60A3"}],"flak":[{"count":1,"country":"Israel","engageable":true,"notes":"Vulcan AA at the northern edge of the Israeli staging area, active threat to low-level attack runs.","position":{"x":33.108,"z":35.715},"script":"M163 Vulcan"}],"friendlyGroups":[{"count":2,"country":"Syria","kind":"helicopter","movement":{"type":"static"},"name":"Schwalbe Mi-24","notes":"Two gunships holding at the Syrian staging area, set to take off after the strike.","position":{"x":33.15,"z":35.86},"script":"Mi-24P"},{"count":2,"country":"Syria","kind":"helicopter","movement":{"type":"static"},"name":"Schwalbe Mi-8","notes":"Transport helos waiting at the staging area for follow-up insertion.","position":{"x":33.16,"z":35.87},"script":"Mi-8MT"},{"count":6,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Angriffsgruppe Damaskus","notes":"Infantry platoon forming up in attack column facing west.","position":{"x":33.16,"z":35.84},"script":"Infantry AK"},{"count":3,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Angriffsgruppe BMP","notes":"APC section lined up behind the infantry, ready to advance.","position":{"x":33.155,"z":35.845},"script":"BMP-1"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Artilleriegruppe Homs","notes":"Towed howitzers in firing position, muzzle direction west.","position":{"x":33.17,"z":35.85},"script":"D-30"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Mörsergruppe Damaskus","notes":"Mortar team dug in near the howitzers.","position":{"x":33.165,"z":35.855},"script":"2B11 mortar"}],"game":"dcs","icons":[],"map":"Syria","objectives":[{"counter":6,"descKey":4,"success":1,"taskType":0,"titleKey":3}],"playerGroups":[{"aircraft":"MiG-21Bis","callsign":[1],"count":1,"country":"Syria","formation":[0],"name":"Rakete 21","notes":"Air start east of the Golan front line, heading west toward the Wadi target area. Loadout: UB-16-57 rocket pods (S-5KO).","start":{"alt":2500,"heading":245,"type":"air","x":33.25,"z":36}}],"radioQueue":[{"delay":15,"speaker":"Frontkontrolle","textDe":"Rakete 21, hier Frontkontrolle. Eine israelische Kolonne sammelt sich im Wadi westlich der Linie – greife mit Raketen aus niedriger Höhe an.","textEn":"Rocket 21, this is Forward Control. An Israeli column is forming up in the wadi west of the line – attack with rockets from low altitude.","trigger":"mission_begin_delay"},{"speaker":"Frontkontrolle","textDe":"Rakete 21, Feindkontakt bestätigt: Schützenpanzer und Panzer im Wadi. Achtung, Vulcan-Flugabwehr am Nordrand des Lagers.","textEn":"Rocket 21, enemy contact confirmed: APCs and tanks in the wadi. Warning, Vulcan AA on the north edge of the camp.","trigger":"check_zone","zone":{"r":3000,"x":33.1,"z":35.72}},{"counter":6,"speaker":"Frontkontrolle","textDe":"Gute Arbeit, Rakete 21 – die Kolonne ist zerschlagen! Unsere Bodengruppe rückt jetzt vor, kehr nach Hause zurück.","textEn":"Good work, Rocket 21 – the column is smashed! Our ground group is advancing now, return to base.","trigger":"all_destroyed"}],"statics":[],"time":"06:40:00","title":{"de":"Operation Morgenhauch – Wadi-Schlag","en":"Operation Morning Breath – Wadi Strike"},"weather":{"cloudConfig":"summer\\00_Clear_00\\sky.ini","cloudHeight":6000,"cloudLevel":1500,"precLevel":0,"seaState":2,"turbulence":3,"windLayers":[[0,150,3],[500,160,4],[1000,170,5],[2000,180,6],[5000,190,8]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-13 22:19:38] INFO  QuickMission erfolgreich: Operation Morgenhauch – Wadi-Schlag
+[2026-09-14 09:21:34] INFO  Generate (dcs) erfolgreich: C:\Users\vince\Saved Games\DCS\Missions\AB_Operation_Morning_Breath_Wadi_Strike.miz
+[2026-09-14 09:21:34] INFO    Hinweis: Positionen ohne lat/lon: x/z als Breite/Laenge interpretiert
+[2026-09-14 09:21:59] INFO  merge gestartet
+[2026-09-14 09:21:59] ---- PROMPT merge ----
+# Missionsplan aus Nutzer-Vorgaben erstellen
+
+Deine Aufgabe ist es, aus den folgenden Vorgaben des Nutzers EINE vollständige, in sich konsistente, historisch/fiktiv plausible Mission für eine Kampfflugzeug-Simulation zu entwerfen und als Missionsplan (JSON) auszugeben. Du bist Missions-Chefdesigner: Du vervollständigst Lücken sinnvoll, löst Widersprüche (Zeit, Ort, Einheiten, Fraktionen, Wetter) zugunsten der Story und der historischen Plausibilität und vermeidest Anachronismen (Einheiten/Ausrüstung nur nach Epochen-Prüfung). Nicht ausgefüllte Abschnitte entscheidest du selbst passend zur Story.
+
+## Spiel-Kontext: IL-2 Korea
+- Karte: "il2" / LANDSCAPE_Korea (Jahreszeiten su/sp/wi/sw), Region Korea, Referenzorte: Kimpo Airfield (105934, 269477), Seoul (~107000, 286000), Incheon (~96000, 253000), Hafeneinfahrt Palmido (~96000, 251500). Koordinaten in METERN (x, z), Hoehen absolut in Metern.
+- Fraktionen: 501-503 = Ostblock/Nordkorea (Koalition 1), 601-603 = UN/USA (Koalition 2), 0 = neutral.
+- Verfuegbare Flugzeuge (Script-Namen): il10, la11, mig15bis, yak9p (rot); f51d, f80c10, f84e, f86a5 (blau); tu2, li2t, c47b (beide Seiten nutzbar).
+- Verfuegbare Bodeneinheiten (Beispiele): willysmb, studebakerus6, gaz67b, m16-mgmc, m3a1-halftrack, m4a3e8, m46, t34-85, su76m, isu122; Flak: boforsl60, dshk-aa, m2cal50-aa, ks19, s60.
+- Zeitraum: 1950-1953. Keine Einheiten ausserhalb dieses Zeitraums.
+
+# Story / Lage
+_(Krieg/Jahr/Monat, Theater und Region, taktische Gesamtlage beider Seiten, warum es diesen Einsatz gibt, strategisches Ziel, plausibles Wetter, Tageszeit)_
+
+September 1950, kurz vor der Landung bei Inchon. Nordkoreanische Il-10 sollen UN-Aufklaerungstrupps im Huegelland nordwestlich von Inchon ausschalten. Nachmittag, klares Wetter.
+
+# Player / Spielergruppe
+_(Typ und Anzahl der Spielerflugzeuge passend zur Epoche und zur Simulation, Fraktion, Verband/Callsign, Startart und Ort, Payload/Treibstoff, Rollen in der Formation)_
+
+2x Il-10, KPAF, Luftstart ueber der Kueste westlich von Inchon, Raketen und Bomben.
+
+# Gegner
+_(Gegnerische Einheiten in Luft und am Boden, Typen und Anzahl, Positionen relativ zu Orten der Karte, Verhalten: statisch/Patrouille/Kolonne, Reaktion auf den Spieler)_
+
+3 Lastwagen und 2 Jeeps unter Tarnnetzen im Huegelland, eine Jeep-Patrouille faehrt Richtung Kimpo.
+
+# Widerstand
+_(Flak und Luftabwehr im Zielgebiet, Patrouillen, Bodenwiderstand, Verbündete am Boden, statische Objekte wie Tarnnetze/Gebäude, realistisch dosiert)_
+
+Zwei Bofors-Geschuetze beim Hauptversteck.
+
+# Briefing / Funk
+_(Ton und Sprache des Briefings, Callsigns, Funksprüche: Intro nach Missionsstart, Kontakt-/Statusmeldungen, Erfolgsmeldung, Zeitlimit)_
+
+Callsign Sowol, Meldungen von Basis: Einleitung, Feindkontakt, Erfolg, Zeitlimit 25 Minuten.
+
+# Anforderungen an den Plan
+1. Alle Objekte bekommen realistische Positionen (Koordinatensystem siehe Spiel-Kontext) und passen räumlich zusammen (Anflugweg, Zielgebiet, Rückweg).
+2. Genau 1 Spielergruppe, 1-4 Gegnergruppen (mind. ein bekämpfbares Ziel), Flak/Statics passend zur Vorgabe, genau 1 primäres Missionsziel.
+3. 2-5 Funksprüche (Intro, Kontakt, Erfolg, ggf. Zeitlimit), authentischer Ton, max. 2 Sätze je Meldung.
+4. Briefing DE + EN. Titel DE + EN.
+5. Der Plan muss SCHEMA-KONFORM sein. Füge keine Felder hinzu, lass optionale weg.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung, keine Kommentare im JSON).** Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung) und stelle sicher, dass das JSON vollständig und syntaktisch gültig ist.
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "Airborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},
+     "route":[{"x":95000,"z":242000,"alt":700},{"x":99800,"z":261800,"alt":500},{"x":88000,"z":247000,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Trucks","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830,"heading":15},"movement":{"type":"static"}},
+    {"name":"Patrol","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":103080,"z":264580,"heading":230},"movement":{"type":"route"},"route":[{"x":103400,"z":264900},{"x":102600,"z":264200}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":99800,"z":261880,"heading":12},{"x":99560,"z":261860,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"...","en":"..."},"desc":{"de":"...","en":"..."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Zeitlimit ...","textEn":"Time limit ..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": [{"from":{"x":86500,"z":244000},"to":{"x":99800,"z":261800},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"...","en":"..."}}]
+}
+```
+
+**Feldregeln (beide Spiele):**
+- `game` = Spiel-Kontext ("il2" oder "dcs"). `date` = YYYY-MM-DD, `time` = HH:MM:SS.
+- `playerGroups`: genau 1 Gruppe, `count` = Anzahl Spielerplätze (1-4). `start.type`: "air" (Luftstart, empfohlen) oder "runway". `route` = 2-4 Wegpunkte (Anflug, Zielgebiet, Rückweg).
+- `enemyGroups`/`friendlyGroups`: `kind` = "vehicle" | "plane" | "helicopter" | "ship". `count` Einheiten stehen in Reihe ab `position`. Bewegung: `movement.type` "static" oder "route" (dann `route` mit 2-4 Wegpunkten; Fahrzeuge fahren die Schleife ab).
+- `objectives`: genau 1 Eintrag. `counter` = Anzahl der zerstörbaren Fahrzeuge in `enemyGroups` (Flak zählt nicht). Titel/Beschreibung DE+EN.
+- `radioQueue`: 2-5 Meldungen, je max. 2 Sätze, authentischer Funkton. Trigger: `mission_begin_delay` (+`delay` Sekunden nach Start), `check_zone` (Spieler betritt `zone`), `all_destroyed` (alle Ziele vernichtet).
+- `briefing`: DE + EN, je 4-8 Sätze (Lage, Auftrag, Durchführung, Gefahren, Rückkehr).
+- `icons`: 0-2 Kartenmarkierungen (Linie von `from` nach `to`).
+
+**IL-2 Korea (`game:"il2"`):** `country` numerisch (501-503 rot/Nordkorea, 601-603 blau/UN). Koordinaten `x`/`z` in Metern auf der Korea-Karte, `alt` in Metern. `aircraft` = Script-Name (il10, la11, mig15bis, yak9p, f51d, f80c10, f84e, f86a5, tu2, li2t, c47b). `script` = "vehicles/<name>", "fixedobjects/<name>", "blocks/<name>", "ships/<name>" (nur Namen aus dem Spiel-Kontext). `weather.cloudConfig` nach Muster "summer\\00_Clear_00\\sky.ini".
+
+**DCS World (`game:"dcs"`):** `map` = Theatre-Name (Caucasus, Syria, PersianGulf, Nevada, Normandy, MarianaIslands, Sinai, Kola, Falklands). `country` = DCS-Country-String ("USA", "Russia", "Syria", "Israel", "Egypt", "Iran", ...). Alle Positionen (`start`, `position`, `route[]`, `zone`, `icons`) als `{"lat":35.40,"lon":35.95,"alt":2000,"heading":270}` in Dezimalgrad (KEIN x/z). `aircraft`/`script` = exakte DCS-`type`-Namen (z. B. "MiG-21Bis", "F-16C_50", "Mi-24P", "Mi-8MT", "M-113", "M-60", "Ural-375", "ZSU-23-4 Shilka", "BTR-80"). `statics[].script` ebenfalls ein Bodeneinheiten-Typ. `kind` "plane" oder "helicopter" bei Luftfahrzeugen. `weather` wie oben (wird sinngemäß übernommen).
+
+
+---- /PROMPT merge ----
+[2026-09-14 09:23:24] INFO  LLM-HTTP 200, 25232 bytes
+[2026-09-14 09:23:24] ---- RESULT merge RAW ----
+```json
+{
+  "game": "il2",
+  "title": {"de": "Tarnnetze bei Inchon", "en": "Camouflage at Inchon"},
+  "author": "Airborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"start":{"type":"air","x":86000,"z":249000,"alt":1000,"heading":50},
+     "route":[{"x":92500,"z":254500,"alt":700},{"x":91500,"z":261500,"alt":400},{"x":87500,"z":250500,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Lastwagen","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":91480,"z":261470,"heading":15},"movement":{"type":"static"}},
+    {"name":"Versteck-Jeeps","kind":"vehicle","script":"vehicles/willysmb","count":2,"country":601,"position":{"x":91620,"z":261620,"heading":100},"movement":{"type":"static"}},
+    {"name":"Patrouille","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":93000,"z":263000,"heading":45},"movement":{"type":"route"},"route":[{"x":94700,"z":264800},{"x":96300,"z":266900}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":91720,"z":261280},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":91500,"z":261550,"heading":12},{"x":91640,"z":261450,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"Feindaufklärung vernichten","en":"Destroy the recon vehicles"},"desc":{"de":"Zerstört alle sechs Fahrzeuge: drei Lastwagen und zwei Jeeps im getarnten Versteck sowie einen Jeep auf dem Weg nach Kimpo.","en":"Destroy all six vehicles: three trucks and two jeeps in the camouflaged hideout plus one jeep heading for Kimpo."},"counter":6}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"Sowol, hier Basis. Feindaufklärungstruppen verstecken sich nordwestlich von Inchon — vernichtet ihre Fahrzeuge im Hügelland.","textEn":"Sowol, this is Base. Enemy recon troops are hiding northwest of Inchon — destroy their vehicles in the hills."},
+    {"trigger":"check_zone","zone":{"x":91500,"z":261500,"r":2500},"speaker":"Basis","textDe":"Sowol, ihr seid im Zielgebiet. Vorsicht, zwei Bofors-Geschütze sichern das Hauptversteck.","textEn":"Sowol, you are in the target area. Careful, two Bofors guns are guarding the main hideout."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"Sowol, alle Fahrzeuge vernichtet. Kehrt tief über der Küste zur Basis zurück.","textEn":"Sowol, all vehicles destroyed. Return to base low over the coast."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Sowol, das Zeitlimit ist abgelaufen. Bricht den Einsatz ab und kehrt heim.","textEn":"Sowol, the time limit has expired. Break off the mission and come home."}
+  ],
+  "briefing": {"de":"14. September 1950, am Vorabend der geplanten Landungsoperation bei Inchon. Feindaufklärungstrupps der UN haben sich im Hügelland nordwestlich von Inchon verschanzt und sammeln mit Lastwagen und Jeeps unter Tarnnetzen Informationen über unsere Küstenverteidigung. Ein Jeep ist auf dem Weg nach Kimpo, um seine Erkenntnisse zu melden. Ihr startet als Rotte Sowol mit zwei Il-10, bewaffnet mit Raketen und Bomben, per Luftstart über der Küste westlich von Inchon. Fliegt tief über das Wasser an, dreht dann ins Hügelland ein und vernichtet alle feindlichen Fahrzeuge, bevor sie entkommen. Achtung: Zwei Bofors-Flugabwehrgeschütze sichern das Hauptversteck — greift überraschend aus niedriger Höhe an. Nach dem Erfolg verlasst ihr das Zielgebiet über der Küste und kehrt zur Basis zurück.","en":"14 September 1950, on the eve of the planned landing operation at Inchon. UN reconnaissance teams have dug in in the hills northwest of Inchon, gathering information on our coastal defenses with trucks and jeeps under camouflage nets. One jeep is on its way to Kimpo to report its findings. You launch as flight Sowol with two Il-10s armed with rockets and bombs, airborne over the coast west of Inchon. Approach low over the water, turn into the hills, and destroy all enemy vehicles before they escape. Warning: two Bofors anti-aircraft guns guard the main hideout — attack by surprise from low altitude. After success, leave the target area over the coast and return to base."},
+  "icons": [{"from":{"x":86000,"z":249000},"to":{"x":91500,"z":261500},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"Anflugweg vom Luftstart über der Küste zum getarnten Versteck nordwestlich von Inchon.","en":"Approach from the air start over the coast to the camouflaged hideout northwest of Inchon."}}]
+}
+```
+---- /RESULT merge RAW ----
+[2026-09-14 09:23:24] ---- PLAN JSON (normalisiert) ----
+{"author":"Airborne","briefing":{"de":"14. September 1950, am Vorabend der geplanten Landungsoperation bei Inchon. Feindaufklärungstrupps der UN haben sich im Hügelland nordwestlich von Inchon verschanzt und sammeln mit Lastwagen und Jeeps unter Tarnnetzen Informationen über unsere Küstenverteidigung. Ein Jeep ist auf dem Weg nach Kimpo, um seine Erkenntnisse zu melden. Ihr startet als Rotte Sowol mit zwei Il-10, bewaffnet mit Raketen und Bomben, per Luftstart über der Küste westlich von Inchon. Fliegt tief über das Wasser an, dreht dann ins Hügelland ein und vernichtet alle feindlichen Fahrzeuge, bevor sie entkommen. Achtung: Zwei Bofors-Flugabwehrgeschütze sichern das Hauptversteck — greift überraschend aus niedriger Höhe an. Nach dem Erfolg verlasst ihr das Zielgebiet über der Küste und kehrt zur Basis zurück.","en":"14 September 1950, on the eve of the planned landing operation at Inchon. UN reconnaissance teams have dug in in the hills northwest of Inchon, gathering information on our coastal defenses with trucks and jeeps under camouflage nets. One jeep is on its way to Kimpo to report its findings. You launch as flight Sowol with two Il-10s armed with rockets and bombs, airborne over the coast west of Inchon. Approach low over the water, turn into the hills, and destroy all enemy vehicles before they escape. Warning: two Bofors anti-aircraft guns guard the main hideout — attack by surprise from low altitude. After success, leave the target area over the coast and return to base."},"date":"1950-09-14","enemyGroups":[{"count":3,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Lastwagen","position":{"heading":15,"x":91480,"z":261470},"script":"vehicles/studebakerus6"},{"count":2,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Versteck-Jeeps","position":{"heading":100,"x":91620,"z":261620},"script":"vehicles/willysmb"},{"count":1,"country":601,"kind":"vehicle","movement":{"type":"route"},"name":"Patrouille","position":{"heading":45,"x":93000,"z":263000},"route":[{"x":94700,"z":264800},{"x":96300,"z":266900}],"script":"vehicles/willysmb"}],"flak":[{"count":2,"country":601,"engageable":true,"position":{"x":91720,"z":261280},"script":"fixedobjects/boforsl60"}],"friendlyGroups":[],"game":"il2","icons":[{"desc":{"de":"Anflugweg vom Luftstart über der Küste zum getarnten Versteck nordwestlich von Inchon.","en":"Approach from the air start over the coast to the camouflaged hideout northwest of Inchon."},"from":{"x":86000,"z":249000},"label":{"de":"Zielgebiet","en":"Target area"},"to":{"x":91500,"z":261500}}],"map":"korea","objectives":[{"counter":6,"desc":{"de":"Zerstört alle sechs Fahrzeuge: drei Lastwagen und zwei Jeeps im getarnten Versteck sowie einen Jeep auf dem Weg nach Kimpo.","en":"Destroy all six vehicles: three trucks and two jeeps in the camouflaged hideout plus one jeep heading for Kimpo."},"title":{"de":"Feindaufklärung vernichten","en":"Destroy the recon vehicles"}}],"playerGroups":[{"aircraft":"il10","count":2,"country":501,"name":"Sowol","route":[{"alt":700,"x":92500,"z":254500},{"alt":400,"x":91500,"z":261500},{"alt":800,"x":87500,"z":250500}],"start":{"alt":1000,"heading":50,"type":"air","x":86000,"z":249000}}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Sowol, hier Basis. Feindaufklärungstruppen verstecken sich nordwestlich von Inchon — vernichtet ihre Fahrzeuge im Hügelland.","textEn":"Sowol, this is Base. Enemy recon troops are hiding northwest of Inchon — destroy their vehicles in the hills.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Sowol, ihr seid im Zielgebiet. Vorsicht, zwei Bofors-Geschütze sichern das Hauptversteck.","textEn":"Sowol, you are in the target area. Careful, two Bofors guns are guarding the main hideout.","trigger":"check_zone","zone":{"r":2500,"x":91500,"z":261500}},{"speaker":"Basis","textDe":"Sowol, alle Fahrzeuge vernichtet. Kehrt tief über der Küste zur Basis zurück.","textEn":"Sowol, all vehicles destroyed. Return to base low over the coast.","trigger":"all_destroyed"},{"delay":1500,"speaker":"Basis","textDe":"Sowol, das Zeitlimit ist abgelaufen. Bricht den Einsatz ab und kehrt heim.","textEn":"Sowol, the time limit has expired. Break off the mission and come home.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":601,"kind":"block","positions":[{"heading":12,"x":91500,"z":261550},{"heading":192,"x":91640,"z":261450}],"script":"blocks/mil_camonet"}],"time":"15:35:00","title":{"de":"Tarnnetze bei Inchon","en":"Camouflage at Inchon"},"weather":{"cloudConfig":"summer\\00_Clear_00\\sky.ini","cloudHeight":6000,"cloudLevel":1500,"precLevel":0,"seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-14 09:23:24] INFO  Merge erfolgreich: Tarnnetze bei Inchon
+[2026-09-14 09:23:49] INFO  Generate (il2) erfolgreich: C:\Users\vince\OneDrive\Persönliches\IL2\AB_Camouflage_at_Inchon.Mission
+[2026-09-14 09:26:02] INFO  Generate (il2) erfolgreich: C:\Users\vince\OneDrive\Persönliches\IL2\AB_Camouflage_at_Inchon.Mission
+[2026-09-14 09:26:17] ERROR Generate (dcs) fehlgeschlagen: DCS-Karte "korea" unbekannt (bekannt: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)
+[2026-09-14 12:31:56] INFO  prefab gestartet
+[2026-09-14 12:31:56] ---- PROMPT prefab ----
+# Modus: Prefab-Builder (DCS World)
+
+Du bist Missions-Designer für DCS World und baust aus einer kurzen Beschreibung ein wiederverwendbares **Prefab**: eine Gruppe von Schiffen, Fahrzeugen, geparkten Flugzeugen und statischen Objekten mit realistischer Anordnung. Das Prefab wird später an einer beliebigen Position/Ausrichtung in eine Mission gesetzt; die Positionen sind daher **relativ in Metern** zu einem Ursprung (0,0).
+
+**User-Wunsch:**
+FARP in den Bergen: vier Landeplaetze, drei Zelte, Tanklager, Munitionslager, zwei Ural-375 Tankwagen, ein geparkter Mi-8MT, Windsack.
+
+## Koordinaten-Regeln
+- `dx` = Meter nach Norden (vorwärts), `dy` = Meter nach Osten (rechts), jeweils relativ zum Prefab-Ursprung bei Prefab-Ausrichtung 0° (Nord). Das Hauptelement (z. B. der Träger, der FARP, das Hauptgebäude) steht bei (0,0).
+- `heading` = Grad relativ zur Prefab-Ausrichtung (0 = vorwärts, 90 = rechts).
+- `count` > 1 legt identische Einheiten in einer Reihe ab: `layout` "row" = Seite an Seite (rechtwinklig zur eigenen Blickrichtung, Abstand `spacing` Meter), "column" = hintereinander. Standard-Abstand 20 m (Schiffe 400 m).
+- Realistische Abmessungen: Nimitz-Klasse Flugdeck ca. 330 m x 76 m, Flugzeuge parken hinter der Insel auf der Steuerbordseite (dy +10 bis +25) achtern (dx -40 bis -130) und am Bug; Eskorten 1-3 km entfernt in Formation; FARP-Landeplätze sind ca. 60 m breit; Gebäude nicht überlappen (mind. 30 m Abstand).
+
+## Elemente
+- `kind`: "ship" (bewegliche Schiffseinheit), "vehicle" (Bodeneinheit/Fahrzeug, KI-gesteuert, stationär), "plane"/"helicopter" (immer GEPARKTE statische Flugzeuge), "static" (Gebäude/Objekt).
+- `type`: exakter DCS-Typname. Schiffe z. B. "CVN_73", "CVN_71", "CVN_72", "CVN_75", "Stennis", "LHA_Tarawa", "KUZNECOW", "TICONDEROG", "USS_Arleigh_Burke_IIa", "PERRY", "MOSCOW", "PIOTR", "NEUSTRASH", "REZKY", "ALBATROS", "MOLNIYA", "KILO", "ELNYA" (Tanker), "Dry-cargo ship-1", "HandyWind", "speedboat". Fahrzeuge z. B. "Ural-375", "GAZ-66", "M-113", "M-60", "Hummer", "M 818", "ATZ-10", "ATMZ-5", "ZIL-131 KUNG", "KAMAZ Truck", "Ural-4320 APA-5D", "Ural ATsP-6", "MaxxPro_MRAP", "M1097 Avenger", "ZSU-23-4 Shilka", "2S6 Tunguska", "Hawk sr", "Hawk ln", "Hawk pcp", "Patriot str", "Patriot ln", "Patriot cp", "SA-11 Buk LN 9A310M1", "SA-11 Buk SR 9S18M1", "SA-11 Buk CC 9S470M1", "Kub 2P25 ln", "Kub 1S91 str", "Osa 9A33 ln". Flugzeuge/Helikopter als Statics z. B. "FA-18C_hornet", "F-14B", "E-2C", "S-3B Tanker", "SH-60B", "F-16C_50", "A-10C_2", "AH-64D_BLK_II", "UH-60A", "CH-47D", "Su-27", "Su-33", "MiG-29S", "Su-25", "Mi-8MT", "Mi-24P", "Ka-50_3", "IL-76MD", "An-26B".
+- `category`/`shapeName`: nur bei `kind:"static"` nötig; nutze den Katalog unten (Typname reicht, Kategorie und Modell werden ergänzt). Nicht im Katalog stehende Gebäude vermeiden.
+- `livery`: optional (z. B. "VFA-113" bei Hornets); im Zweifel weglassen.
+- `group`: Schiffe/Fahrzeuge mit gleichem `group`-Namen bilden eine DCS-Gruppe (z. B. der ganze Trägerverband "CSG").
+- `linkTo`: Name des Schiff-Elements, auf dessen Deck ein geparktes Flugzeug oder Objekt steht (Pflicht für alles auf einem Träger, sonst steht es im Wasser).
+- `country`: DCS-Country-Name des Prefabs (z. B. "USA", "Russia"), kann beim Platzieren überschrieben werden.
+
+## Katalog statischer Objekte (Typname → Kategorie)
+- Cargos: "container_cargo" (Cargo-Container), "iso_container" (ISO-Container (Cargo)), "iso_container_small" (ISO-Container klein), "ammo_cargo" (Munitionskisten), "barrels_cargo" (Faesser), "fueltank_cargo" (Tankcontainer), "oiltank_cargo" (Oeltank), "pipes_big_cargo" (Rohre gross), "pipes_small_cargo" (Rohre klein), "trunks_long_cargo" (Baumstaemme lang), "trunks_small_cargo" (Baumstaemme kurz), "tetrapod_cargo" (Tetrapoden), "m117_cargo" (M117-Bomben-Palette), "uh1h_cargo" (UH-1H-Rumpf (Cargo))
+- Fortifications: "Hangar A" (Grosser Flugzeughangar), "Hangar B" (Flugzeughangar), "Shelter" (Flugzeug-Shelter (HAS)), "Shelter B" (Flugzeug-Shelter, klein), "Barracks 2" (Kaserne), "Military staff" (Stabsgebaeude), ".Command Center" (Kommandozentrale (Bunker)), "Comms tower M" (Funkmast), "TV tower" (Fernsehturm), "Repair workshop" (Werkstatt), "Workshop A" (Werkstatt A), "Garage A" (Garage gross), "Garage B" (Garage), "Garage small A" (Garage klein A), "Garage small B" (Garage klein B), "Cafe" (Kantine), "Shop" (Laden), "Restaurant 1" (Restaurant), "Small house 1A" (Kleines Haus), "Small house 1B" (Kleines Haus B), "House 1A" (Wohnhaus), "Farm A" (Bauernhof A), "Farm B" (Bauernhof B), "Subsidiary structure 1" (Schuppen), "Subsidiary structure 2" (Schuppen 2), "Water tower A" (Wasserturm), "Boiler-house A" (Heizhaus), "Electric power box" (Trafohaeuschen), "Pump station" (Pumpstation), "Oil derrick" (Bohrturm), "Oil platform" (Oelplattform (Wasser)), "Railway station" (Bahnhof), "Windsock" (Windsack), "Red_Flag" (Rote Fahne), "White_Flag" (Weisse Fahne), "Black_Tyre" (Reifen schwarz (Markierung)), "White_Tyre" (Reifen weiss (Markierung)), "Container white" (Container weiss), "Container brown" (Container braun), "Container red 1" (Container rot 1), "Container red 2" (Container rot 2), "Container red 3" (Container rot 3), "Container 20ft" (Seecontainer 20 ft), "Container 40ft" (Seecontainer 40 ft), "Landmine" (Landmine), "FARP Tent" (FARP-Zelt), "FARP Ammo Dump Coating" (FARP-Munitionslager), "FARP Fuel Depot" (FARP-Tanklager), "FARP CP Blindage" (FARP-Gefechtsstand)
+- Heliports: "FARP" (FARP mit 4 Landeplaetzen), "Invisible FARP" (Unsichtbarer FARP (Versorgung)), "SINGLE_HELIPAD" (Einzelner Hubschrauberlandeplatz)
+- Warehouses: "Warehouse" (Lagerhalle), "Tank" (Treibstofftank), ".Ammunition depot" (Munitionsdepot)
+
+
+## Output
+NUR das JSON-Objekt, kein Markdown, keine Erklärung. Alle Zahlen als Zahlen. Halte dein Nachdenken sehr kurz.
+
+```json
+{
+  "name": "Carrier Strike Group",
+  "description": "CVN-73 mit zwei Burke-Zerstörern, sechs geparkten Hornets und einem E-2C auf dem Deck",
+  "game": "dcs",
+  "country": "USA",
+  "tags": ["naval", "carrier", "usa"],
+  "elements": [
+    {"name":"Carrier","kind":"ship","type":"CVN_73","group":"CSG","dx":0,"dy":0,"heading":0},
+    {"name":"Escort","kind":"ship","type":"USS_Arleigh_Burke_IIa","group":"CSG","count":2,"layout":"row","spacing":2500,"dx":-1800,"dy":-1250,"heading":0},
+    {"name":"Hornets aft","kind":"plane","type":"FA-18C_hornet","count":4,"layout":"row","spacing":14,"dx":-70,"dy":22,"heading":100,"linkTo":"Carrier"},
+    {"name":"Hawkeye","kind":"plane","type":"E-2C","dx":-135,"dy":18,"heading":90,"linkTo":"Carrier"},
+    {"name":"Deck crates","kind":"static","type":"iso_container_small","count":3,"spacing":4,"dx":-20,"dy":30,"heading":0,"linkTo":"Carrier"}
+  ]
+}
+```
+
+---- /PROMPT prefab ----
+[2026-09-14 12:32:13] INFO  LLM-HTTP 200, 8314 bytes
+[2026-09-14 12:32:13] ---- RESULT prefab RAW ----
+```json
+{
+  "name": "Mountain FARP",
+  "description": "FARP im Gelände mit vier Landeplätzen, drei Zelten, Tank- und Munitionslager, zwei Ural-375, geparkter Mi-8MT und Windsack",
+  "game": "dcs",
+  "country": "Russia",
+  "tags": ["farp", "helicopter", "russia", "mountain", "forward-operating"],
+  "elements": [
+    {"name":"FARP Pads","kind":"static","type":"FARP","dx":0,"dy":0,"heading":0},
+    {"name":"Parked Mi-8","kind":"helicopter","type":"Mi-8MT","dx":30,"dy":-30,"heading":90},
+    {"name":"Tents","kind":"static","type":"FARP Tent","count":3,"layout":"row","spacing":30,"dx":75,"dy":-30,"heading":0},
+    {"name":"Fuel Depot","kind":"static","type":"FARP Fuel Depot","dx":-80,"dy":25,"heading":0},
+    {"name":"Ammo Dump","kind":"static","type":"FARP Ammo Dump Coating","dx":-80,"dy":-45,"heading":0},
+    {"name":"Ural Trucks","kind":"vehicle","type":"Ural-375","count":2,"layout":"row","spacing":15,"dx":75,"dy":55,"heading":90},
+    {"name":"Windsock","kind":"static","type":"Windsock","dx":0,"dy":70,"heading":0},
+    {"name":"Ammo Crates","kind":"static","type":"ammo_cargo","count":2,"layout":"row","spacing":6,"dx":-50,"dy":-45,"heading":0}
+  ]
+}
+```
+---- /RESULT prefab RAW ----
+[2026-09-14 12:32:13] INFO  Prefab erfolgreich: Mountain FARP (8 Elemente)
+[2026-09-14 12:32:33] INFO  Prefab gespeichert: Mountain FARP (mountain-farp)
+[2026-09-14 12:33:05] ---- PLAN JSON (normalisiert) ----
+{"author":"Airborne","briefing":{"de":"14. September 1950, am Vorabend der geplanten Landungsoperation bei Inchon. Feindaufklärungstrupps der UN haben sich im Hügelland nordwestlich von Inchon verschanzt und sammeln mit Lastwagen und Jeeps unter Tarnnetzen Informationen über unsere Küstenverteidigung. Ein Jeep ist auf dem Weg nach Kimpo, um seine Erkenntnisse zu melden. Ihr startet als Rotte Sowol mit zwei Il-10, bewaffnet mit Raketen und Bomben, per Luftstart über der Küste westlich von Inchon. Fliegt tief über das Wasser an, dreht dann ins Hügelland ein und vernichtet alle feindlichen Fahrzeuge, bevor sie entkommen. Achtung: Zwei Bofors-Flugabwehrgeschütze sichern das Hauptversteck — greift überraschend aus niedriger Höhe an. Nach dem Erfolg verlasst ihr das Zielgebiet über der Küste und kehrt zur Basis zurück.","en":"14 September 1950, on the eve of the planned landing operation at Inchon. UN reconnaissance teams have dug in in the hills northwest of Inchon, gathering information on our coastal defenses with trucks and jeeps under camouflage nets. One jeep is on its way to Kimpo to report its findings. You launch as flight Sowol with two Il-10s armed with rockets and bombs, airborne over the coast west of Inchon. Approach low over the water, turn into the hills, and destroy all enemy vehicles before they escape. Warning: two Bofors anti-aircraft guns guard the main hideout — attack by surprise from low altitude. After success, leave the target area over the coast and return to base."},"date":"1950-09-14","enemyGroups":[{"count":3,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Lastwagen","position":{"heading":15,"x":91480,"z":261470},"script":"vehicles/studebakerus6"},{"count":2,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Versteck-Jeeps","position":{"heading":100,"x":91620,"z":261620},"script":"vehicles/willysmb"},{"count":1,"country":601,"kind":"vehicle","movement":{"type":"route"},"name":"Patrouille","position":{"heading":45,"x":93000,"z":263000},"route":[{"x":94700,"z":264800},{"x":96300,"z":266900}],"script":"vehicles/willysmb"}],"flak":[{"count":2,"country":601,"engageable":true,"position":{"x":91720,"z":261280},"script":"fixedobjects/boforsl60"}],"game":"dcs","icons":[{"desc":{"de":"Anflugweg vom Luftstart über der Küste zum getarnten Versteck nordwestlich von Inchon.","en":"Approach from the air start over the coast to the camouflaged hideout northwest of Inchon."},"from":{"x":86000,"z":249000},"label":{"de":"Zielgebiet","en":"Target area"},"to":{"x":91500,"z":261500}}],"map":"korea","objectives":[{"counter":6,"desc":{"de":"Zerstört alle sechs Fahrzeuge: drei Lastwagen und zwei Jeeps im getarnten Versteck sowie einen Jeep auf dem Weg nach Kimpo.","en":"Destroy all six vehicles: three trucks and two jeeps in the camouflaged hideout plus one jeep heading for Kimpo."},"title":{"de":"Feindaufklärung vernichten","en":"Destroy the recon vehicles"}}],"playerGroups":[{"aircraft":"il10","count":2,"country":501,"name":"Sowol","route":[{"alt":700,"x":92500,"z":254500},{"alt":400,"x":91500,"z":261500},{"alt":800,"x":87500,"z":250500}],"start":{"alt":1000,"heading":50,"type":"air","x":86000,"z":249000}}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Sowol, hier Basis. Feindaufklärungstruppen verstecken sich nordwestlich von Inchon — vernichtet ihre Fahrzeuge im Hügelland.","textEn":"Sowol, this is Base. Enemy recon troops are hiding northwest of Inchon — destroy their vehicles in the hills.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Sowol, ihr seid im Zielgebiet. Vorsicht, zwei Bofors-Geschütze sichern das Hauptversteck.","textEn":"Sowol, you are in the target area. Careful, two Bofors guns are guarding the main hideout.","trigger":"check_zone","zone":{"r":2500,"x":91500,"z":261500}},{"speaker":"Basis","textDe":"Sowol, alle Fahrzeuge vernichtet. Kehrt tief über der Küste zur Basis zurück.","textEn":"Sowol, all vehicles destroyed. Return to base low over the coast.","trigger":"all_destroyed"},{"delay":1500,"speaker":"Basis","textDe":"Sowol, das Zeitlimit ist abgelaufen. Bricht den Einsatz ab und kehrt heim.","textEn":"Sowol, the time limit has expired. Break off the mission and come home.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":601,"kind":"block","positions":[{"heading":12,"x":91500,"z":261550},{"heading":192,"x":91640,"z":261450}],"script":"blocks/mil_camonet"}],"time":"15:35:00","title":{"de":"Tarnnetze bei Inchon","en":"Camouflage at Inchon"},"weather":{"cloudConfig":"summer\\00_Clear_00\\sky.ini","cloudHeight":6000,"cloudLevel":1500,"precLevel":0,"seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]}}
+---- /PLAN JSON (normalisiert) ----

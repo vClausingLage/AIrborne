@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "airborne-dev",
+      "runtimeExecutable": "wails",
+      "runtimeArgs": ["dev", "-browser"],
+      "cwd": "app",
+      "port": 34115
+    }
+  ]
+}
