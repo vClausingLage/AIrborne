@@ -1,6 +1,6 @@
-# Airborne – Erste Schritte
+# AIrborne – Erste Schritte
 
-Airborne erzeugt aus einer kurzen Beschreibung eine spielbare Mission für **IL-2 Korea** oder **DCS World**. Die KI liefert nur einen Missionsplan (JSON); die eigentlichen Missionsdateien schreibt Airborne selbst – deterministisch, nachvollziehbar, direkt in deinen Spielordner.
+AIrborne erzeugt aus einer kurzen Beschreibung eine spielbare Mission für **IL-2 Korea** oder **DCS World**. Die KI liefert nur einen Missionsplan (JSON); die eigentlichen Missionsdateien schreibt AIrborne selbst – deterministisch, nachvollziehbar, direkt in deinen Spielordner.
 
 ---
 
@@ -8,14 +8,14 @@ Airborne erzeugt aus einer kurzen Beschreibung eine spielbare Mission für **IL-
 
 | Was | Wozu |
 |---|---|
-| Windows 10/11 | Airborne ist eine Desktop-App (Wails); die Spiele laufen ohnehin nur dort |
+| Windows 10/11 | AIrborne ist eine Desktop-App (Wails); die Spiele laufen ohnehin nur dort |
 | IL-2 Korea und/oder DCS World | mindestens eines der beiden Spiele installiert |
 | Ein LLM-Zugang (OpenAI-kompatibel) | z. B. OpenAI, OpenRouter oder lokal via Ollama |
 | Nur zum Selberbauen: Go ≥ 1.22, Node ≥ 18, Wails CLI v2 | nicht nötig, wenn du eine fertige `airborne.exe` hast |
 
 ## 2. Installation
 
-**Fertige Exe:** `airborne.exe` in den Projektordner legen (dort, wo `prompts/` liegt) oder von dort starten – Airborne sucht `prompts/`, `prefabs/`, `projects/` und `logs/` relativ zu diesem Ordner.
+**Fertige Exe:** `airborne.exe` in den Projektordner legen (dort, wo `prompts/` liegt) oder von dort starten – AIrborne sucht `prompts/`, `prefabs/`, `projects/` und `logs/` relativ zu diesem Ordner.
 
 **Selbst bauen:**
 
@@ -33,10 +33,10 @@ Kopiere `reference/.env.example` nach `.env` im Projektordner (oder nach `app\.e
 
 ```ini
 # LLM – OpenAI-kompatibel
-OPENAI_API_BASE=https://openrouter.ai/api/v1      # oder https://api.openai.com/v1, http://localhost:11434/v1 (Ollama)
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-5.3-flash                          # Modellname deines Providers
-OPENAI_MAX_TOKENS=30000                             # Reasoning-Modelle brauchen Luft für Denken + Antwort
+AI_API_BASE=https://openrouter.ai/api/v1      # oder https://api.openai.com/v1, http://localhost:11434/v1 (Ollama)
+AI_API_KEY=sk-...
+AI_MODEL=gpt-5.3-flash                          # Modellname deines Providers
+AI_MAX_TOKENS=30000                             # Reasoning-Modelle brauchen Luft für Denken + Antwort
 
 # IL-2 Korea
 IL2_EDITOR=C:\Program Files (x86)\Steam\steamapps\common\IL2Series\bin\editor\IL2Editor.exe
@@ -59,7 +59,7 @@ Ob der Key erkannt wurde, siehst du oben in der Kopfzeile: 🔑 + Modellname. �
    - **Schritt für Schritt**: fünf Felder (Story, Player, Gegner, Widerstand, Briefing). Leere Felder ergänzt die KI passend zur Story. Alle Felder wandern gemeinsam in *einen* Prompt – es gibt keine fünf Einzelaufrufe.
 3. **Generieren** – „Skirmish generieren" bzw. „Missionsplan erstellen". Je nach Modell 20–90 Sekunden.
 4. **Plan prüfen** – Tab **Plan & Export**. Links: Validierung (⚠ Hinweise sind Warnungen, keine Blocker) und Spiel/Karte/Datum. Rechts: der Plan als JSON – du kannst ihn direkt editieren (Anzahl, Positionen, Funktexte …) und mit „Änderungen übernehmen" bestätigen.
-5. **Mission erzeugen** – Button „Mission erzeugen". Airborne schreibt die Dateien in den Spielordner und zeigt Pfad + Hinweise. Alle generierten Missionen heißen `AB_<Titel>`, damit nie eine handgebaute Mission überschrieben wird.
+5. **Mission erzeugen** – Button „Mission erzeugen". AIrborne schreibt die Dateien in den Spielordner und zeigt Pfad + Hinweise. Alle generierten Missionen heißen `AB_<Titel>`, damit nie eine handgebaute Mission überschrieben wird.
 6. **Im Spiel öffnen**
    - **IL-2**: „IL-2 Editor starten", Mission öffnen, einmal speichern (erzeugt die `.msnbin`), dann im Spiel unter *Missionen* fliegen.
    - **DCS**: Mission liegt in `Saved Games\DCS\Missions`. Im Missionseditor öffnen, Bewaffnung/Flugplatz kurz prüfen, speichern, fliegen.
@@ -82,7 +82,7 @@ Der Modus **🧩 Prefabs** erscheint neben Blitz/Schritt für Schritt, sobald DC
 - **Automatisch:** gespeicherte Prefabs werden der Missions-KI bei Blitz/Schritt für Schritt mitgeteilt. Schreibst du z. B. *„… vor der Küste liegt unser Träger"*, platziert sie den Trägerverband selbst.
 - **Manuell:** rechts im Prefab-Modus ein Prefab wählen, Seite (verbündet/Gegner), Breite/Länge (Dezimalgrad) und Ausrichtung eingeben → „Prefab in Plan einfügen". Der Eintrag erscheint im Plan unter `prefabs`.
 
-Beim Export dreht Airborne das Prefab um seinen Ursprung, macht aus Schiffen/Fahrzeugen DCS-Gruppen und aus Gebäuden/geparkten Flugzeugen echte Statics. Flugzeuge mit `linkTo` (z. B. auf dem Träger) werden an das Schiff gekoppelt und fahren mit.
+Beim Export dreht AIrborne das Prefab um seinen Ursprung, macht aus Schiffen/Fahrzeugen DCS-Gruppen und aus Gebäuden/geparkten Flugzeugen echte Statics. Flugzeuge mit `linkTo` (z. B. auf dem Träger) werden an das Schiff gekoppelt und fahren mit.
 
 Zwei Beispiele liegen bereit: `prefabs/carrier-strike-group.json` (US-Trägerverband) und `prefabs/mountain-farp.json` (russischer FARP).
 
@@ -98,14 +98,14 @@ Zwei Beispiele liegen bereit: `prefabs/carrier-strike-group.json` (US-Trägerver
 
 | Symptom | Ursache / Lösung |
 |---|---|
-| ⚠ statt 🔑 in der Kopfzeile | `.env` nicht gefunden oder `OPENAI_API_KEY` leer. `.env` muss im Projektordner (neben `prompts/`) oder in `app\` liegen. |
-| „Antwort enthält kein JSON" / „Missionsplan-JSON ungültig" | Modell hat abgebrochen oder geplaudert. `OPENAI_MAX_TOKENS` erhöhen, kleineres/anderes Modell, oder einfach nochmal generieren. Rohantwort steht in `logs/airborne.log`. |
+| ⚠ statt 🔑 in der Kopfzeile | `.env` nicht gefunden oder `AI_API_KEY` leer. `.env` muss im Projektordner (neben `prompts/`) oder in `app\` liegen. |
+| „Antwort enthält kein JSON" / „Missionsplan-JSON ungültig" | Modell hat abgebrochen oder geplaudert. `AI_MAX_TOKENS` erhöhen, kleineres/anderes Modell, oder einfach nochmal generieren. Rohantwort steht in `logs/airborne.log`. |
 | „IL2_MISSIONS_DIR ist nicht gesetzt" / „DCS_SAVED_GAMES ist nicht gesetzt" | Pfad in `.env` eintragen; Anführungszeichen sind erlaubt, Backslashes bleiben Backslashes. |
 | IL-2 Editor startet mit Paketfehler | Immer über „IL-2 Editor starten" öffnen – der Editor braucht `bin\editor` als Arbeitsverzeichnis. |
 | DCS lädt die Mission nicht | `Saved Games\DCS\Logs\dcs.log` ansehen. Meist ein unbekannter Einheiten-Typ im Plan-JSON – Name korrigieren, „Änderungen übernehmen", neu exportieren. |
 | Prefab: Flugzeuge stehen im Wasser statt auf dem Träger | Dem Element im Prefab-JSON `"linkTo": "<Name des Schiff-Elements>"` geben. |
 | Prefab-Hinweis „Static-Typ nicht im Katalog" | Typ ist unbekannt und wird als Fahrzeug platziert. Die bekannten Gebäude/Objekte stehen in `app/internal/prefab/catalog.go`; alternativ `category` und `shapeName` im JSON selbst setzen. |
-| „Projekt-Root nicht gefunden (prompts/ fehlt)" | Airborne aus dem Projektordner starten oder die Exe dorthin legen. |
+| „Projekt-Root nicht gefunden (prompts/ fehlt)" | AIrborne aus dem Projektordner starten oder die Exe dorthin legen. |
 
 Jeder KI-Aufruf (Prompt + Rohantwort + normalisierter Plan) wird nach `logs/airborne.log` geschrieben – der erste Anlaufpunkt bei Problemen. Der Pfad steht unten im Tab „Plan & Export".
 

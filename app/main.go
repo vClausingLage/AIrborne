@@ -17,7 +17,7 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "Airborne - Missionsbaukasten",
+		Title:  "AIrborne - Missionsbaukasten",
 		Width:  1280,
 		Height: 840,
 		AssetServer: &assetserver.Options{

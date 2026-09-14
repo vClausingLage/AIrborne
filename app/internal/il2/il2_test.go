@@ -206,7 +206,7 @@ func TestGenerateStructure(t *testing.T) {
 		u = append(u, uint16(ger[i])|uint16(ger[i+1])<<8)
 	}
 	decoded := string(utf16.Decode(u))
-	if !strings.HasPrefix(decoded, "0:Operation Chromite - Jagd auf die Spione\r\n1:Briefing DE\r\n2:Airborne\r\n") {
+	if !strings.HasPrefix(decoded, "0:Operation Chromite - Jagd auf die Spione\r\n1:Briefing DE\r\n2:AIrborne\r\n") {
 		t.Fatalf("unexpected language file start: %q", decoded[:80])
 	}
 	if !strings.Contains(decoded, "Vernichtet die Aufklärer") {

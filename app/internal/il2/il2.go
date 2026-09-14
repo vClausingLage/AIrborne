@@ -89,7 +89,7 @@ func Generate(mp *plan.MissionPlan, outDir string) (*gen.Result, error) {
 	w.lang[langDesc] = mp.Briefing
 	author := mp.Author
 	if author == "" {
-		author = "Airborne"
+		author = "AIrborne"
 	}
 	w.lang[langAuthor] = plan.Localized{De: author, En: author}
 

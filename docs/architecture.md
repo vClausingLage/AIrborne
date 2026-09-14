@@ -1,4 +1,4 @@
-# Airborne – Architektur & Technologie-Entscheidung
+# AIrborne – Architektur & Technologie-Entscheidung
 
 Meta-App zur KI-gestützten Erstellung realistischer, immersiver Missionsdateien für **IL-2 Korea** und **DCS World**.
 

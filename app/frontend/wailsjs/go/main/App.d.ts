@@ -15,6 +15,8 @@ export function LoadProject(arg1:string):Promise<pipeline.State>;
 
 export function MergePlan():Promise<pipeline.State>;
 
+export function NewProject():Promise<pipeline.State>;
+
 export function OpenFile(arg1:string):Promise<string>;
 
 export function OpenIL2Editor():Promise<void>;

@@ -4,7 +4,7 @@
 {
   "game": "il2",
   "title": {"de": "...", "en": "..."},
-  "author": "Airborne",
+  "author": "AIrborne",
   "map": "korea",
   "date": "1950-09-14",
   "time": "15:35:00",

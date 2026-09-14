@@ -813,7 +813,7 @@ func (b *builder) weather(month int) T {
 		k("halo", tbl(k("preset", "auto"))),
 		k("type_weather", 0),
 		k("modifiedTime", false),
-		k("name", "Airborne"),
+		k("name", "AIrborne"),
 		k("fog", tbl(k("visibility", 0), k("thickness", 0))),
 		k("visibility", tbl(k("distance", 80000))),
 	)

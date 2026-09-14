@@ -1,4 +1,4 @@
-# Airborne
+# AIrborne
 
 KI-gestützte Meta-App zur Erstellung realistischer, immersiver Missionen für **IL-2 Korea** und **DCS World** (Go + Wails v2 + React/TypeScript).
 

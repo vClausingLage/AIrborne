@@ -80,27 +80,27 @@ func LoadEnv(candidates ...string) error {
 }
 
 func LoadConfig() Config {
-	base := os.Getenv("OPENAI_API_BASE")
+	base := os.Getenv("AI_API_BASE")
 	if base == "" {
 		base = "https://api.openai.com/v1"
 	}
 	maxTokens := 30000
-	if v := os.Getenv("OPENAI_MAX_TOKENS"); v != "" {
+	if v := os.Getenv("AI_MAX_TOKENS"); v != "" {
 		if n, err := strconv.Atoi(strings.TrimSpace(v)); err == nil {
 			maxTokens = n
 		}
 	}
 	return Config{
 		Base:      strings.TrimRight(base, "/"),
-		Key:       os.Getenv("OPENAI_API_KEY"),
-		Model:     os.Getenv("OPENAI_MODEL"),
+		Key:       os.Getenv("AI_API_KEY"),
+		Model:     os.Getenv("AI_MODEL"),
 		MaxTokens: maxTokens,
 	}
 }
 
 func (c Config) Chat(ctx context.Context, messages []Message) (string, error) {
 	if c.Model == "" {
-		return "", fmt.Errorf("OPENAI_MODEL ist nicht gesetzt (.env)")
+		return "", fmt.Errorf("AI_MODEL ist nicht gesetzt (.env)")
 	}
 	model := c.Model
 	body, err := json.Marshal(chatRequest{Model: model, Messages: messages, Temperature: 0.7, MaxTokens: c.MaxTokens})
@@ -155,7 +155,7 @@ func (c Config) Chat(ctx context.Context, messages []Message) (string, error) {
 	}
 	if strings.TrimSpace(content) == "" {
 		logging.Block("LLM RAW BODY (content leer)", truncate(string(data), 8000))
-		return "", fmt.Errorf("LLM lieferte leeren content (finish=%s) - ggf. OPENAI_MAX_TOKENS erhoehen (Details im Log)", cr.Choices[0].FinishReason)
+		return "", fmt.Errorf("LLM lieferte leeren content (finish=%s) - ggf. AI_MAX_TOKENS erhoehen (Details im Log)", cr.Choices[0].FinishReason)
 	}
 	return content, nil
 }

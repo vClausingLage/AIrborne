@@ -152,6 +152,16 @@ func (a *App) SaveProject(path string) (string, error) {
 	return p, nil
 }
 
+// NewProject wipes inputs, plan and export result (the game selection stays).
+func (a *App) NewProject() (pipeline.State, error) {
+	if a.pl == nil {
+		return pipeline.State{}, errNoProject()
+	}
+	a.pl.NewProject()
+	a.saveQuietly()
+	return a.pl.State(), nil
+}
+
 func (a *App) LoadProject(path string) (pipeline.State, error) {
 	if a.pl == nil {
 		return pipeline.State{}, errNoProject()
@@ -167,7 +177,7 @@ func (a *App) PickFile(title string) (string, error) {
 		Title:           title,
 		DefaultFilename: "airborne-project.json",
 		Filters: []runtime.FileFilter{
-			{DisplayName: "Airborne Project (*.json)", Pattern: "*.json"},
+			{DisplayName: "AIrborne Project (*.json)", Pattern: "*.json"},
 		},
 	})
 }
@@ -176,7 +186,7 @@ func (a *App) OpenFile(title string) (string, error) {
 	return runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: title,
 		Filters: []runtime.FileFilter{
-			{DisplayName: "Airborne Project (*.json)", Pattern: "*.json"},
+			{DisplayName: "AIrborne Project (*.json)", Pattern: "*.json"},
 		},
 	})
 }
@@ -188,7 +198,7 @@ func (a *App) saveQuietly() {
 }
 
 func errNoProject() error {
-	return fmt.Errorf("Projekt-Root nicht gefunden (prompts/ fehlt). Airborne aus dem Projektordner starten oder .env/PROMPTS_DIR pruefen")
+	return fmt.Errorf("Projekt-Root nicht gefunden (prompts/ fehlt). AIrborne aus dem Projektordner starten oder .env/PROMPTS_DIR pruefen")
 }
 
 // keep gen imported for the binding generator (Result is part of State).

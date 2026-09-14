@@ -26,6 +26,10 @@ export function MergePlan() {
   return window['go']['main']['App']['MergePlan']();
 }
 
+export function NewProject() {
+  return window['go']['main']['App']['NewProject']();
+}
+
 export function OpenFile(arg1) {
   return window['go']['main']['App']['OpenFile'](arg1);
 }

@@ -525,3 +525,14 @@ func (p *Pipeline) LoadProject(path string) error {
 	p.projPath = path
 	return nil
 }
+
+// NewProject discards inputs, plan and output and starts an empty project in
+// the default autosave slot (projects/current.json). The selected game is kept.
+func (p *Pipeline) NewProject() {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	game := p.proj.Game
+	p.proj = NewProject()
+	p.proj.Game = game
+	p.projPath = filepath.Join(p.Root, "projects", "current.json")
+}

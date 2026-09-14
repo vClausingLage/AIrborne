@@ -12,6 +12,7 @@ import {
   OpenIL2Editor,
   SaveProject,
   LoadProject,
+  NewProject,
   PickFile,
   OpenFile,
   GeneratePrefab,
@@ -169,6 +170,17 @@ function App() {
       if (path) return await LoadProject(path)
     })
 
+  const reset = () => {
+    if (!confirm('Neues Projekt: alle Eingaben, den Missionsplan und das Export-Ergebnis verwerfen?')) return
+    run('new', NewProject, () => {
+      setQuickInput('')
+      setPrefabInput('')
+      setPrefabDraft('')
+      setPlacement({ id: '', side: 'friendly', lat: '', lon: '', heading: '0', country: '' })
+      setActiveTab('input')
+    })
+  }
+
   const setInput = (key: string, value: string) => {
     if (!state) return
     const roles = state.roles.map((r) => (r.key === key ? { ...r, input: value } : r))
@@ -192,7 +204,9 @@ function App() {
   return (
     <div className="wrap">
       <header className="topbar">
-        <div className="brand">✈ Airborne</div>
+        <div className="brand">
+          ✈ <span className="brand-ai">AI</span>rborne
+        </div>
         <div className="gamesel">
           <button className={!isDcs ? 'gamesel-btn active' : 'gamesel-btn'} onClick={() => switchGame('il2')} disabled={busy !== ''}>
             IL-2 Korea
@@ -204,6 +218,7 @@ function App() {
         <div className="cfg">
           {state.config.hasKey ? '🔑' : '⚠'} {state.config.model || 'kein Modell'} · {state.config.base}
         </div>
+        <button onClick={reset} disabled={busy !== ''} title="Eingaben, Plan und Export verwerfen">Neu</button>
         <button onClick={save} disabled={busy !== ''}>Speichern</button>
         <button onClick={load} disabled={busy !== ''}>Laden</button>
       </header>
@@ -218,7 +233,7 @@ function App() {
               ⚡ Blitz
             </button>
             <button className={mode === 'steps' ? 'seg active' : 'seg'} onClick={() => selectMode('steps')}>
-              Schritt für Schritt{filled > 0 ? ` (${filled}/5)` : ''}
+              🪜 Schritt für Schritt{filled > 0 ? ` (${filled}/5)` : ''}
             </button>
             {isDcs && (
               <button className={mode === 'prefab' ? 'seg active' : 'seg'} onClick={() => selectMode('prefab')} title="Wiederverwendbare Asset-Gruppen für DCS bauen">
