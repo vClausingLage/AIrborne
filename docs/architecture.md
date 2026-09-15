@@ -36,7 +36,7 @@ AIrborne/
   prompts/              # Versionierte Prompt-Templates (Markdown, 1 Datei je Rolle)
   prefabs/              # Gespeicherte Prefabs (JSON, je Datei eines) - Bibliothek der App
   docs/                 # Format- und Workflow-Doku
-  reference/            # Asset-Kataloge, Beispiel-Missionen, .env.example
+  reference/            # Asset-Kataloge, Beispiel-Missionen, .env.example, il2-payloads.json (PayloadId-Tabelle)
 ```
 
 ## 2. Pipeline (Kern der App)
@@ -46,7 +46,9 @@ User-Eingaben (5 Felder: Story, Player, Gegner, Widerstand, Briefing)
    – oder ⚡ Blitz: ein Freitext –
         │
         ▼
-EIN strukturierter Prompt (prompts/06-merge.md bzw. 07-quick.md + schema.md):
+System-Prompt (prompts/00-system.md: Rolle, Zielspiel, Grundsaetze –
+  Wegpunkte mit Aufgabe, plausible Bewaffnung, keine Anachronismen)
++ EIN strukturierter User-Prompt (prompts/06-merge.md bzw. 07-quick.md + schema.md):
   "Deine Aufgabe ist es, eine Mission zu erstellen … # Story … # Player … # Gegner …"
   (kein LLM-Aufruf je Rolle; leere Felder entscheidet die KI passend zur Story)
         │

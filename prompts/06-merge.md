@@ -31,9 +31,11 @@ _(Ton und Sprache des Briefings, Callsigns, Funksprüche: Intro nach Missionssta
 
 # Anforderungen an den Plan
 1. Alle Objekte bekommen realistische Positionen (Koordinatensystem siehe Spiel-Kontext) und passen räumlich zusammen (Anflugweg, Zielgebiet, Rückweg).
-2. Genau 1 Spielergruppe, 1-4 Gegnergruppen (mind. ein bekämpfbares Ziel), Flak/Statics passend zur Vorgabe, genau 1 primäres Missionsziel.
-3. 2-5 Funksprüche (Intro, Kontakt, Erfolg, ggf. Zeitlimit), authentischer Ton, max. 2 Sätze je Meldung.
-4. Briefing DE + EN. Titel DE + EN.
-5. Der Plan muss SCHEMA-KONFORM sein. Füge keine Felder hinzu, lass optionale weg.
+2. Wegpunkte: Die Spielergruppe erhält eine Route Anflug/IP → Zielgebiet (über den Gegnerpositionen) → Rückweg, die eine realistische Aufgabe ergibt. Alle beweglichen Einheiten (`movement.type: "route"`, Flugzeuge, Hubschrauber, Schiffe) erhalten eigene Routen, die ihr Verhalten abbilden (Kolonne fährt zum Ziel, Patrouille kreist, CAP-Orbit) und den Kontakt mit dem Spieler sinnvoll herstellen.
+3. Bewaffnung: Jede Flugzeug-/Hubschraubergruppe bekommt eine Rolle `task` (CAP, CAS, SEAD, Strike, AntiShip, Intercept, Escort, Transport …) und ein plausibles `payload` (Typ, Epoche, Aufgabe). Spieler und KI-Flugzeuge ohne `task`/`payload` sind nicht erlaubt.
+4. Genau 1 Spielergruppe, 1-4 Gegnergruppen (mind. ein bekämpfbares Ziel), Flak/Statics passend zur Vorgabe, genau 1 primäres Missionsziel.
+5. 2-5 Funksprüche (Intro, Kontakt, Erfolg, ggf. Zeitlimit), authentischer Ton, max. 2 Sätze je Meldung.
+6. Briefing DE + EN. Titel DE + EN.
+7. Der Plan muss SCHEMA-KONFORM sein. Füge keine Felder hinzu, lass optionale weg.
 
 {{SCHEMA}}

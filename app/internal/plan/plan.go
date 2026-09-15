@@ -117,6 +117,7 @@ type Group struct {
 	Movement    *Movement  `json:"movement,omitempty"`
 	Route       []Position `json:"route,omitempty"`
 	Payload     string     `json:"payload,omitempty"`
+	Task        string     `json:"task,omitempty"` // DCS role: CAP, CAS, SEAD, Strike, ...
 	Notes       string     `json:"notes,omitempty"`
 }
 

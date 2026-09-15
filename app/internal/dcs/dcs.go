@@ -35,25 +35,27 @@ func (s *side) add(country, category string, g T) {
 }
 
 type builder struct {
-	mp       *plan.MissionPlan
-	terr     terrain
-	notes    []string
-	groupID  int
-	unitID   int
-	zoneID   int
-	dictN    int
-	dict     T
-	actions  T
-	conds    T
-	funcs    T
-	flags    T
-	rules    T
-	zones    T
-	player   *side
-	enemy    *side
-	assigned map[string]string // country -> side name
-	llWarned bool
-	prefabs  PrefabSource
+	mp            *plan.MissionPlan
+	terr          terrain
+	notes         []string
+	groupID       int
+	unitID        int
+	zoneID        int
+	dictN         int
+	dict          T
+	actions       T
+	conds         T
+	funcs         T
+	flags         T
+	rules         T
+	zones         T
+	player        *side
+	enemy         *side
+	assigned      map[string]string // country -> side name
+	llWarned      bool
+	prefabs       PrefabSource
+	payloads      *PayloadDB
+	payloadWarned bool
 
 	playerGroupID int
 	enemyGroupIDs []int
@@ -75,6 +77,12 @@ func Generate(mp *plan.MissionPlan, outDir string) (*gen.Result, error) {
 
 // GenerateWith writes NAME.miz into outDir; prefabs resolves plan.Prefabs.
 func GenerateWith(mp *plan.MissionPlan, outDir string, prefabs PrefabSource) (*gen.Result, error) {
+	return GenerateOpts(mp, outDir, prefabs, nil)
+}
+
+// GenerateOpts is GenerateWith plus the mission-editor payload presets used
+// to arm aircraft (nil = empty pylons).
+func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, payloads *PayloadDB) (*gen.Result, error) {
 	if len(mp.PlayerGroups) == 0 || mp.PlayerGroups[0].Start == nil {
 		return nil, fmt.Errorf("Plan hat keine Spielergruppe mit Startposition")
 	}
@@ -82,7 +90,7 @@ func GenerateWith(mp *plan.MissionPlan, outDir string, prefabs PrefabSource) (*g
 	if !ok {
 		return nil, fmt.Errorf("DCS-Karte %q unbekannt (bekannt: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)", mp.Map)
 	}
-	b := &builder{mp: mp, terr: terr, zoneID: 100, assigned: map[string]string{}, prefabs: prefabs}
+	b := &builder{mp: mp, terr: terr, zoneID: 100, assigned: map[string]string{}, prefabs: prefabs, payloads: payloads}
 	mission := b.build()
 
 	name := gen.MissionName(mp.Title.Pick("en"))
@@ -423,6 +431,8 @@ func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string)
 	}
 	gid := b.nextGroup()
 	numeric := numericCallsignCountries[country]
+	r := b.roleFor(g, s, isPlayer)
+	pylons := b.pylonsFor(g, typ, r)
 	units := tbl()
 	for i := 0; i < g.Units(); i++ {
 		ux, uy := offset(x, y, anchor.Head, i, 100, 150)
@@ -447,7 +457,7 @@ func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string)
 			k("x", ux),
 			k("name", fmt.Sprintf("%s-%d", g.Name, i+1)),
 			k("payload", tbl(
-				k("pylons", tbl()),
+				k("pylons", pylons),
 				k("fuel", fuelFor(typ)),
 				k("flare", 60),
 				k("chaff", 60),
@@ -459,21 +469,17 @@ func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string)
 		)))
 	}
 
-	task := "CAS"
-	var wpTasks T
-	if !isPlayer && s == b.enemy {
-		task = "CAP"
+	task := r.dcsTask
+	wpTasks := tbl()
+	if !isPlayer && len(r.targets) > 0 {
+		targets := make([]any, len(r.targets))
+		for i, t := range r.targets {
+			targets[i] = t
+		}
 		wpTasks = arr(tbl(
-			k("enabled", true), k("key", "CAP"), k("id", "EngageTargets"), k("number", 1), k("auto", true),
-			k("params", tbl(k("targetTypes", arr("Air")), k("priority", 0))),
+			k("enabled", true), k("key", r.key), k("id", "EngageTargets"), k("number", 1), k("auto", true),
+			k("params", tbl(k("targetTypes", arr(targets...)), k("priority", 0))),
 		))
-	} else if !isPlayer {
-		wpTasks = arr(tbl(
-			k("enabled", true), k("key", "CAS"), k("id", "EngageTargets"), k("number", 1), k("auto", true),
-			k("params", tbl(k("targetTypes", arr("Helicopters", "Ground Units", "Light armed ships")), k("priority", 0))),
-		))
-	} else {
-		wpTasks = tbl()
 	}
 	points := arr(airPoint(x, y, altM, speed, wpTasks, true))
 	route := g.Route
@@ -875,4 +881,40 @@ func parseTime(s string) (h, m, sec int) {
 		return
 	}
 	return 12, 0, 0
+}
+
+// roleFor resolves the plan's task for an air group. Without a task the old
+// defaults apply: enemy aircraft fly CAP, everything else CAS.
+func (b *builder) roleFor(g plan.Group, s *side, isPlayer bool) role {
+	if r, ok := lookupRole(g.Task); ok {
+		return r
+	}
+	if strings.TrimSpace(g.Task) != "" {
+		b.note("Gruppe %s: Rolle %q unbekannt - Standardrolle verwendet", g.Name, g.Task)
+	}
+	def := "CAS"
+	if !isPlayer && s == b.enemy {
+		def = "CAP"
+	}
+	r, _ := lookupRole(def)
+	return r
+}
+
+// pylonsFor picks the mission-editor preset for the group and reports the
+// choice; empty pylons when no presets are available for the type.
+func (b *builder) pylonsFor(g plan.Group, typ string, r role) T {
+	if b.payloads == nil || b.payloads.Files == 0 {
+		if !b.payloadWarned {
+			b.note("Keine DCS-Bewaffnungs-Presets gefunden (DCS_ROOT in .env pruefen) - Pylons bleiben leer")
+			b.payloadWarned = true
+		}
+		return tbl()
+	}
+	p, ok := b.payloads.Pick(typ, r, g.Payload)
+	if !ok {
+		b.note("Gruppe %s: keine Presets fuer Typ %q - Bewaffnung im Editor setzen", g.Name, typ)
+		return tbl()
+	}
+	b.note("Bewaffnung %s (%s, %s): %s", g.Name, typ, r.key, p.Name)
+	return pylonTable(p)
 }

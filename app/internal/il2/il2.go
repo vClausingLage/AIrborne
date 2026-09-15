@@ -33,6 +33,9 @@ type writer struct {
 	next  int
 	lang  []plan.Localized
 	notes []string
+
+	payloads      *PayloadTable
+	payloadWarned bool
 }
 
 func (w *writer) idx() int {
@@ -79,11 +82,17 @@ func asciiName(s string) string {
 
 // Generate writes the mission files into outDir and returns what was written.
 func Generate(mp *plan.MissionPlan, outDir string) (*gen.Result, error) {
+	return GenerateOpts(mp, outDir, nil)
+}
+
+// GenerateOpts is Generate plus the payload table used to pick PayloadId
+// per aircraft group (nil = PayloadId 0 everywhere).
+func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (*gen.Result, error) {
 	if len(mp.PlayerGroups) == 0 || mp.PlayerGroups[0].Start == nil {
 		return nil, fmt.Errorf("Plan hat keine Spielergruppe mit Startposition")
 	}
 	name := gen.MissionName(mp.Title.Pick("en"))
-	w := &writer{}
+	w := &writer{payloads: payloads}
 	w.lang = make([]plan.Localized, 3)
 	w.lang[langTitle] = mp.Title
 	w.lang[langDesc] = mp.Briefing
@@ -248,6 +257,7 @@ func (w *writer) build(mp *plan.MissionPlan) {
 		startPos.y = alt(start.Alt, 0)
 		w.note("Bodenstart (StartType=1): Position/Hoehe im Editor am Flugplatz pruefen")
 	}
+	playerPayload, playerMod := w.payloadFor(player, playerAsset, true)
 	for i := 0; i < player.Units(); i++ {
 		idx := w.idx()
 		ent := w.idx()
@@ -259,6 +269,7 @@ func (w *writer) build(mp *plan.MissionPlan) {
 		w.plane(planeSpec{
 			name: nm, idx: idx, ent: ent, p: p, heading: start.Heading, a: playerAsset,
 			country: playerCountry, ai: 4, coop: 1, formation: i, callsign: 1, callnum: i + 1, startType: startType,
+			payload: playerPayload, modMask: playerMod,
 		})
 		w.entity(ent, "Plane entity", p, idx, 0)
 		playerEntities = append(playerEntities, ent)
@@ -570,6 +581,8 @@ type planeSpec struct {
 	callsign  int
 	callnum   int
 	startType int
+	payload   int
+	modMask   string
 }
 
 func (w *writer) plane(s planeSpec) {
@@ -596,8 +609,8 @@ func (w *writer) plane(s planeSpec) {
 	w.line("  Callnum = %d;", s.callnum)
 	w.line("  DamageReport = 50;")
 	w.line("  DamageThreshold = 1;")
-	w.line("  PayloadId = 0;")
-	w.line("  ModMask = 1;")
+	w.line("  PayloadId = %d;", s.payload)
+	w.line("  ModMask = %s;", orDefault(s.modMask, "1"))
 	w.line("  AiRTBDecision = 0;")
 	w.line("  DeleteAfterDeath = 1;")
 	w.line("  DeleteAfterLand = 1;")
@@ -909,13 +922,14 @@ func (w *writer) group(g plan.Group, counterIdx int, enemy bool) []int {
 func (w *writer) aiPlanes(g plan.Group, anchor plan.Position, c int, enemy bool) []int {
 	a := resolve(g.TypeName(), "planes")
 	base := pos{anchor.X, alt(anchor.Alt, 1500), anchor.Z}
+	payload, modMask := w.payloadFor(g, a, false)
 	var ents []int
 	for i := 0; i < g.Units(); i++ {
 		idx := w.idx()
 		ent := w.idx()
 		p := formationOffset(base, anchor.Head, i, 120, 180)
 		nm := fmt.Sprintf("%s %d", g.Name, i+1)
-		w.plane(planeSpec{name: nm, idx: idx, ent: ent, p: p, heading: anchor.Head, a: a, country: c, ai: 3, coop: 0, formation: i, callsign: 2, callnum: i + 1})
+		w.plane(planeSpec{name: nm, idx: idx, ent: ent, p: p, heading: anchor.Head, a: a, country: c, ai: 3, coop: 0, formation: i, callsign: 2, callnum: i + 1, payload: payload, modMask: modMask})
 		w.entity(ent, nm+" entity", p, idx, 0)
 		ents = append(ents, ent)
 	}

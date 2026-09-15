@@ -48,6 +48,7 @@ var Roles = []RoleDef{
 }
 
 const (
+	systemFile = "00-system.md"
 	mergeFile  = "06-merge.md"
 	quickFile  = "07-quick.md"
 	prefabFile = "08-prefab.md"
@@ -130,7 +131,7 @@ func New(root string) (*Pipeline, error) {
 
 func (p *Pipeline) loadTemplates() error {
 	p.tmpl = map[string]string{}
-	for _, f := range []string{mergeFile, quickFile, prefabFile, schemaFile} {
+	for _, f := range []string{systemFile, mergeFile, quickFile, prefabFile, schemaFile} {
 		data, err := os.ReadFile(filepath.Join(p.PromptsDir, f))
 		if err != nil {
 			return fmt.Errorf("Prompt-Template fehlt: %s (%w)", f, err)
@@ -165,6 +166,7 @@ type Paths struct {
 	IL2Root        string
 	DCSSavedGames  string
 	DCSMissionsDir string
+	DCSRoot        string
 }
 
 func LoadPaths() Paths {
@@ -179,6 +181,7 @@ func LoadPaths() Paths {
 		IL2Root:        clean("IL2_ROOT"),
 		DCSSavedGames:  clean("DCS_SAVED_GAMES"),
 		DCSMissionsDir: clean("DCS_MISSIONS_DIR"),
+		DCSRoot:        clean("DCS_ROOT"),
 	}
 	if ps.DCSMissionsDir == "" && ps.DCSSavedGames != "" {
 		ps.DCSMissionsDir = filepath.Join(ps.DCSSavedGames, "Missions")
@@ -271,11 +274,13 @@ func (p *Pipeline) SetPlanJSON(text string) error {
 	return nil
 }
 
-func (p *Pipeline) runPlanPrompt(ctx context.Context, label, prompt string) (plan.MissionPlan, error) {
+func (p *Pipeline) runPlanPrompt(ctx context.Context, label, game, prompt string) (plan.MissionPlan, error) {
 	logging.Infof("%s gestartet", label)
+	system := p.systemPrompt(game)
+	logging.Block("SYSTEM "+label, system)
 	logging.Block("PROMPT "+label, prompt)
 	cfg := ai.LoadConfig()
-	out, err := cfg.Chat(ctx, []ai.Message{{Role: "user", Content: prompt}})
+	out, err := cfg.Chat(ctx, []ai.Message{{Role: "system", Content: system}, {Role: "user", Content: prompt}})
 	if err != nil {
 		logging.Errorf("%s fehlgeschlagen: %v", label, err)
 		return plan.MissionPlan{}, err
@@ -309,7 +314,7 @@ func (p *Pipeline) QuickMission(ctx context.Context, input string) (plan.Mission
 	})
 	p.mu.Unlock()
 
-	mp, err := p.runPlanPrompt(ctx, "quick", prompt)
+	mp, err := p.runPlanPrompt(ctx, "quick", game, prompt)
 	if err != nil {
 		return plan.MissionPlan{}, err
 	}
@@ -344,7 +349,7 @@ func (p *Pipeline) Merge(ctx context.Context) (plan.MissionPlan, error) {
 	})
 	p.mu.Unlock()
 
-	mp, err := p.runPlanPrompt(ctx, "merge", prompt)
+	mp, err := p.runPlanPrompt(ctx, "merge", game, prompt)
 	if err != nil {
 		return plan.MissionPlan{}, err
 	}
@@ -372,12 +377,19 @@ func (p *Pipeline) Generate() (*gen.Result, error) {
 		if paths.IL2MissionsDir == "" {
 			return nil, fmt.Errorf("IL2_MISSIONS_DIR ist nicht gesetzt (.env)")
 		}
-		res, err = il2.Generate(mp, paths.IL2MissionsDir)
+		table, terr := il2.LoadPayloadTable(filepath.Join(p.Root, "reference", "il2-payloads.json"))
+		if terr != nil {
+			logging.Errorf("IL-2 Payload-Tabelle: %v", terr)
+		}
+		logging.Infof("IL-2 Payload-Tabelle: %d Flugzeuge (%s)", len(table.Planes), table.Path)
+		res, err = il2.GenerateOpts(mp, paths.IL2MissionsDir, table)
 	case "dcs":
 		if paths.DCSMissionsDir == "" {
 			return nil, fmt.Errorf("DCS_SAVED_GAMES ist nicht gesetzt (.env)")
 		}
-		res, err = dcs.GenerateWith(mp, paths.DCSMissionsDir, p.Lib)
+		payloads := dcs.LoadPayloadDB(paths.DCSRoot, paths.DCSSavedGames)
+		logging.Infof("DCS-Bewaffnungs-Presets: %d Typen (DCS_ROOT=%s)", payloads.Files, paths.DCSRoot)
+		res, err = dcs.GenerateOpts(mp, paths.DCSMissionsDir, p.Lib, payloads)
 	default:
 		return nil, fmt.Errorf("unbekanntes Spiel im Plan: %q", mp.Game)
 	}
@@ -535,4 +547,18 @@ func (p *Pipeline) NewProject() {
 	p.proj = NewProject()
 	p.proj.Game = game
 	p.projPath = filepath.Join(p.Root, "projects", "current.json")
+}
+
+// GameName is the human-readable game name used in prompts.
+func GameName(game string) string {
+	if game == "dcs" {
+		return "DCS World"
+	}
+	return "IL-2 Sturmovik: Korea"
+}
+
+// systemPrompt renders prompts/00-system.md (role, game, design principles);
+// it is sent as the system message before every plan prompt.
+func (p *Pipeline) systemPrompt(game string) string {
+	return fill(p.tmpl[systemFile], map[string]string{"GAME_NAME": GameName(game)})
 }

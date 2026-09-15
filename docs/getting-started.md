@@ -42,7 +42,7 @@ AI_MAX_TOKENS=30000                             # Reasoning-Modelle brauchen Luf
 IL2_EDITOR=C:\Program Files (x86)\Steam\steamapps\common\IL2Series\bin\editor\IL2Editor.exe
 IL2_MISSIONS_DIR=C:\Users\<du>\OneDrive\Missionen   # Ablageort für generierte .Mission-Dateien
 
-# DCS World
+DCS_ROOT=C:\Program Files\Eagle Dynamics\DCS World       # liefert die Bewaffnungs-Presets des Missionseditors
 DCS_SAVED_GAMES=C:\Users\<du>\Saved Games\DCS       # Missionen landen in ...\Missions\
 ```
 
@@ -91,6 +91,8 @@ Zwei Beispiele liegen bereit: `prefabs/carrier-strike-group.json` (US-Trägerver
 - **Epoche und Ort nennen.** „Juni 1982, Bekaa-Tal" liefert passende Einheiten; ohne Angabe rät die KI.
 - **Wenige, konkrete Ziele.** Eine Skirmish mit 1–3 Gegnergruppen und einem klaren Auftrag ist spielbarer als eine Großoffensive.
 - **DCS: Modulbesitz.** Die KI kennt deine gekauften Module nicht. Nenne dein Flugzeug im Text („… ich fliege die F-16C").
+- **DCS: Bewaffnung.** Die KI gibt je Fluggruppe eine Rolle (`task`: CAP, CAS, SEAD, Strike, AntiShip …) und einen Bewaffnungswunsch (`payload`) aus. AIrborne wählt daraus ein Original-Preset des Missionseditors (aus `DCS_ROOT`; eigene Presets aus `Saved Games\DCS\MissionEditor\UnitPayloads` zählen mit): erst nach Rolle, dann nach bester Übereinstimmung mit dem Wunsch; hat der Typ kein Preset für die Rolle, greift die nächstliegende (SEAD → Strike → Bodenangriff). Die gewählte Bewaffnung steht in den Export-Hinweisen; feinjustieren kannst du `payload`/`task` im Plan-JSON oder im Editor.
+- **IL-2: Bewaffnung.** Gleiches Prinzip, aber die Payload-Listen der Flugzeuge stecken in den verschlüsselten `.gtp`-Archiven. Deshalb pflegst du sie einmalig in [`reference/il2-payloads.json`](../reference/il2-payloads.json): je Flugzeug die Einträge des Payload-Dropdowns im Editor in Reihenfolge (`id` 0, 1, 2 …) mit Namen und Rollen. Flugzeuge ohne Einträge bekommen `PayloadId 0` plus Hinweis im Export.
 - **Plan-JSON ist dein Freund.** Kleine Korrekturen (Position, Anzahl, Callsign) gehen dort schneller als ein neuer KI-Lauf.
 - **Ohne GUI** (Skripte, Batch): `cd app && go run ./cmd/abgen -plan ../projects/current.json [-out <Ordner>]`.
 
@@ -115,6 +117,7 @@ Jeder KI-Aufruf (Prompt + Rohantwort + normalisierter Plan) wird nach `logs/airb
 AIrborne/
   .env                 deine Keys und Pfade (nicht committen)
   prompts/             die Prompt-Vorlagen – anpassbar, wirken sofort nach Neustart
+                       (00-system.md = System-Prompt: Rolle, Spiel, Grundsaetze)
   prefabs/             deine Prefab-Bibliothek (eine JSON je Prefab)
   projects/            gespeicherte Projekte (current.json = zuletzt bearbeitet)
   logs/airborne.log    alle KI-Aufrufe und Generator-Hinweise

@@ -1,0 +1,34 @@
+{
+  "_doc": [
+    "IL-2 Korea Bewaffnungs-Tabelle fuer AIrborne. Die Payload-Listen der Flugzeuge stecken in den verschluesselten .gtp-Archiven,",
+    "deshalb werden sie hier von Hand gepflegt. PayloadId = Position im Payload-Dropdown des Missionseditors (0 = erster Eintrag).",
+    "Vorgehen je Flugzeug: Editor oeffnen -> Flugzeug setzen -> Dropdown 'Payload' von oben nach unten abschreiben (id 0, 1, 2, ...).",
+    "Optional 'modMask' fuer Modifikationen (Bitmaske wie im Editor, Standard 1). 'roles' steuert die Auswahl nach Auftrag:",
+    "CAP/Intercept/FighterSweep/Escort (Luft), CAS/GroundAttack/Strike/AntiShip (Boden), Transport, Recon.",
+    "Der Generator waehlt: erst passende Rolle, dann beste Uebereinstimmung mit dem payload-Wunsch der KI, sonst der erste Eintrag.",
+    "Flugzeuge ohne Eintraege bekommen PayloadId 0 und einen Hinweis im Export."
+  ],
+  "_seenInStockMissions": {
+    "_note": "PayloadIds, die in den mitgelieferten Missionen vorkommen (Namen unbekannt, nur als Anhaltspunkt):",
+    "f80c10": [2],
+    "f84e": [1],
+    "f86a5": [1],
+    "mig15bis": [0, 1],
+    "f51d": [2],
+    "li2t": [0],
+    "simpleb29": [0, 1]
+  },
+  "planes": {
+    "f86a5": { "name": "F-86A-5 Sabre", "payloads": [] },
+    "f84e": { "name": "F-84E Thunderjet", "payloads": [] },
+    "f80c10": { "name": "F-80C-10 Shooting Star", "payloads": [] },
+    "f51d": { "name": "F-51D Mustang", "payloads": [] },
+    "mig15bis": { "name": "MiG-15bis", "payloads": [] },
+    "il10": { "name": "Il-10", "payloads": [] },
+    "la11": { "name": "La-11", "payloads": [] },
+    "yak9p": { "name": "Yak-9P", "payloads": [] },
+    "tu2": { "name": "Tu-2", "payloads": [] },
+    "li2t": { "name": "Li-2T", "payloads": [] },
+    "c47b": { "name": "C-47B", "payloads": [] }
+  }
+}

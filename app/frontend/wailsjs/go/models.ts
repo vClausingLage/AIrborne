@@ -261,6 +261,7 @@ export namespace plan {
 	    movement?: Movement;
 	    route?: Position[];
 	    payload?: string;
+	    task?: string;
 	    notes?: string;
 	
 	    static createFrom(source: any = {}) {
@@ -283,6 +284,7 @@ export namespace plan {
 	        this.movement = this.convertValues(source["movement"], Movement);
 	        this.route = this.convertValues(source["route"], Position);
 	        this.payload = source["payload"];
+	        this.task = source["task"];
 	        this.notes = source["notes"];
 	    }
 	
