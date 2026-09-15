@@ -987,3 +987,172 @@ NUR das JSON-Objekt, kein Markdown, keine Erklärung. Alle Zahlen als Zahlen. Ha
 [2026-09-14 12:33:05] ---- PLAN JSON (normalisiert) ----
 {"author":"Airborne","briefing":{"de":"14. September 1950, am Vorabend der geplanten Landungsoperation bei Inchon. Feindaufklärungstrupps der UN haben sich im Hügelland nordwestlich von Inchon verschanzt und sammeln mit Lastwagen und Jeeps unter Tarnnetzen Informationen über unsere Küstenverteidigung. Ein Jeep ist auf dem Weg nach Kimpo, um seine Erkenntnisse zu melden. Ihr startet als Rotte Sowol mit zwei Il-10, bewaffnet mit Raketen und Bomben, per Luftstart über der Küste westlich von Inchon. Fliegt tief über das Wasser an, dreht dann ins Hügelland ein und vernichtet alle feindlichen Fahrzeuge, bevor sie entkommen. Achtung: Zwei Bofors-Flugabwehrgeschütze sichern das Hauptversteck — greift überraschend aus niedriger Höhe an. Nach dem Erfolg verlasst ihr das Zielgebiet über der Küste und kehrt zur Basis zurück.","en":"14 September 1950, on the eve of the planned landing operation at Inchon. UN reconnaissance teams have dug in in the hills northwest of Inchon, gathering information on our coastal defenses with trucks and jeeps under camouflage nets. One jeep is on its way to Kimpo to report its findings. You launch as flight Sowol with two Il-10s armed with rockets and bombs, airborne over the coast west of Inchon. Approach low over the water, turn into the hills, and destroy all enemy vehicles before they escape. Warning: two Bofors anti-aircraft guns guard the main hideout — attack by surprise from low altitude. After success, leave the target area over the coast and return to base."},"date":"1950-09-14","enemyGroups":[{"count":3,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Lastwagen","position":{"heading":15,"x":91480,"z":261470},"script":"vehicles/studebakerus6"},{"count":2,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Versteck-Jeeps","position":{"heading":100,"x":91620,"z":261620},"script":"vehicles/willysmb"},{"count":1,"country":601,"kind":"vehicle","movement":{"type":"route"},"name":"Patrouille","position":{"heading":45,"x":93000,"z":263000},"route":[{"x":94700,"z":264800},{"x":96300,"z":266900}],"script":"vehicles/willysmb"}],"flak":[{"count":2,"country":601,"engageable":true,"position":{"x":91720,"z":261280},"script":"fixedobjects/boforsl60"}],"game":"dcs","icons":[{"desc":{"de":"Anflugweg vom Luftstart über der Küste zum getarnten Versteck nordwestlich von Inchon.","en":"Approach from the air start over the coast to the camouflaged hideout northwest of Inchon."},"from":{"x":86000,"z":249000},"label":{"de":"Zielgebiet","en":"Target area"},"to":{"x":91500,"z":261500}}],"map":"korea","objectives":[{"counter":6,"desc":{"de":"Zerstört alle sechs Fahrzeuge: drei Lastwagen und zwei Jeeps im getarnten Versteck sowie einen Jeep auf dem Weg nach Kimpo.","en":"Destroy all six vehicles: three trucks and two jeeps in the camouflaged hideout plus one jeep heading for Kimpo."},"title":{"de":"Feindaufklärung vernichten","en":"Destroy the recon vehicles"}}],"playerGroups":[{"aircraft":"il10","count":2,"country":501,"name":"Sowol","route":[{"alt":700,"x":92500,"z":254500},{"alt":400,"x":91500,"z":261500},{"alt":800,"x":87500,"z":250500}],"start":{"alt":1000,"heading":50,"type":"air","x":86000,"z":249000}}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Sowol, hier Basis. Feindaufklärungstruppen verstecken sich nordwestlich von Inchon — vernichtet ihre Fahrzeuge im Hügelland.","textEn":"Sowol, this is Base. Enemy recon troops are hiding northwest of Inchon — destroy their vehicles in the hills.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Sowol, ihr seid im Zielgebiet. Vorsicht, zwei Bofors-Geschütze sichern das Hauptversteck.","textEn":"Sowol, you are in the target area. Careful, two Bofors guns are guarding the main hideout.","trigger":"check_zone","zone":{"r":2500,"x":91500,"z":261500}},{"speaker":"Basis","textDe":"Sowol, alle Fahrzeuge vernichtet. Kehrt tief über der Küste zur Basis zurück.","textEn":"Sowol, all vehicles destroyed. Return to base low over the coast.","trigger":"all_destroyed"},{"delay":1500,"speaker":"Basis","textDe":"Sowol, das Zeitlimit ist abgelaufen. Bricht den Einsatz ab und kehrt heim.","textEn":"Sowol, the time limit has expired. Break off the mission and come home.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":601,"kind":"block","positions":[{"heading":12,"x":91500,"z":261550},{"heading":192,"x":91640,"z":261450}],"script":"blocks/mil_camonet"}],"time":"15:35:00","title":{"de":"Tarnnetze bei Inchon","en":"Camouflage at Inchon"},"weather":{"cloudConfig":"summer\\00_Clear_00\\sky.ini","cloudHeight":6000,"cloudLevel":1500,"precLevel":0,"seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]}}
 ---- /PLAN JSON (normalisiert) ----
+[2026-09-15 11:51:41] INFO  quick gestartet
+[2026-09-15 11:51:41] ---- SYSTEM quick ----
+Du bist der Missionsdesigner von AIrborne, einem Werkzeug, das aus Nutzer-Vorgaben spielbare Missionen für Kampfflug-Simulationen erzeugt. Diese Aufgabe erzeugt eine Mission für **DCS World**. Du antwortest ausschließlich mit einem Missionsplan als JSON nach dem vorgegebenen Schema – kein Markdown, keine Erklärungen.
+
+Grundsätze für jeden Plan:
+- **Spielbar und zusammenhängend:** Startpunkt, Anflug, Zielgebiet und Rückweg liegen räumlich schlüssig auf der Karte; die Entfernungen passen zur Missionsdauer und zum Flugzeugtyp.
+- **Wegpunkte mit Aufgabe:** Die Spielergruppe bekommt eine Route, die zum Ziel führt (Anflug/IP → Zielgebiet → Rückweg/Landeplatz). Jede bewegliche Einheit (Kolonnen, Patrouillen, Schiffe, gegnerische/verbündete Flugzeuge) bekommt eine Route, die ihr Verhalten abbildet (Patrouillenschleife, Marschweg zum Ziel, CAP-Orbit) und die Begegnung mit dem Spieler plausibel macht.
+- **Plausible Bewaffnung:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) erhält eine zur Aufgabe, Epoche und zum Typ passende Bewaffnung im Feld `payload` (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen") und eine Rolle im Feld `task` (CAP, CAS, SEAD, Strike, AntiShip, Intercept, Escort, Transport …). Abfangjäger tragen Luft-Luft-Waffen, Bodenangriff Bomben/Raketen – nichts, was der Typ nie geführt hat. Bei DCS wählt der Generator aus Rolle + Wunsch das passende Mission-Editor-Preset; bevorzuge deshalb gängige Standard-Loadouts (CAP: IR-/radargelenkte Luft-Luft-Raketen; SEAD: Anti-Radar-Raketen, falls der Typ sie hat; CAS/Strike: ungelenkte Raketen/Bomben oder gelenkte Bomben).
+- **Epoche und Fraktion:** Keine Anachronismen; Einheiten, Waffen, Callsigns und Funkton passen zu Jahr, Kriegspartei und Sprache.
+- **Historisch/fiktiv plausibel:** Lücken sinnvoll füllen, Widersprüche zugunsten der Story auflösen, realistisch dosierter Widerstand.
+
+---- /SYSTEM quick ----
+[2026-09-15 11:51:41] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+## Verfuegbare Prefabs (fertige Asset-Gruppen, DCS)
+Diese Prefabs koennen im Plan ueber `prefabs` platziert werden: `{"prefab":"<id>","side":"player|friendly|enemy","name":"...","position":{"lat":..,"lon":..,"heading":..}}`. Die enthaltenen Einheiten NICHT zusaetzlich in enemyGroups/friendlyGroups/statics aufzaehlen. Nutze ein Prefab nur, wenn es zur Story passt (Epoche, Fraktion, Wasser/Land).
+- id "carrier-strike-group": Carrier Strike Group (4 ship, 7 plane, 1 helicopter, 3 static; Country USA) - CVN-73 George Washington mit zwei Arleigh-Burke-Zerstörern und einem Ticonderoga-Kreuzer als Eskorte; auf dem Deck sechs geparkte F/A-18C, ein E-2C Hawkeye, ein SH-60B und Container am Heck.
+- id "mountain-farp": Mountain FARP (2 vehicle, 1 helicopter, 9 static; Country Russia) - FARP im Gelände mit vier Landeplätzen, drei Zelten, Tank- und Munitionslager, zwei Ural-375, geparkter Mi-8MT und Windsack
+
+
+**User-Wunsch (kompakt, kann informell sein):**
+Map: Syria, Damascus area
+Player: Mig 21, unguided rockets, Syrian airforce
+Target: Moving convoy of trucks, jeeps and two trucks with AAA, Insurgents
+Scenery: Mi 24, Syria, CAS, is in the area, also en route to convoy to assist
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5-20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1-3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2-5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3-6 Sätze). Keine Anachronismen.
+
+**Pflicht:** Die Spielergruppe bekommt eine Route Anflug → Zielgebiet (über den Gegnern) → Rückweg; alle beweglichen Einheiten (Kolonnen, Patrouillen, Schiffe, KI-Flugzeuge) bekommen eigene Routen, die ihr Verhalten abbilden und den Kontakt mit dem Spieler herstellen. Jede Flugzeug-/Hubschraubergruppe erhält eine Rolle `task` (CAP, CAS, SEAD, Strike, AntiShip …) und ein plausibles `payload` passend zu Typ, Epoche und Aufgabe.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung, keine Kommentare im JSON).** Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung) und stelle sicher, dass das JSON vollständig und syntaktisch gültig ist.
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"task":"CAS","payload":"4x FAB-100, 8x RS-82, volle Kanonen","start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},
+     "route":[{"x":95000,"z":242000,"alt":700},{"x":99800,"z":261800,"alt":500},{"x":88000,"z":247000,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Trucks","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830,"heading":15},"movement":{"type":"static"}},
+    {"name":"Patrol","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":103080,"z":264580,"heading":230},"movement":{"type":"route"},"route":[{"x":103400,"z":264900},{"x":102600,"z":264200}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":99800,"z":261880,"heading":12},{"x":99560,"z":261860,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"...","en":"..."},"desc":{"de":"...","en":"..."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Zeitlimit ...","textEn":"Time limit ..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": [{"from":{"x":86500,"z":244000},"to":{"x":99800,"z":261800},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"...","en":"..."}}]
+}
+```
+
+**Feldregeln (beide Spiele):**
+- `game` = Spiel-Kontext ("il2" oder "dcs"). `date` = YYYY-MM-DD, `time` = HH:MM:SS.
+- `playerGroups`: genau 1 Gruppe, `count` = Anzahl Spielerplätze (1-4). `start.type`: "air" (Luftstart, empfohlen) oder "runway". `route` = 2-4 Wegpunkte (Anflug/IP, Zielgebiet über den Gegnerpositionen, Rückweg zum Start-/Landeplatz) – die Route ist die Aufgabe des Spielers und muss zu den Zielen führen. `payload` = Pflicht: kurze Klartext-Bewaffnung (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen"), passend zu Typ, Epoche und Aufgabe.
+- `enemyGroups`/`friendlyGroups`: `kind` = "vehicle" | "plane" | "helicopter" | "ship". `count` Einheiten stehen in Reihe ab `position`. Bewegung: `movement.type` "static" oder "route" (dann `route` mit 2-4 Wegpunkten; Fahrzeuge fahren die Schleife ab). Flugzeuge/Hubschrauber (`kind` "plane"/"helicopter") brauchen immer eine `route` (Patrouille, CAP-Orbit oder Anflug auf ihr Ziel) und ein `payload` wie bei der Spielergruppe.
+- `objectives`: genau 1 Eintrag. `counter` = Anzahl der zerstörbaren Fahrzeuge in `enemyGroups` (Flak zählt nicht). Titel/Beschreibung DE+EN.
+- `radioQueue`: 2-5 Meldungen, je max. 2 Sätze, authentischer Funkton. Trigger: `mission_begin_delay` (+`delay` Sekunden nach Start), `check_zone` (Spieler betritt `zone`), `all_destroyed` (alle Ziele vernichtet).
+- `briefing`: DE + EN, je 4-8 Sätze (Lage, Auftrag, Durchführung, Gefahren, Rückkehr).
+- `icons`: 0-2 Kartenmarkierungen (Linie von `from` nach `to`).
+
+**IL-2 Korea (`game:"il2"`):** `country` numerisch (501-503 rot/Nordkorea, 601-603 blau/UN). Koordinaten `x`/`z` in Metern auf der Korea-Karte, `alt` in Metern. `aircraft` = Script-Name (il10, la11, mig15bis, yak9p, f51d, f80c10, f84e, f86a5, tu2, li2t, c47b). `script` = "vehicles/<name>", "fixedobjects/<name>", "blocks/<name>", "ships/<name>" (nur Namen aus dem Spiel-Kontext). `weather.cloudConfig` nach Muster "summer\\00_Clear_00\\sky.ini". `task` und `payload` wie bei DCS (Pflicht je Flugzeuggruppe): AIrborne setzt daraus `PayloadId` über die Tabelle `reference/il2-payloads.json` (Rolle, dann Wunsch-Übereinstimmung).
+
+**DCS World (`game:"dcs"`):** `map` = Theatre-Name (Caucasus, Syria, PersianGulf, Nevada, Normandy, MarianaIslands, Sinai, Kola, Falklands). `country` = DCS-Country-String ("USA", "Russia", "Syria", "Israel", "Egypt", "Iran", ...). Alle Positionen (`start`, `position`, `route[]`, `zone`, `icons`) als `{"lat":35.40,"lon":35.95,"alt":2000,"heading":270}` in Dezimalgrad (KEIN x/z). `aircraft`/`script` = exakte DCS-`type`-Namen (z. B. "MiG-21Bis", "F-16C_50", "Mi-24P", "Mi-8MT", "M-113", "M-60", "Ural-375", "ZSU-23-4 Shilka", "BTR-80"). `statics[].script` ebenfalls ein Bodeneinheiten-Typ. `kind` "plane" oder "helicopter" bei Luftfahrzeugen. `weather` wie oben (wird sinngemäß übernommen).
+**Bewaffnung DCS:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) bekommt `task` (Pflicht) = Rolle: "CAP" | "Intercept" | "FighterSweep" | "Escort" | "CAS" | "GroundAttack" | "Strike" | "SEAD" | "AntiShip" | "Transport" | "Recon", und `payload` (Klartext-Wunsch mit DCS-Waffenbezeichnungen, z. B. "AIM-120C*4, AIM-9X*2" oder "S-8KOM, 9M114 Shturm" oder "AGM-88 HARM"). Der Generator wählt daraus das passende Mission-Editor-Preset des Typs; die Rolle steuert auch das Verhalten der KI (CAP greift Luftziele an, SEAD Luftabwehr, AntiShip Schiffe).
+
+**Prefabs (nur DCS, optional):** Wenn im Spiel-Kontext Prefabs gelistet sind, kann der Plan sie über `"prefabs": [{"prefab":"<id>","name":"...","side":"player|friendly|enemy","country":"USA","position":{"lat":35.40,"lon":35.95,"heading":270}}]` platzieren (Ursprung + Ausrichtung des Prefabs; `country` optional). Die Einheiten eines Prefabs nicht zusätzlich einzeln auflisten. Ohne passende Prefabs das Feld weglassen.
+
+
+---- /PROMPT quick ----
+[2026-09-15 11:52:07] INFO  LLM-HTTP 200, 11253 bytes
+[2026-09-15 11:52:07] ---- RESULT quick RAW ----
+```json
+{
+  "game": "dcs",
+  "title": {"de": "Damaskus-Vorfeld: Kolonnenjagd", "en": "Damascus Outskirts: Convoy Hunt"},
+  "author": "AIrborne",
+  "map": "Syria",
+  "date": "2014-06-15",
+  "time": "08:20:00",
+  "weather": {"cloudLevel":1200,"cloudHeight":4500,"precLevel":0,"cloudConfig":"clear\\sky.ini","seaState":1,"turbulence":3,"windLayers":[[0,220,3],[1000,230,4],[3000,240,5]]},
+  "playerGroups": [
+    {"name":"Duo-1","aircraft":"MiG-21Bis","count":1,"country":"Syria","task":"CAS","payload":"2x UB-32 S-5 Raketen, 2x R-60, volle Kanonen",
+     "start":{"type":"air","lat":33.15,"lon":36.00,"alt":3000,"heading":75},
+     "route":[
+       {"lat":33.24,"lon":36.18,"alt":2000,"heading":85},
+       {"lat":33.30,"lon":36.35,"alt":1200,"heading":90},
+       {"lat":33.15,"lon":36.05,"alt":2500,"heading":255}
+     ]}
+  ],
+  "enemyGroups": [
+    {"name":"Kolonne Aufstaendische","kind":"vehicle","script":"Ural-375","count":4,"country":"Insurgents",
+     "position":{"lat":33.29,"lon":36.30,"heading":95},
+     "movement":{"type":"route"},"route":[{"lat":33.30,"lon":36.35},{"lat":33.31,"lon":36.42},{"lat":33.30,"lon":36.35}]},
+    {"name":"Spaehwagen","kind":"vehicle","script":"GAZ-66","count":2,"country":"Insurgents",
+     "position":{"lat":33.31,"lon":36.38,"heading":95},
+     "movement":{"type":"route"},"route":[{"lat":33.31,"lon":36.44},{"lat":33.29,"lon":36.36},{"lat":33.31,"lon":36.44}]}
+  ],
+  "friendlyGroups": [
+    {"name":"Berg-21","kind":"helicopter","script":"Mi-24P","count":1,"country":"Syria","task":"CAS","payload":"S-8KOM Raketen, 9M114 Shturm, GSh-30",
+     "position":{"lat":33.20,"lon":36.10,"alt":800},
+     "movement":{"type":"route"},"route":[
+       {"lat":33.26,"lon":36.25,"alt":700},
+       {"lat":33.30,"lon":36.35,"alt":600},
+       {"lat":33.31,"lon":36.42,"alt":600}
+     ]}
+  ],
+  "flak": [
+    {"script":"ZU-23 Insurgent","count":2,"position":{"lat":33.30,"lon":36.34},"country":"Insurgents","engageable":true},
+    {"script":"ZU-23 Insurgent","count":2,"position":{"lat":33.31,"lon":36.39},"country":"Insurgents","engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"Amunition Depot","count":1,"positions":[{"lat":33.305,"lon":36.335,"heading":0}],"country":"Insurgents"}
+  ],
+  "objectives": [
+    {"title":{"de":"Kolonne vernichten","en":"Destroy the convoy"},
+     "desc":{"de":"Zerstoere die aufstaendische Nachschubkolonne auf der Strasse suedlich von Damaskus. Mindestens drei Fahrzeuge muessen fallen, damit der Vormarsch gestoppt wird.","en":"Destroy the insurgent supply convoy on the road south of Damascus. At least three vehicles must be destroyed to stop the advance."},
+     "counter":6}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"Duo-1, hier Basis. Aufklaerung meldet eine Aufstaendischen-Kolonne auf der Suedroute, mit Flak gesichert. Setzt zum Angriff an, Berg-21 ist bereits im Anflug.","textEn":"Duo-1, this is Base. Recon reports an insurgent convoy on the southern road, covered by flak. Commence your attack, Berg-21 is already inbound."},
+    {"trigger":"check_zone","zone":{"lat":33.30,"lon":36.35,"r":3000},"speaker":"Basis","textDe":"Duo-1, Feindkontakt bestätigt, ZU-23 in der Kolonne. Bleib tief und schnell, Berg-21 greift die Flakstellung an.","textEn":"Duo-1, confirmed enemy contact, ZU-23s in the column. Stay low and fast, Berg-21 is engaging the flak position."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"Bestätigt, die Kolonne ist vernichtet – saubere Arbeit, Duo-1. Kehrt zur Basis zurück, Achtung kleine Waffen noch im Bereich.","textEn":"Confirmed, the convoy is destroyed – good work, Duo-1. Return to base, watch out for small arms in the area."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Duo-1, Sprit-Check. Zeitlimit erreicht – ladet ab und kehrt heim.","textEn":"Duo-1, fuel check. Time limit reached – break off and come home."}
+  ],
+  "briefing": {"de":"Lage: Aufständische Verbände verschieben Nachschub auf der Landstraße südlich von Damaskus. Die Kolonne besteht aus Lastwagen und Jeeps und wird von zwei ZU-23-Flakfahrzeugen gesichert. Auftrag: Duo-1 fliegt einen Raketenangriff und vernichtet die Kolonne, bevor sie die Stadtzone erreicht. Durchführung: Anflug über den Punkt Rayan, Angriff aus niedriger Höhe entlang der Straßenachse. Die Mi-24 'Berg-21' ist bereits unterwegs und legt gleichzeitig die Flakstellungen lahm – koordiniert euren Angriff. Gefahren: Die ZU-23 ist auf niedrige Zielhöhe tödlich, haltet Abstand nach dem Sturzflug. Rückkehr: Nach bestätigter Zerstörung dreht ab und kehrt auf direktem Weg zur Basis bei Damaskus zurück.","en":"Situation: Insurgent forces are moving supplies on the dirt road south of Damascus. The convoy consists of trucks and jeeps and is protected by two ZU-23 flak vehicles. Mission: Duo-1 performs a rocket attack and destroys the convoy before it reaches the city zone. Execution: Ingress via point Rayan, attack from low altitude along the road axis. The Mi-24 'Berg-21' is already en route and will simultaneously suppress the flak positions – coordinate your runs. Danger: The ZU-23 is lethal at low altitude, maintain separation after your firing pass. Return: After destruction is confirmed, egress and fly a direct route back to base near Damascus."},
+  "icons": [
+    {"from":{"lat":33.15,"lon":36.00},"to":{"lat":33.30,"lon":36.35},"label":{"de":"Anflug → Zielgebiet","en":"Ingress → Target area"},"desc":{"de":"Route Duo-1 zum Kolonnenangriff südlich von Damaskus.","en":"Duo-1 route to the convoy strike south of Damascus."}}
+  ]
+}
+```
+---- /RESULT quick RAW ----
+[2026-09-15 11:52:07] ---- PLAN JSON (normalisiert) ----
+{"author":"AIrborne","briefing":{"de":"Lage: Aufständische Verbände verschieben Nachschub auf der Landstraße südlich von Damaskus. Die Kolonne besteht aus Lastwagen und Jeeps und wird von zwei ZU-23-Flakfahrzeugen gesichert. Auftrag: Duo-1 fliegt einen Raketenangriff und vernichtet die Kolonne, bevor sie die Stadtzone erreicht. Durchführung: Anflug über den Punkt Rayan, Angriff aus niedriger Höhe entlang der Straßenachse. Die Mi-24 'Berg-21' ist bereits unterwegs und legt gleichzeitig die Flakstellungen lahm – koordiniert euren Angriff. Gefahren: Die ZU-23 ist auf niedrige Zielhöhe tödlich, haltet Abstand nach dem Sturzflug. Rückkehr: Nach bestätigter Zerstörung dreht ab und kehrt auf direktem Weg zur Basis bei Damaskus zurück.","en":"Situation: Insurgent forces are moving supplies on the dirt road south of Damascus. The convoy consists of trucks and jeeps and is protected by two ZU-23 flak vehicles. Mission: Duo-1 performs a rocket attack and destroys the convoy before it reaches the city zone. Execution: Ingress via point Rayan, attack from low altitude along the road axis. The Mi-24 'Berg-21' is already en route and will simultaneously suppress the flak positions – coordinate your runs. Danger: The ZU-23 is lethal at low altitude, maintain separation after your firing pass. Return: After destruction is confirmed, egress and fly a direct route back to base near Damascus."},"date":"2014-06-15","enemyGroups":[{"count":4,"country":"Insurgents","kind":"vehicle","movement":{"type":"route"},"name":"Kolonne Aufstaendische","position":{"heading":95,"lat":33.29,"lon":36.3},"route":[{"lat":33.3,"lon":36.35},{"lat":33.31,"lon":36.42},{"lat":33.3,"lon":36.35}],"script":"Ural-375"},{"count":2,"country":"Insurgents","kind":"vehicle","movement":{"type":"route"},"name":"Spaehwagen","position":{"heading":95,"lat":33.31,"lon":36.38},"route":[{"lat":33.31,"lon":36.44},{"lat":33.29,"lon":36.36},{"lat":33.31,"lon":36.44}],"script":"GAZ-66"}],"flak":[{"count":2,"country":"Insurgents","engageable":true,"position":{"lat":33.3,"lon":36.34},"script":"ZU-23 Insurgent"},{"count":2,"country":"Insurgents","engageable":true,"position":{"lat":33.31,"lon":36.39},"script":"ZU-23 Insurgent"}],"friendlyGroups":[{"count":1,"country":"Syria","kind":"helicopter","movement":{"type":"route"},"name":"Berg-21","payload":"S-8KOM Raketen, 9M114 Shturm, GSh-30","position":{"alt":800,"lat":33.2,"lon":36.1},"route":[{"alt":700,"lat":33.26,"lon":36.25},{"alt":600,"lat":33.3,"lon":36.35},{"alt":600,"lat":33.31,"lon":36.42}],"script":"Mi-24P","task":"CAS"}],"game":"dcs","icons":[{"desc":{"de":"Route Duo-1 zum Kolonnenangriff südlich von Damaskus.","en":"Duo-1 route to the convoy strike south of Damascus."},"from":{"lat":33.15,"lon":36},"label":{"de":"Anflug → Zielgebiet","en":"Ingress → Target area"},"to":{"lat":33.3,"lon":36.35}}],"map":"Syria","objectives":[{"counter":6,"desc":{"de":"Zerstoere die aufstaendische Nachschubkolonne auf der Strasse suedlich von Damaskus. Mindestens drei Fahrzeuge muessen fallen, damit der Vormarsch gestoppt wird.","en":"Destroy the insurgent supply convoy on the road south of Damascus. At least three vehicles must be destroyed to stop the advance."},"title":{"de":"Kolonne vernichten","en":"Destroy the convoy"}}],"playerGroups":[{"aircraft":"MiG-21Bis","count":1,"country":"Syria","name":"Duo-1","payload":"2x UB-32 S-5 Raketen, 2x R-60, volle Kanonen","route":[{"alt":2000,"heading":85,"lat":33.24,"lon":36.18},{"alt":1200,"heading":90,"lat":33.3,"lon":36.35},{"alt":2500,"heading":255,"lat":33.15,"lon":36.05}],"start":{"alt":3000,"heading":75,"lat":33.15,"lon":36,"type":"air"},"task":"CAS"}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Duo-1, hier Basis. Aufklaerung meldet eine Aufstaendischen-Kolonne auf der Suedroute, mit Flak gesichert. Setzt zum Angriff an, Berg-21 ist bereits im Anflug.","textEn":"Duo-1, this is Base. Recon reports an insurgent convoy on the southern road, covered by flak. Commence your attack, Berg-21 is already inbound.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Duo-1, Feindkontakt bestätigt, ZU-23 in der Kolonne. Bleib tief und schnell, Berg-21 greift die Flakstellung an.","textEn":"Duo-1, confirmed enemy contact, ZU-23s in the column. Stay low and fast, Berg-21 is engaging the flak position.","trigger":"check_zone","zone":{"lat":33.3,"lon":36.35,"r":3000}},{"speaker":"Basis","textDe":"Bestätigt, die Kolonne ist vernichtet – saubere Arbeit, Duo-1. Kehrt zur Basis zurück, Achtung kleine Waffen noch im Bereich.","textEn":"Confirmed, the convoy is destroyed – good work, Duo-1. Return to base, watch out for small arms in the area.","trigger":"all_destroyed"},{"delay":1500,"speaker":"Basis","textDe":"Duo-1, Sprit-Check. Zeitlimit erreicht – ladet ab und kehrt heim.","textEn":"Duo-1, fuel check. Time limit reached – break off and come home.","trigger":"mission_begin_delay"}],"statics":[{"count":1,"country":"Insurgents","kind":"block","positions":[{"heading":0,"lat":33.305,"lon":36.335}],"script":"Amunition Depot"}],"time":"08:20:00","title":{"de":"Damaskus-Vorfeld: Kolonnenjagd","en":"Damascus Outskirts: Convoy Hunt"},"weather":{"cloudConfig":"clear\\sky.ini","cloudHeight":4500,"cloudLevel":1200,"precLevel":0,"seaState":1,"turbulence":3,"windLayers":[[0,220,3],[1000,230,4],[3000,240,5]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-15 11:52:07] INFO  QuickMission erfolgreich: Damaskus-Vorfeld: Kolonnenjagd
+[2026-09-15 11:52:23] INFO  DCS-Bewaffnungs-Presets: 133 Typen (DCS_ROOT=C:\Program Files\Eagle Dynamics\DCS World)
+[2026-09-15 11:52:23] INFO  Generate (dcs) erfolgreich: C:\Users\vince\Saved Games\DCS\Missions\AB_Damascus_Outskirts_Convoy_Hunt.miz
+[2026-09-15 11:52:23] INFO    Hinweis: Bewaffnung Duo-1 (MiG-21Bis, CAS): Hard targets, BOMBS
+[2026-09-15 11:52:23] INFO    Hinweis: Bewaffnung Berg-21 (Mi-24P, CAS): 2xB8V20 (S-8KOM)+8xATGM 9M114

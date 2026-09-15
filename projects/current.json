@@ -1,4 +1,292 @@
 {
   "game": "dcs",
-  "inputs": {}
+  "inputs": {},
+  "plan": {
+    "game": "dcs",
+    "title": {
+      "de": "Damaskus-Vorfeld: Kolonnenjagd",
+      "en": "Damascus Outskirts: Convoy Hunt"
+    },
+    "author": "AIrborne",
+    "map": "Syria",
+    "date": "2014-06-15",
+    "time": "08:20:00",
+    "weather": {
+      "cloudLevel": 1200,
+      "cloudHeight": 4500,
+      "precLevel": 0,
+      "cloudConfig": "clear\\sky.ini",
+      "seaState": 1,
+      "turbulence": 3,
+      "windLayers": [
+        [
+          0,
+          220,
+          3
+        ],
+        [
+          1000,
+          230,
+          4
+        ],
+        [
+          3000,
+          240,
+          5
+        ]
+      ]
+    },
+    "playerGroups": [
+      {
+        "name": "Duo-1",
+        "aircraft": "MiG-21Bis",
+        "count": 1,
+        "country": "Syria",
+        "start": {
+          "type": "air",
+          "lat": 33.15,
+          "lon": 36,
+          "alt": 3000,
+          "heading": 75
+        },
+        "route": [
+          {
+            "alt": 2000,
+            "lat": 33.24,
+            "lon": 36.18,
+            "heading": 85
+          },
+          {
+            "alt": 1200,
+            "lat": 33.3,
+            "lon": 36.35,
+            "heading": 90
+          },
+          {
+            "alt": 2500,
+            "lat": 33.15,
+            "lon": 36.05,
+            "heading": 255
+          }
+        ],
+        "payload": "2x UB-32 S-5 Raketen, 2x R-60, volle Kanonen",
+        "task": "CAS"
+      }
+    ],
+    "enemyGroups": [
+      {
+        "name": "Kolonne Aufstaendische",
+        "kind": "vehicle",
+        "script": "Ural-375",
+        "count": 4,
+        "country": "Insurgents",
+        "position": {
+          "lat": 33.29,
+          "lon": 36.3,
+          "heading": 95
+        },
+        "movement": {
+          "type": "route"
+        },
+        "route": [
+          {
+            "lat": 33.3,
+            "lon": 36.35
+          },
+          {
+            "lat": 33.31,
+            "lon": 36.42
+          },
+          {
+            "lat": 33.3,
+            "lon": 36.35
+          }
+        ]
+      },
+      {
+        "name": "Spaehwagen",
+        "kind": "vehicle",
+        "script": "GAZ-66",
+        "count": 2,
+        "country": "Insurgents",
+        "position": {
+          "lat": 33.31,
+          "lon": 36.38,
+          "heading": 95
+        },
+        "movement": {
+          "type": "route"
+        },
+        "route": [
+          {
+            "lat": 33.31,
+            "lon": 36.44
+          },
+          {
+            "lat": 33.29,
+            "lon": 36.36
+          },
+          {
+            "lat": 33.31,
+            "lon": 36.44
+          }
+        ]
+      }
+    ],
+    "friendlyGroups": [
+      {
+        "name": "Berg-21",
+        "kind": "helicopter",
+        "script": "Mi-24P",
+        "count": 1,
+        "country": "Syria",
+        "position": {
+          "alt": 800,
+          "lat": 33.2,
+          "lon": 36.1
+        },
+        "movement": {
+          "type": "route"
+        },
+        "route": [
+          {
+            "alt": 700,
+            "lat": 33.26,
+            "lon": 36.25
+          },
+          {
+            "alt": 600,
+            "lat": 33.3,
+            "lon": 36.35
+          },
+          {
+            "alt": 600,
+            "lat": 33.31,
+            "lon": 36.42
+          }
+        ],
+        "payload": "S-8KOM Raketen, 9M114 Shturm, GSh-30",
+        "task": "CAS"
+      }
+    ],
+    "flak": [
+      {
+        "script": "ZU-23 Insurgent",
+        "count": 2,
+        "position": {
+          "lat": 33.3,
+          "lon": 36.34
+        },
+        "country": "Insurgents",
+        "engageable": true
+      },
+      {
+        "script": "ZU-23 Insurgent",
+        "count": 2,
+        "position": {
+          "lat": 33.31,
+          "lon": 36.39
+        },
+        "country": "Insurgents",
+        "engageable": true
+      }
+    ],
+    "statics": [
+      {
+        "kind": "block",
+        "script": "Amunition Depot",
+        "count": 1,
+        "country": "Insurgents",
+        "positions": [
+          {
+            "lat": 33.305,
+            "lon": 36.335
+          }
+        ]
+      }
+    ],
+    "objectives": [
+      {
+        "title": {
+          "de": "Kolonne vernichten",
+          "en": "Destroy the convoy"
+        },
+        "desc": {
+          "de": "Zerstoere die aufstaendische Nachschubkolonne auf der Strasse suedlich von Damaskus. Mindestens drei Fahrzeuge muessen fallen, damit der Vormarsch gestoppt wird.",
+          "en": "Destroy the insurgent supply convoy on the road south of Damascus. At least three vehicles must be destroyed to stop the advance."
+        },
+        "counter": 6
+      }
+    ],
+    "radioQueue": [
+      {
+        "trigger": "mission_begin_delay",
+        "delay": 10,
+        "speaker": "Basis",
+        "textDe": "Duo-1, hier Basis. Aufklaerung meldet eine Aufstaendischen-Kolonne auf der Suedroute, mit Flak gesichert. Setzt zum Angriff an, Berg-21 ist bereits im Anflug.",
+        "textEn": "Duo-1, this is Base. Recon reports an insurgent convoy on the southern road, covered by flak. Commence your attack, Berg-21 is already inbound."
+      },
+      {
+        "trigger": "check_zone",
+        "zone": {
+          "lat": 33.3,
+          "lon": 36.35,
+          "r": 3000
+        },
+        "speaker": "Basis",
+        "textDe": "Duo-1, Feindkontakt bestätigt, ZU-23 in der Kolonne. Bleib tief und schnell, Berg-21 greift die Flakstellung an.",
+        "textEn": "Duo-1, confirmed enemy contact, ZU-23s in the column. Stay low and fast, Berg-21 is engaging the flak position."
+      },
+      {
+        "trigger": "all_destroyed",
+        "speaker": "Basis",
+        "textDe": "Bestätigt, die Kolonne ist vernichtet – saubere Arbeit, Duo-1. Kehrt zur Basis zurück, Achtung kleine Waffen noch im Bereich.",
+        "textEn": "Confirmed, the convoy is destroyed – good work, Duo-1. Return to base, watch out for small arms in the area."
+      },
+      {
+        "trigger": "mission_begin_delay",
+        "delay": 1500,
+        "speaker": "Basis",
+        "textDe": "Duo-1, Sprit-Check. Zeitlimit erreicht – ladet ab und kehrt heim.",
+        "textEn": "Duo-1, fuel check. Time limit reached – break off and come home."
+      }
+    ],
+    "briefing": {
+      "de": "Lage: Aufständische Verbände verschieben Nachschub auf der Landstraße südlich von Damaskus. Die Kolonne besteht aus Lastwagen und Jeeps und wird von zwei ZU-23-Flakfahrzeugen gesichert. Auftrag: Duo-1 fliegt einen Raketenangriff und vernichtet die Kolonne, bevor sie die Stadtzone erreicht. Durchführung: Anflug über den Punkt Rayan, Angriff aus niedriger Höhe entlang der Straßenachse. Die Mi-24 'Berg-21' ist bereits unterwegs und legt gleichzeitig die Flakstellungen lahm – koordiniert euren Angriff. Gefahren: Die ZU-23 ist auf niedrige Zielhöhe tödlich, haltet Abstand nach dem Sturzflug. Rückkehr: Nach bestätigter Zerstörung dreht ab und kehrt auf direktem Weg zur Basis bei Damaskus zurück.",
+      "en": "Situation: Insurgent forces are moving supplies on the dirt road south of Damascus. The convoy consists of trucks and jeeps and is protected by two ZU-23 flak vehicles. Mission: Duo-1 performs a rocket attack and destroys the convoy before it reaches the city zone. Execution: Ingress via point Rayan, attack from low altitude along the road axis. The Mi-24 'Berg-21' is already en route and will simultaneously suppress the flak positions – coordinate your runs. Danger: The ZU-23 is lethal at low altitude, maintain separation after your firing pass. Return: After destruction is confirmed, egress and fly a direct route back to base near Damascus."
+    },
+    "icons": [
+      {
+        "from": {
+          "lat": 33.15,
+          "lon": 36
+        },
+        "to": {
+          "lat": 33.3,
+          "lon": 36.35
+        },
+        "label": {
+          "de": "Anflug → Zielgebiet",
+          "en": "Ingress → Target area"
+        },
+        "desc": {
+          "de": "Route Duo-1 zum Kolonnenangriff südlich von Damaskus.",
+          "en": "Duo-1 route to the convoy strike south of Damascus."
+        }
+      }
+    ]
+  },
+  "output": {
+    "game": "dcs",
+    "name": "AB_Damascus_Outskirts_Convoy_Hunt",
+    "outputDir": "C:\\Users\\vince\\Saved Games\\DCS\\Missions",
+    "mainFile": "C:\\Users\\vince\\Saved Games\\DCS\\Missions\\AB_Damascus_Outskirts_Convoy_Hunt.miz",
+    "files": [
+      "C:\\Users\\vince\\Saved Games\\DCS\\Missions\\AB_Damascus_Outskirts_Convoy_Hunt.miz"
+    ],
+    "notes": [
+      "Bewaffnung Duo-1 (MiG-21Bis, CAS): Hard targets, BOMBS",
+      "Bewaffnung Berg-21 (Mi-24P, CAS): 2xB8V20 (S-8KOM)+8xATGM 9M114"
+    ]
+  }
 }
