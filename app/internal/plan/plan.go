@@ -2,6 +2,9 @@ package plan
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -23,6 +26,29 @@ type MissionPlan struct {
 	Briefing       Localized         `json:"briefing"`
 	Icons          []Icon            `json:"icons"`
 	Prefabs        []PrefabPlacement `json:"prefabs,omitempty"`
+	// Media is user-provided content that never passes through the LLM
+	// (briefing picture, kneeboard pages). Preserved when a plan is regenerated.
+	Media *Media `json:"media,omitempty"`
+	// Challenge marks a "Herausforderung": the generators hide every hint about
+	// the opposition (no target icons, DCS groups hidden on the map, F10 view
+	// restricted) and Validate warns when briefing/radio texts leak enemy types.
+	Challenge bool `json:"challenge,omitempty"`
+}
+
+// Media references files on disk that are copied into the mission as-is.
+type Media struct {
+	// BriefingImage is a PNG/JPG shown on the mission's briefing screen
+	// (IL-2: <Mission>.png next to the .Mission; DCS: l10n/DEFAULT + pictureFileName).
+	BriefingImage string `json:"briefingImage,omitempty"`
+	// Kneeboards are PNG pages copied to KNEEBOARD/IMAGES in the .miz (DCS only).
+	Kneeboards []string `json:"kneeboards,omitempty"`
+	// KneeboardBriefing renders the briefing text as the first kneeboard page (DCS only).
+	KneeboardBriefing bool `json:"kneeboardBriefing,omitempty"`
+}
+
+// IsEmpty reports whether no media is attached.
+func (m *Media) IsEmpty() bool {
+	return m == nil || (m.BriefingImage == "" && len(m.Kneeboards) == 0 && !m.KneeboardBriefing)
 }
 
 // PrefabPlacement drops a saved prefab (see internal/prefab) into the mission
@@ -331,5 +357,102 @@ func (p *MissionPlan) Validate() []string {
 			issues = append(issues, fmt.Sprintf("prefabs[%d]: Prefabs werden nur fuer DCS unterstuetzt", i))
 		}
 	}
+	if p.Media != nil {
+		if p.Media.BriefingImage != "" && !isImageFile(p.Media.BriefingImage) {
+			issues = append(issues, "media.briefingImage: Datei fehlt oder ist kein PNG/JPG: "+p.Media.BriefingImage)
+		}
+		for i, kb := range p.Media.Kneeboards {
+			if !isImageFile(kb) {
+				issues = append(issues, fmt.Sprintf("media.kneeboards[%d]: Datei fehlt oder ist kein PNG/JPG: %s", i, kb))
+			}
+		}
+		if p.Game == "il2" && (len(p.Media.Kneeboards) > 0 || p.Media.KneeboardBriefing) {
+			issues = append(issues, "media.kneeboards: Kneeboards gibt es nur in DCS (werden ignoriert)")
+		}
+	}
+	if p.Challenge {
+		issues = append(issues, p.challengeLeaks()...)
+	}
 	return issues
 }
+
+func isImageFile(path string) bool {
+	st, err := os.Stat(path)
+	if err != nil || st.IsDir() {
+		return false
+	}
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".png", ".jpg", ".jpeg":
+		return true
+	}
+	return false
+}
+
+// EnemyTerms lists the unit type names of the opposition (used to detect
+// briefings that give the enemy away in challenge mode).
+func (p *MissionPlan) EnemyTerms() []string {
+	seen := map[string]bool{}
+	var terms []string
+	add := func(s string) {
+		s = strings.TrimSpace(s)
+		if i := strings.LastIndexAny(s, "/\\"); i >= 0 {
+			s = s[i+1:]
+		}
+		key := strings.ToLower(s)
+		if len(key) < 3 || seen[key] {
+			return
+		}
+		seen[key] = true
+		terms = append(terms, s)
+	}
+	for _, g := range p.EnemyGroups {
+		add(g.Aircraft)
+		add(g.Script)
+	}
+	for _, f := range p.Flak {
+		add(f.Script)
+	}
+	return terms
+}
+
+// PlayerTexts returns every text the player gets to read or hear.
+func (p *MissionPlan) PlayerTexts() map[string]string {
+	t := map[string]string{
+		"briefing.de": p.Briefing.De, "briefing.en": p.Briefing.En,
+	}
+	for i, o := range p.Objectives {
+		t[fmt.Sprintf("objectives[%d]", i)] = o.Title.De + " " + o.Title.En + " " + o.Desc.De + " " + o.Desc.En
+	}
+	for i, r := range p.RadioQueue {
+		t[fmt.Sprintf("radioQueue[%d]", i)] = r.TextDe + " " + r.TextEn
+	}
+	for i, ic := range p.Icons {
+		t[fmt.Sprintf("icons[%d]", i)] = ic.Label.De + " " + ic.Label.En + " " + ic.Desc.De + " " + ic.Desc.En
+	}
+	return t
+}
+
+// challengeLeaks reports player-facing texts that name an enemy unit type.
+func (p *MissionPlan) challengeLeaks() []string {
+	var issues []string
+	terms := p.EnemyTerms()
+	fields := p.PlayerTexts()
+	names := make([]string, 0, len(fields))
+	for n := range fields {
+		names = append(names, n)
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		text := strings.ToLower(fields[n])
+		for _, term := range terms {
+			if strings.Contains(text, strings.ToLower(term)) {
+				issues = append(issues, fmt.Sprintf("Herausforderung: %s verraet den Gegner (%q)", n, term))
+			}
+		}
+	}
+	if len(p.Icons) > 0 {
+		issues = append(issues, "Herausforderung: icons werden nicht exportiert (Zielgebiet bleibt verborgen)")
+	}
+	return issues
+}
+

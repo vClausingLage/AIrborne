@@ -21,7 +21,7 @@ mission          -- Die Mission: Lua-Tabellen-Text, OHNE Dateiendung, UTF-8. Ker
 options          -- Lua-Tabelle: Schwierigkeit, Realism-Optionen der Mission
 theatre          -- 5-Byte-Textdatei: Kartenname (z. B. "Syria", "Caucasus", "Korea")
 warehouses       -- Lua: Logistik/Lager der Fraktionen
-KNEEBOARD\IMAGES\Kneeboard_pg1..n.png   -- Kneeboard-Seiten der Spieler
+KNEEBOARD\IMAGES\*.png                  -- Kneeboard-Seiten (alle Flugzeuge; alphabetische Reihenfolge → AIrborne nummeriert 01_, 02_ …)
 l10n\DEFAULT\
     dictionary   -- UTF-8 (kein BOM): Lua-Tabelle mit ALLEN Texten (Briefings, Funk, Trigger-Texte)
     mapResource  -- Lua-Tabelle: ResKey -> Dateiname (Sound/Bild-Ressourcen)
@@ -96,7 +96,10 @@ Gotchas (wichtig für die App-Implementierung):
 - **UTF-8 ohne BOM** für `mission`, `dictionary`, `mapResource`, `theatre`; keine CRLF-Umwandlung bei Lua-Dateien nötig, aber `\r\n` in Strings escapen (`\` + Zeilenumbruch = Lua-Zeilenfortführung, wie im dictionary-Beispiel).
 - **Zippen mit `/`-Separatoren**: In Go kein Problem (`archive/zip` schreibt `toSlash`-Pfade); in PowerShell ggf. `ZipArchive`-API statt `Compress-Archive` verwenden.
 - **Manche gekauften .miz sind geschützt** (mission binär/verschlüsselt) → Editierbarkeit vorher prüfen (`mission` beginnt mit `mission =`?).
-- **Medien**: OGG (beliebige Bitrate, DCS wandelt), PNG/JPG für Briefings; Einträge in `mapResource` nicht vergessen, sonst findet DCS die Datei nicht.
+- **Medien**: OGG (beliebige Bitrate, DCS wandelt), PNG/JPG für Briefings; Einträge in `mapResource` nicht vergessen, sonst findet DCS die Datei nicht. Briefing-Bilder hängen zusätzlich an `mission.pictureFileNameB` / `pictureFileNameR` (Array der ResKeys je Koalition; AIrborne setzt beim Generieren die Spielerseite, im Missions-Editor beide).
+- **Kneeboards**: PNGs unter `KNEEBOARD/IMAGES/` im Archiv brauchen keinen `mapResource`-Eintrag; DCS zeigt sie in jedem Flugzeug. Flugzeugspezifisch wäre `KNEEBOARD/<Typ>/IMAGES/`.
+- **Herausforderung (AIrborne)**: Gegnergruppen bekommen `["hidden"] = true` (+ `hiddenOnPlanner`, `hiddenOnMFD`), und `["forcedOptions"] = { ["optionsView"] = "optview_myaircraft" }` beschränkt die F10-Karte.
+- **Editieren mit AIrborne** (`app/internal/missionfile`): Top-Level-Felder (`sortie`, `descriptionText`, `start_time`, `date`, `pictureFileName*`) werden an der ersten Einrückungsebene erkannt – Gruppen haben ebenfalls `start_time`, liegen aber tiefer.
 - Vor jedem Edit die Original-.miz sichern; DCS ist beim Parsen streng (fehlendes Komma = Mission lädt nicht, Fehler im dcs.log unter `Saved Games\DCS\Logs\dcs.log`).
 
 ## 4. Assets/Zeit in DCS (Planungsdokument, in App als Datenmodell)

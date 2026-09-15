@@ -53,12 +53,13 @@ Ob der Key erkannt wurde, siehst du oben in der Kopfzeile: 🔑 + Modellname. �
 ## 4. Die erste Mission in fünf Minuten
 
 1. **Spiel wählen** – oben links **IL-2 Korea** oder **DCS World**. Die Wahl bestimmt Einheitennamen, Koordinatensystem und Zielordner.
-2. **Beschreiben** – zwei Wege:
+2. **Beschreiben** – drei Wege:
    - **⚡ Blitz**: ein Freitext, Stichpunkte reichen.
      *„Kleine Skirmish auf der Syria Map: MiG-21Bis im Bodenangriff, am Boden ein APC-Verband mit Shilka, dazu ein Paar F-5E als Jagdschutz."*
    - **Schritt für Schritt**: fünf Felder (Story, Player, Gegner, Widerstand, Briefing). Leere Felder ergänzt die KI passend zur Story. Alle Felder wandern gemeinsam in *einen* Prompt – es gibt keine fünf Einzelaufrufe.
+   - **🎯 Herausforderung**: nur das Flugzeug wählen (DCS optional die Karte). Die KI entwirft eine kleine, fordernde Mission – und **verrät nichts über die Gegner** (siehe Abschnitt 5).
 3. **Generieren** – „Skirmish generieren" bzw. „Missionsplan erstellen". Je nach Modell 20–90 Sekunden.
-4. **Plan prüfen** – Tab **Plan & Export**. Links: Validierung (⚠ Hinweise sind Warnungen, keine Blocker) und Spiel/Karte/Datum. Rechts: der Plan als JSON – du kannst ihn direkt editieren (Anzahl, Positionen, Funktexte …) und mit „Änderungen übernehmen" bestätigen.
+4. **Plan prüfen** – Tab **Plan & Export**. Links: Validierung (⚠ Hinweise sind Warnungen, keine Blocker), Spiel/Karte/Datum und **Medien (ohne KI)**: ein Briefing-Bild (PNG/JPG) und bei DCS Kneeboard-Seiten (eigene PNG/JPG oder der Briefing-Text als gerenderte Seite 1). Rechts: der Plan als JSON – du kannst ihn direkt editieren (Anzahl, Positionen, Funktexte …) und mit „Änderungen übernehmen" bestätigen.
 5. **Mission erzeugen** – Button „Mission erzeugen". AIrborne schreibt die Dateien in den Spielordner und zeigt Pfad + Hinweise. Alle generierten Missionen heißen `AB_<Titel>`, damit nie eine handgebaute Mission überschrieben wird.
 6. **Im Spiel öffnen**
    - **IL-2**: „IL-2 Editor starten", Mission öffnen, einmal speichern (erzeugt die `.msnbin`), dann im Spiel unter *Missionen* fliegen.
@@ -66,7 +67,27 @@ Ob der Key erkannt wurde, siehst du oben in der Kopfzeile: 🔑 + Modellname. �
 
 Das Projekt (Eingaben + Plan + letzter Export) wird automatisch in `projects/current.json` gesichert. Mit **Speichern/Laden** kannst du Projekte unter eigenem Namen ablegen.
 
-## 5. Prefabs (nur DCS): wiederverwendbare Asset-Gruppen
+## 5. Herausforderung: Blind-Skirmish für ein Flugzeug
+
+Im Modus **🎯 Herausforderung** wählst du nur dein Flugzeug (IL-2: die flugbaren Typen; DCS: gängige Module oder ein frei eingetippter Typname, dazu optional die Karte). Die KI entscheidet Epoche, Fraktion, Wetter, Auftrag und Gegner selbst und dosiert sie so, dass das Flugzeug gefordert wird.
+
+Der Clou: **alle Gegnerinformationen bleiben verborgen.**
+- Der Prompt (`prompts/09-challenge.md`) verbietet Typen, Anzahl, Positionen und Verhalten des Gegners in Briefing, Missionsziel und Funksprüchen; Karten-Icons entfallen.
+- Der Plan wird deterministisch geprüft: Nennt ein Spielertext einen Gegnertyp aus `enemyGroups`/`flak`, erscheint unter „Plan & Export" eine ⚠-Warnung („… verraet den Gegner").
+- **DCS:** alle Gegnergruppen werden mit *Hidden on map / planner / MFD* exportiert und die F10-Karte per `forcedOptions` auf das eigene Flugzeug beschränkt.
+- **IL-2:** keine Ziel-Icons; die Gegner stehen nur in der `.Mission`.
+
+Der Plan selbst enthält die Gegner natürlich vollständig (`challenge: true` im JSON) – wer sich nicht spoilern will, klappt das JSON nicht auf. Ohne Häkchen: `challenge` im JSON auf `false` setzen.
+
+## 6. Mission bearbeiten (ohne KI)
+
+Der Tab **🛠 Mission bearbeiten** öffnet bestehende Missionen – eigene, gekaufte oder gerade exportierte:
+- **DCS `.miz`**: Titel, Briefing, Datum/Zeit als Formular (schreibt `dictionary`/`mission` in place), Briefing-Bild (`l10n/DEFAULT` + `mapResource` + `pictureFileNameB/R`), Kneeboard-Seiten (`KNEEBOARD/IMAGES`, auch als gerenderte Textseite), und jede Textdatei (`mission`, `options`, `dictionary`, …) roh im Editor. Geschützte Missionen (binäre `mission`) erlauben nur Bilder/Kneeboards.
+- **IL-2 `.Mission`**: Titel/Briefing/Autor DE+EN (Sprachdateien `.ger`/`.eng`/…), Datum/Zeit (`Options`), Briefing-Bild (`<Name>.png`), plus die Rohtexte. Eine daneben liegende `.msnbin` wird beim Speichern entfernt (der Editor erzeugt sie neu).
+
+Alles Übrige bleibt Byte für Byte erhalten. Beim ersten Speichern entsteht eine `.bak`-Kopie; „Speichern unter…" legt bei IL-2 den ganzen Dateisatz unter dem neuen Namen ab. Ins Pfadfeld lässt sich auch ein Pfad aus dem Explorer einfügen.
+
+## 7. Prefabs (nur DCS): wiederverwendbare Asset-Gruppen
 
 Ein Prefab ist eine fertige Gruppe von Schiffen, Fahrzeugen, geparkten Flugzeugen und Gebäuden – z. B. ein Trägerverband mit Deckflugzeugen oder ein FARP mit Zelten und Tankwagen. Einmal gebaut, beliebig oft platzierbar, auf jeder Karte.
 
@@ -86,7 +107,7 @@ Beim Export dreht AIrborne das Prefab um seinen Ursprung, macht aus Schiffen/Fah
 
 Zwei Beispiele liegen bereit: `prefabs/carrier-strike-group.json` (US-Trägerverband) und `prefabs/mountain-farp.json` (russischer FARP).
 
-## 6. Tipps für gute Ergebnisse
+## 8. Tipps für gute Ergebnisse
 
 - **Epoche und Ort nennen.** „Juni 1982, Bekaa-Tal" liefert passende Einheiten; ohne Angabe rät die KI.
 - **Wenige, konkrete Ziele.** Eine Skirmish mit 1–3 Gegnergruppen und einem klaren Auftrag ist spielbarer als eine Großoffensive.
@@ -96,7 +117,7 @@ Zwei Beispiele liegen bereit: `prefabs/carrier-strike-group.json` (US-Trägerver
 - **Plan-JSON ist dein Freund.** Kleine Korrekturen (Position, Anzahl, Callsign) gehen dort schneller als ein neuer KI-Lauf.
 - **Ohne GUI** (Skripte, Batch): `cd app && go run ./cmd/abgen -plan ../projects/current.json [-out <Ordner>]`.
 
-## 7. Wenn etwas nicht klappt
+## 9. Wenn etwas nicht klappt
 
 | Symptom | Ursache / Lösung |
 |---|---|
@@ -111,7 +132,7 @@ Zwei Beispiele liegen bereit: `prefabs/carrier-strike-group.json` (US-Trägerver
 
 Jeder KI-Aufruf (Prompt + Rohantwort + normalisierter Plan) wird nach `logs/airborne.log` geschrieben – der erste Anlaufpunkt bei Problemen. Der Pfad steht unten im Tab „Plan & Export".
 
-## 8. Wo liegt was
+## 10. Wo liegt was
 
 ```
 AIrborne/
@@ -119,6 +140,7 @@ AIrborne/
   prompts/             die Prompt-Vorlagen – anpassbar, wirken sofort nach Neustart
                        (00-system.md = System-Prompt: Rolle, Spiel, Grundsaetze)
   prefabs/             deine Prefab-Bibliothek (eine JSON je Prefab)
+  prompts/09-challenge.md   Prompt der Herausforderung (Gegner bleiben verborgen)
   projects/            gespeicherte Projekte (current.json = zuletzt bearbeitet)
   logs/airborne.log    alle KI-Aufrufe und Generator-Hinweise
   docs/                Formate und Hintergründe (IL-2 .Mission, DCS .miz, Architektur)

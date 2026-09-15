@@ -10,7 +10,9 @@ import (
 	"airborne/internal/ai"
 	"airborne/internal/gen"
 	"airborne/internal/logging"
+	"airborne/internal/missionfile"
 	"airborne/internal/pipeline"
+	"airborne/internal/plan"
 	"airborne/internal/prefab"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -19,6 +21,8 @@ import (
 type App struct {
 	ctx context.Context
 	pl  *pipeline.Pipeline
+	// mission is the file set currently open in the mission editor (nil = none).
+	mission *missionfile.Mission
 }
 
 func NewApp() *App {
@@ -83,6 +87,31 @@ func (a *App) QuickMission(input string) (pipeline.State, error) {
 		return pipeline.State{}, errNoProject()
 	}
 	if _, err := a.pl.QuickMission(a.ctx, input); err != nil {
+		return pipeline.State{}, err
+	}
+	a.saveQuietly()
+	return a.pl.State(), nil
+}
+
+// ChallengeMission builds a blind skirmish for one aircraft (mapHint may be
+// empty). Enemy details are kept out of the briefing and hidden in the export.
+func (a *App) ChallengeMission(aircraft, mapHint string) (pipeline.State, error) {
+	if a.pl == nil {
+		return pipeline.State{}, errNoProject()
+	}
+	if _, err := a.pl.Challenge(a.ctx, aircraft, mapHint); err != nil {
+		return pipeline.State{}, err
+	}
+	a.saveQuietly()
+	return a.pl.State(), nil
+}
+
+// SetMedia attaches user-provided files (briefing picture, kneeboards) to the plan.
+func (a *App) SetMedia(m plan.Media) (pipeline.State, error) {
+	if a.pl == nil {
+		return pipeline.State{}, errNoProject()
+	}
+	if err := a.pl.SetMedia(m); err != nil {
 		return pipeline.State{}, err
 	}
 	a.saveQuietly()

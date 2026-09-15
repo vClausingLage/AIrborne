@@ -1,6 +1,10 @@
 package il2
 
 import (
+	"bytes"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -234,5 +238,60 @@ func TestResolveAssets(t *testing.T) {
 	}
 	if got := resolve("il10", "planes"); got.script != `LuaScripts\WorldObjects\Planes\il10.txt` {
 		t.Errorf("bare plane name: %+v", got)
+	}
+}
+
+// Briefing picture is written as <Mission>.png (JPG converted); challenge
+// mode drops the map icons that would point at the target.
+func TestGenerateMediaAndChallenge(t *testing.T) {
+	dir := t.TempDir()
+	pic := filepath.Join(dir, "lage.jpg")
+	img := image.NewRGBA(image.Rect(0, 0, 4, 4))
+	f, _ := os.Create(pic)
+	jpeg.Encode(f, img, nil)
+	f.Close()
+
+	mp := samplePlan()
+	mp.Media = &plan.Media{BriefingImage: pic}
+	mp.Challenge = true
+	res, err := Generate(mp, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pngPath := strings.TrimSuffix(res.MainFile, ".Mission") + ".png"
+	data, err := os.ReadFile(pngPath)
+	if err != nil {
+		t.Fatalf("briefing png missing: %v", err)
+	}
+	if _, err := png.DecodeConfig(bytes.NewReader(data)); err != nil {
+		t.Fatalf("not a png: %v", err)
+	}
+	found := false
+	for _, fp := range res.Files {
+		if fp == pngPath {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("png not listed in result files: %v", res.Files)
+	}
+	text, _ := os.ReadFile(res.MainFile)
+	if strings.Contains(string(text), "MCU_Icon") {
+		t.Fatal("challenge mission must not contain target icons")
+	}
+
+	// Without media the stale png from the previous run is removed.
+	mp.Media = nil
+	mp.Challenge = false
+	res, err = Generate(mp, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(pngPath); err == nil {
+		t.Fatal("stale briefing png must be removed")
+	}
+	text, _ = os.ReadFile(res.MainFile)
+	if !strings.Contains(string(text), "MCU_Icon") {
+		t.Fatal("normal mission keeps its icons")
 	}
 }

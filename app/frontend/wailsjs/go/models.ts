@@ -25,8 +25,132 @@ export namespace gen {
 
 }
 
+export namespace missionfile {
+	
+	export class Meta {
+	    title: plan.Localized;
+	    briefing: plan.Localized;
+	    author: string;
+	    date: string;
+	    time: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Meta(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.title = this.convertValues(source["title"], plan.Localized);
+	        this.briefing = this.convertValues(source["briefing"], plan.Localized);
+	        this.author = source["author"];
+	        this.date = source["date"];
+	        this.time = source["time"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Entry {
+	    name: string;
+	    size: number;
+	    text: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Entry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.size = source["size"];
+	        this.text = source["text"];
+	    }
+	}
+	export class Doc {
+	    game: string;
+	    path: string;
+	    name: string;
+	    entries: Entry[];
+	    meta: Meta;
+	    kneeboards: string[];
+	    briefingImages: string[];
+	    protected: boolean;
+	    dirty: boolean;
+	    notes: string[];
+	
+	    static createFrom(source: any = {}) {
+	        return new Doc(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.game = source["game"];
+	        this.path = source["path"];
+	        this.name = source["name"];
+	        this.entries = this.convertValues(source["entries"], Entry);
+	        this.meta = this.convertValues(source["meta"], Meta);
+	        this.kneeboards = source["kneeboards"];
+	        this.briefingImages = source["briefingImages"];
+	        this.protected = source["protected"];
+	        this.dirty = source["dirty"];
+	        this.notes = source["notes"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	
+
+}
+
 export namespace pipeline {
 	
+	export class AircraftOption {
+	    type: string;
+	    label: string;
+	    side: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new AircraftOption(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.label = source["label"];
+	        this.side = source["side"];
+	    }
+	}
 	export class ConfigState {
 	    base: string;
 	    model: string;
@@ -84,6 +208,8 @@ export namespace pipeline {
 	    issues: string[];
 	    output?: gen.Result;
 	    prefabs: prefab.Prefab[];
+	    aircraft: Record<string, Array<AircraftOption>>;
+	    maps: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new State(source);
@@ -101,6 +227,8 @@ export namespace pipeline {
 	        this.issues = source["issues"];
 	        this.output = this.convertValues(source["output"], gen.Result);
 	        this.prefabs = this.convertValues(source["prefabs"], prefab.Prefab);
+	        this.aircraft = this.convertValues(source["aircraft"], Array<AircraftOption>, true);
+	        this.maps = source["maps"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -357,6 +485,22 @@ export namespace plan {
 		}
 	}
 	
+	export class Media {
+	    briefingImage?: string;
+	    kneeboards?: string[];
+	    kneeboardBriefing?: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Media(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.briefingImage = source["briefingImage"];
+	        this.kneeboards = source["kneeboards"];
+	        this.kneeboardBriefing = source["kneeboardBriefing"];
+	    }
+	}
 	export class PrefabPlacement {
 	    prefab: string;
 	    name?: string;
@@ -577,6 +721,8 @@ export namespace plan {
 	    briefing: Localized;
 	    icons: Icon[];
 	    prefabs?: PrefabPlacement[];
+	    media?: Media;
+	    challenge?: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new MissionPlan(source);
@@ -601,6 +747,8 @@ export namespace plan {
 	        this.briefing = this.convertValues(source["briefing"], Localized);
 	        this.icons = this.convertValues(source["icons"], Icon);
 	        this.prefabs = this.convertValues(source["prefabs"], PrefabPlacement);
+	        this.media = this.convertValues(source["media"], Media);
+	        this.challenge = source["challenge"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

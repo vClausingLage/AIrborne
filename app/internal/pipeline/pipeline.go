@@ -48,11 +48,12 @@ var Roles = []RoleDef{
 }
 
 const (
-	systemFile = "00-system.md"
-	mergeFile  = "06-merge.md"
-	quickFile  = "07-quick.md"
-	prefabFile = "08-prefab.md"
-	schemaFile = "schema.md"
+	systemFile    = "00-system.md"
+	mergeFile     = "06-merge.md"
+	quickFile     = "07-quick.md"
+	prefabFile    = "08-prefab.md"
+	challengeFile = "09-challenge.md"
+	schemaFile    = "schema.md"
 )
 
 type Project struct {
@@ -96,6 +97,10 @@ type State struct {
 	Issues      []string          `json:"issues"`
 	Output      *gen.Result       `json:"output"`
 	Prefabs     []prefab.Prefab   `json:"prefabs"`
+	// Aircraft lists the flyable types offered in the challenge mode (per game).
+	Aircraft map[string][]AircraftOption `json:"aircraft"`
+	// Maps lists the DCS theatres the challenge mode can be pinned to.
+	Maps []string `json:"maps"`
 }
 
 type Pipeline struct {
@@ -131,7 +136,7 @@ func New(root string) (*Pipeline, error) {
 
 func (p *Pipeline) loadTemplates() error {
 	p.tmpl = map[string]string{}
-	for _, f := range []string{systemFile, mergeFile, quickFile, prefabFile, schemaFile} {
+	for _, f := range []string{systemFile, mergeFile, quickFile, prefabFile, challengeFile, schemaFile} {
 		data, err := os.ReadFile(filepath.Join(p.PromptsDir, f))
 		if err != nil {
 			return fmt.Errorf("Prompt-Template fehlt: %s (%w)", f, err)
@@ -237,6 +242,8 @@ func (p *Pipeline) State() State {
 	if st.Prefabs == nil {
 		st.Prefabs = []prefab.Prefab{}
 	}
+	st.Aircraft = map[string][]AircraftOption{"il2": IL2Aircraft, "dcs": DCSAircraft}
+	st.Maps = DCSMaps
 	return st
 }
 
@@ -299,9 +306,81 @@ func (p *Pipeline) storePlan(mp plan.MissionPlan, game string) {
 		mp.Game = game
 	}
 	p.mu.Lock()
+	// User-provided media never comes from the LLM: carry it over.
+	if mp.Media == nil && p.proj.Plan != nil && !p.proj.Plan.Media.IsEmpty() {
+		mp.Media = p.proj.Plan.Media
+	}
 	p.proj.Plan = &mp
 	p.proj.Output = nil
 	p.mu.Unlock()
+}
+
+// SetMedia attaches briefing picture / kneeboards to the current plan.
+func (p *Pipeline) SetMedia(m plan.Media) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if p.proj.Plan == nil {
+		return fmt.Errorf("Kein Missionsplan vorhanden - erst Blitz, Herausforderung oder Merge ausfuehren")
+	}
+	if m.IsEmpty() {
+		p.proj.Plan.Media = nil
+	} else {
+		mm := m
+		p.proj.Plan.Media = &mm
+	}
+	p.proj.Output = nil
+	return nil
+}
+
+// challengePrompt renders prompts/09-challenge.md for the chosen aircraft.
+func (p *Pipeline) challengePrompt(game, aircraft, mapHint string) string {
+	hint := strings.TrimSpace(mapHint)
+	if hint == "" {
+		hint = "frei waehlbar (passend zu Flugzeug und Epoche)"
+		if game == "il2" {
+			hint = "Korea"
+		}
+	}
+	label := aircraft
+	for _, opt := range append(append([]AircraftOption{}, IL2Aircraft...), DCSAircraft...) {
+		if opt.Type == aircraft {
+			label = fmt.Sprintf("%s (%s)", opt.Label, opt.Type)
+			break
+		}
+	}
+	return fill(p.tmpl[challengeFile], map[string]string{
+		"GAME_CONTEXT": p.gameContext(game),
+		"AIRCRAFT":     label,
+		"MAP_HINT":     hint,
+		"SCHEMA":       p.tmpl[schemaFile],
+	})
+}
+
+// Challenge builds a blind skirmish for the chosen aircraft: the LLM designs
+// the whole scenario and is told to keep every enemy detail out of the
+// player-facing texts; the plan is flagged so the generators hide the rest.
+func (p *Pipeline) Challenge(ctx context.Context, aircraft, mapHint string) (plan.MissionPlan, error) {
+	aircraft = strings.TrimSpace(aircraft)
+	if aircraft == "" {
+		return plan.MissionPlan{}, fmt.Errorf("Bitte ein Flugzeug waehlen")
+	}
+	p.mu.Lock()
+	game := p.proj.Game
+	prompt := p.challengePrompt(game, aircraft, mapHint)
+	p.mu.Unlock()
+
+	mp, err := p.runPlanPrompt(ctx, "challenge", game, prompt)
+	if err != nil {
+		return plan.MissionPlan{}, err
+	}
+	mp.Challenge = true
+	mp.Icons = nil
+	if len(mp.PlayerGroups) > 0 {
+		mp.PlayerGroups[0].Count = 1
+	}
+	p.storePlan(mp, game)
+	logging.Infof("Challenge erfolgreich: %s (%s)", mp.Title.De, aircraft)
+	return mp, nil
 }
 
 func (p *Pipeline) QuickMission(ctx context.Context, input string) (plan.MissionPlan, error) {

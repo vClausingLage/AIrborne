@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"airborne/internal/gen"
+	"airborne/internal/media"
 	"airborne/internal/plan"
 )
 
@@ -60,6 +61,9 @@ type builder struct {
 	playerGroupID int
 	enemyGroupIDs []int
 	center        [2]float64
+
+	resources T                 // l10n/DEFAULT/mapResource: ResKey -> file name
+	extra     map[string][]byte // additional zip entries (pictures, kneeboards)
 }
 
 func (b *builder) note(format string, args ...any) {
@@ -90,7 +94,11 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, pay
 	if !ok {
 		return nil, fmt.Errorf("DCS-Karte %q unbekannt (bekannt: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)", mp.Map)
 	}
-	b := &builder{mp: mp, terr: terr, zoneID: 100, assigned: map[string]string{}, prefabs: prefabs, payloads: payloads}
+	b := &builder{mp: mp, terr: terr, zoneID: 100, assigned: map[string]string{}, prefabs: prefabs, payloads: payloads,
+		extra: map[string][]byte{}}
+	if err := b.media(); err != nil {
+		return nil, err
+	}
 	mission := b.build()
 
 	name := gen.MissionName(mp.Title.Pick("en"))
@@ -98,15 +106,18 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, pay
 		return nil, fmt.Errorf("Missionsordner nicht erreichbar: %w", err)
 	}
 	out := filepath.Join(outDir, name+".miz")
-	files := map[string]string{
-		"mission":                  Serialize("mission", mission),
-		"options":                  Serialize("options", optionsTable()),
-		"warehouses":               Serialize("warehouses", tbl(k("airports", tbl()), k("warehouses", tbl()))),
-		"theatre":                  terr.theatre,
-		"l10n/DEFAULT/dictionary":  Serialize("dictionary", b.dict),
-		"l10n/DEFAULT/mapResource": Serialize("mapResource", tbl()),
+	files := map[string][]byte{
+		"mission":                  []byte(Serialize("mission", mission)),
+		"options":                  []byte(Serialize("options", optionsTable())),
+		"warehouses":               []byte(Serialize("warehouses", tbl(k("airports", tbl()), k("warehouses", tbl())))),
+		"theatre":                  []byte(terr.theatre),
+		"l10n/DEFAULT/dictionary":  []byte(Serialize("dictionary", b.dict)),
+		"l10n/DEFAULT/mapResource": []byte(Serialize("mapResource", b.resources)),
 	}
-	if err := writeZip(out, files); err != nil {
+	for n, data := range b.extra {
+		files[n] = data
+	}
+	if err := WriteZip(out, files); err != nil {
 		return nil, err
 	}
 	return &gen.Result{
@@ -115,7 +126,58 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, pay
 	}, nil
 }
 
-func writeZip(path string, files map[string]string) error {
+// KneeboardDir is the .miz folder whose PNGs DCS shows on every aircraft's kneeboard.
+const KneeboardDir = "KNEEBOARD/IMAGES/"
+
+// media copies the plan's briefing picture and kneeboard pages into the
+// archive: pictures live in l10n/DEFAULT and are referenced through
+// mapResource (ResKey) + pictureFileNameB/R, kneeboards in KNEEBOARD/IMAGES.
+func (b *builder) media() error {
+	m := b.mp.Media
+	if m == nil {
+		return nil
+	}
+	if m.BriefingImage != "" {
+		data, err := media.LoadPNG(m.BriefingImage)
+		if err != nil {
+			return fmt.Errorf("Briefing-Bild: %w", err)
+		}
+		name := media.SafeName(m.BriefingImage) + ".png"
+		b.extra["l10n/DEFAULT/"+name] = data
+		b.resources = append(b.resources, k("ResKey_ImageBriefing_1", name))
+	}
+	page := 0
+	add := func(label string, data []byte) {
+		page++
+		b.extra[fmt.Sprintf("%s%02d_%s.png", KneeboardDir, page, label)] = data
+	}
+	if m.KneeboardBriefing {
+		title := b.mp.Title.Pick("de")
+		body := b.mp.Briefing.Pick("de")
+		if b.mp.Briefing.En != "" && b.mp.Briefing.De != "" {
+			body = b.mp.Briefing.De + "\n\n" + b.mp.Briefing.En
+		}
+		data, err := media.RenderTextPage(title, body)
+		if err != nil {
+			return fmt.Errorf("Kneeboard-Briefing: %w", err)
+		}
+		add("briefing", data)
+	}
+	for _, kb := range m.Kneeboards {
+		data, err := media.LoadPNG(kb)
+		if err != nil {
+			return fmt.Errorf("Kneeboard: %w", err)
+		}
+		add(media.SafeName(kb), data)
+	}
+	if page > 0 {
+		b.note("%d Kneeboard-Seite(n) unter %s", page, KneeboardDir)
+	}
+	return nil
+}
+
+// WriteZip writes the entries as a DCS-compatible archive (deflate, / paths).
+func WriteZip(path string, files map[string][]byte) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -132,7 +194,7 @@ func writeZip(path string, files map[string]string) error {
 		if err != nil {
 			return err
 		}
-		if _, err := w.Write([]byte(files[n])); err != nil {
+		if _, err := w.Write(files[n]); err != nil {
 			return err
 		}
 	}
@@ -274,6 +336,24 @@ func (b *builder) build() T {
 		tx, ty = b.xy(a)
 	}
 
+	// Briefing picture for the player's coalition (the other side gets none).
+	pictureB, pictureR := tbl(), tbl()
+	if len(b.resources) > 0 {
+		pic := arr(b.resources[0].key)
+		if playerRed {
+			pictureR = pic
+		} else {
+			pictureB = pic
+		}
+	}
+	forced := tbl()
+	if mp.Challenge {
+		// Challenge: F10 map shows only the player's own aircraft, enemy groups
+		// are additionally flagged hidden (see hideEnemies).
+		forced = tbl(k("optionsView", "optview_myaircraft"))
+		b.hideEnemies()
+	}
+
 	return tbl(
 		k("groundControl", groundControl()),
 		k("requiredModules", tbl()),
@@ -304,11 +384,11 @@ func (b *builder) build() T {
 		k("map", tbl(k("centerY", b.center[1]), k("zoom", 100000), k("centerX", b.center[0]))),
 		k("coalitions", tbl(k("neutrals", neutralIDs), k("blue", blueIDs), k("red", redIDs))),
 		k("descriptionText", descKey),
-		k("pictureFileNameR", tbl()),
+		k("pictureFileNameR", pictureR),
 		k("descriptionBlueTask", blueKey),
 		k("goals", tbl()),
 		k("descriptionRedTask", redKey),
-		k("pictureFileNameB", tbl()),
+		k("pictureFileNameB", pictureB),
 		k("coalition", tbl(
 			k("neutrals", tbl(k("bullseye", point(0, 0)), k("nav_points", tbl()), k("name", "neutrals"), k("country", tbl()))),
 			k("blue", b.coalition(blueSide, tx, ty)),
@@ -319,9 +399,41 @@ func (b *builder) build() T {
 		k("trigrules", b.rules),
 		k("currentKey", 1000+b.unitID),
 		k("failures", tbl()),
-		k("forcedOptions", tbl()),
+		k("forcedOptions", forced),
 		k("start_time", h*3600+m*60+s),
 	)
+}
+
+// hideEnemies sets the mission-editor "hidden on map/planner/MFD" flags on
+// every group of the opposing side so the F10 map and the briefing planner
+// never reveal them.
+func (b *builder) hideEnemies() {
+	n := 0
+	for _, cats := range b.enemy.groups {
+		for cat, groups := range cats {
+			for i, g := range groups {
+				g = setKey(g, "hidden", true)
+				g = setKey(g, "hiddenOnPlanner", true)
+				g = setKey(g, "hiddenOnMFD", true)
+				cats[cat][i] = g
+				n++
+			}
+		}
+	}
+	if n > 0 {
+		b.note("Herausforderung: %d Gegnergruppen auf Karte/Planer verborgen, F10 zeigt nur das eigene Flugzeug", n)
+	}
+}
+
+// setKey replaces the value of key in t (appending when absent).
+func setKey(t T, key string, val any) T {
+	for i, e := range t {
+		if e.key == key {
+			t[i].val = val
+			return t
+		}
+	}
+	return append(t, k(key, val))
 }
 
 func (b *builder) coalition(s *side, bx, by float64) T {

@@ -33,6 +33,8 @@ AIrborne/
       assets/           # Asset-Katalog (JSON): Einheit→Fraktion→Epoche→Modul→Karte
       pipeline/         # Prompt-Orchestrierung: 5 Rollen → Merge → Missionsplan → Dateien
       prefab/           # DCS-Prefabs: Asset-Gruppen (Schiffe/Fahrzeuge/Statics) relativ in Metern, Katalog + Bibliothek
+      media/            # Nutzer-Bilder ohne KI: PNG/JPG laden (JPG->PNG), Briefing-Text als Kneeboard-Seite rendern (Go-Fonts)
+      missionfile/      # Bestehende .miz/.Mission oeffnen, Meta in place aendern, Bilder/Kneeboards anhaengen, speichern (.bak)
   prompts/              # Versionierte Prompt-Templates (Markdown, 1 Datei je Rolle)
   prefabs/              # Gespeicherte Prefabs (JSON, je Datei eines) - Bibliothek der App
   docs/                 # Format- und Workflow-Doku
@@ -94,7 +96,17 @@ func (a *App) GeneratePrefab(input string) (prefab.Prefab, error)   // Prefab-En
 func (a *App) SavePrefab(json string) (State, error)                // in prefabs/<id>.json ablegen
 func (a *App) DeletePrefab(id string) (State, error)
 func (a *App) PlacePrefab(id, side string, lat, lon, heading float64, country string) (State, error)
+func (a *App) ChallengeMission(aircraft, mapHint string) (State, error)  // Herausforderung: Plan mit challenge=true
+func (a *App) SetMedia(m plan.Media) (State, error)                     // Briefing-Bild / Kneeboards (kein LLM)
+func (a *App) OpenMission(path string) (missionfile.Doc, error)         // Mission bearbeiten (app_editor.go): MissionRead/Write/SetMeta/
+func (a *App) MissionSave(path string) (missionfile.Doc, error)         //   AddKneeboards/AddBriefingText/SetBriefingImage/Remove/Save
 ```
+
+**Medien (kein LLM):** `plan.Media` (`briefingImage`, `kneeboards[]`, `kneeboardBriefing`) haengt am Plan und ueberlebt eine Neugenerierung (`storePlan` uebernimmt es). IL-2 schreibt `<Mission>.png` neben die `.Mission` (Konvention der Kampagnen-Missionen in `Missions.gtp`), DCS legt Bilder unter `l10n/DEFAULT/` ab, traegt sie in `mapResource` ein und verweist per `pictureFileNameB/R` (Spielerseite); Kneeboards landen als `KNEEBOARD/IMAGES/NN_<name>.png`.
+
+**Herausforderung:** `prompts/09-challenge.md` (nur Flugzeug + Kartenhinweis) -> `plan.Challenge=true`. Deterministische Absicherung: `plan.Validate` meldet Spielertexte, die einen Gegnertyp nennen; IL-2 exportiert keine Icons; DCS setzt `hidden/hiddenOnPlanner/hiddenOnMFD` auf allen Gegnergruppen und `forcedOptions.optionsView = optview_myaircraft`.
+
+**Mission bearbeiten:** `internal/missionfile` haelt die Mission im Speicher (Zip-Eintraege bzw. IL-2-Dateisatz), aendert Metadaten per gezieltem Regex (DCS: `sortie`/`descriptionText` -> `dictionary`, `start_time`, `date`; IL-2: Zeilen 0-2 der Sprachdateien, `Options.Date/Time`) und schreibt den Rest byte-identisch zurueck. Top-Level-Felder werden ueber die Einrueckung erkannt (1 Tab bei AIrborne, 4 Spaces beim DCS-Editor), damit `start_time` der Gruppen nicht getroffen wird.
 
 ## 4. Konfiguration & Geheimnisse
 
@@ -105,4 +117,4 @@ func (a *App) PlacePrefab(id, side string, lat, lon, heading float64, country st
 
 1. **MVP:** Projekt-Verwaltung (5 Prompts), Merge → Missionsplan-JSON, IL-2-Generator (Objekte + Objective + Subtitle, wie in der Praxis-Mission), Validierung, „Im Editor öffnen".
 2. **DCS:** .miz-Roundtrip aus einem Referenz-Template (leere Basismission je Karte), dictionary/mapResource-Briefings, Einheitenplatzierung aus Plan.
-3. **Komfort:** TTS-Radio (ElevenLabs → OGG), Kneeboard-Bilder, Karten-Vorschau, Asset-DB-Editor, Historien-/Lore-Bibliothek.
+3. **Komfort:** TTS-Radio (ElevenLabs → OGG), Karten-Vorschau, Asset-DB-Editor, Historien-/Lore-Bibliothek. (Kneeboard-/Briefing-Bilder, Missions-Editor und Herausforderung: erledigt.)

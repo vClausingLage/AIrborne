@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { pipeline, plan as planNS, gen, prefab } from '../wailsjs/go/models'
+import ChallengePane from './ChallengePane'
+import MediaPanel from './MediaPanel'
+import MissionEditor from './MissionEditor'
 import {
   GetState,
   SetRoleInput,
@@ -20,6 +23,8 @@ import {
   DeletePrefab,
   PlacePrefab,
   OpenPrefabFolder,
+  ChallengeMission,
+  SetMedia,
 } from '../wailsjs/go/main/App'
 
 interface State {
@@ -33,10 +38,12 @@ interface State {
   issues: string[]
   output?: gen.Result | null
   prefabs: prefab.Prefab[]
+  aircraft: Record<string, pipeline.AircraftOption[]>
+  maps: string[]
 }
 
-type Tab = 'input' | 'plan'
-type Mode = 'quick' | 'steps' | 'prefab'
+type Tab = 'input' | 'plan' | 'edit'
+type Mode = 'quick' | 'steps' | 'prefab' | 'challenge'
 
 interface Placement {
   id: string
@@ -112,6 +119,9 @@ function App() {
     if (!input) return
     run('quick', () => QuickMission(input), () => setActiveTab('plan'))
   }
+  const challenge = (aircraft: string, mapHint: string) =>
+    run('challenge', () => ChallengeMission(aircraft, mapHint), () => setActiveTab('plan'))
+  const setMedia = (m: planNS.Media) => run('media', () => SetMedia(m))
   const generate = () => run('generate', GenerateMission)
   const applyPlan = () => run('apply', () => SetPlanJSON(planDraft))
   const openFolder = () => run('open', () => OpenOutputFolder())
@@ -235,6 +245,9 @@ function App() {
             <button className={mode === 'steps' ? 'seg active' : 'seg'} onClick={() => selectMode('steps')}>
               🪜 Schritt für Schritt{filled > 0 ? ` (${filled}/5)` : ''}
             </button>
+            <button className={mode === 'challenge' ? 'seg active' : 'seg'} onClick={() => selectMode('challenge')} title="Nur das Flugzeug wählen – Gegner bleiben verborgen">
+              🎯 Herausforderung
+            </button>
             {isDcs && (
               <button className={mode === 'prefab' ? 'seg active' : 'seg'} onClick={() => selectMode('prefab')} title="Wiederverwendbare Asset-Gruppen für DCS bauen">
                 🧩 Prefabs{state.prefabs.length > 0 ? ` (${state.prefabs.length})` : ''}
@@ -247,7 +260,14 @@ function App() {
           <span className="stage-label">2 · Ergebnis</span>
           <button className={activeTab === 'plan' ? 'stagebtn active' : 'stagebtn'} onClick={() => setActiveTab('plan')}>
             Plan &amp; Export
-            {state.plan && <span className="badge">{output ? 'exportiert' : 'Plan bereit'}</span>}
+            {state.plan && <span className="badge">{output ? 'exportiert' : state.plan.challenge ? 'Herausforderung' : 'Plan bereit'}</span>}
+          </button>
+        </div>
+        <div className="arrow">→</div>
+        <div className="stage">
+          <span className="stage-label">3 · Bearbeiten</span>
+          <button className={activeTab === 'edit' ? 'stagebtn active' : 'stagebtn'} onClick={() => setActiveTab('edit')} title="Bestehende .miz / .Mission ohne KI öffnen und ändern">
+            🛠 Mission bearbeiten
           </button>
         </div>
       </nav>
@@ -308,6 +328,12 @@ function App() {
           </div>
         </section>
       )}
+
+      {activeTab === 'input' && mode === 'challenge' && (
+        <ChallengePane game={state.game} aircraft={state.aircraft?.[state.game] || []} maps={state.maps || []} busy={busy} onStart={challenge} />
+      )}
+
+      {activeTab === 'edit' && <MissionEditor busy={busy} hasOutput={!!output} run={run} />}
 
       {activeTab === 'input' && mode === 'prefab' && isDcs && (
         <section className="pane">
@@ -421,8 +447,10 @@ function App() {
             {state.plan && (
               <div className="hint">
                 Spiel: <b>{state.plan.game === 'dcs' ? 'DCS World' : 'IL-2 Korea'}</b> · Karte: {state.plan.map} · {state.plan.date} {state.plan.time}
+                {state.plan.challenge && <> · <b>🎯 Herausforderung</b> (Gegner verborgen)</>}
               </div>
             )}
+            {state.plan && <MediaPanel game={state.plan.game} media={state.plan.media} busy={busy} onChange={setMedia} />}
 
             <h3 style={{ marginTop: 20 }}>Export</h3>
             <div className="hint">Zielordner: {outDir || '(nicht gesetzt – .env prüfen)'}</div>

@@ -2,9 +2,14 @@ package dcs
 
 import (
 	"archive/zip"
+	"bytes"
 	"fmt"
+	"image"
+	"image/png"
 	"io"
 	"math"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -330,4 +335,126 @@ func TestLuaStringEscaping(t *testing.T) {
 	if got != "\"a\\\"b\\\\c\\\nd\"" {
 		t.Fatalf("got %q", got)
 	}
+}
+
+func readMiz(t *testing.T, path string) map[string][]byte {
+	t.Helper()
+	zr, err := zip.OpenReader(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer zr.Close()
+	files := map[string][]byte{}
+	for _, f := range zr.File {
+		rc, _ := f.Open()
+		data, _ := io.ReadAll(rc)
+		rc.Close()
+		files[f.Name] = data
+	}
+	return files
+}
+
+func writeTestPNG(t *testing.T, path string) {
+	t.Helper()
+	img := image.NewRGBA(image.Rect(0, 0, 4, 4))
+	f, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	if err := png.Encode(f, img); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// Media: briefing picture -> l10n/DEFAULT + mapResource + pictureFileNameR
+// (player is red here); kneeboards -> KNEEBOARD/IMAGES in page order.
+func TestGenerateMizMedia(t *testing.T) {
+	dir := t.TempDir()
+	pic := filepath.Join(dir, "Lage Karte.png")
+	kb := filepath.Join(dir, "Funkplan.png")
+	writeTestPNG(t, pic)
+	writeTestPNG(t, kb)
+	mp := samplePlan()
+	mp.Media = &plan.Media{BriefingImage: pic, Kneeboards: []string{kb}, KneeboardBriefing: true}
+	res, err := Generate(mp, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	files := readMiz(t, res.MainFile)
+	if _, ok := files["l10n/DEFAULT/Lage_Karte.png"]; !ok {
+		t.Fatalf("briefing picture missing: %v", mapKeys(files))
+	}
+	if _, ok := files["KNEEBOARD/IMAGES/01_briefing.png"]; !ok {
+		t.Fatalf("rendered briefing page missing: %v", mapKeys(files))
+	}
+	if _, ok := files["KNEEBOARD/IMAGES/02_Funkplan.png"]; !ok {
+		t.Fatalf("user kneeboard missing: %v", mapKeys(files))
+	}
+	if _, err := png.DecodeConfig(bytes.NewReader(files["KNEEBOARD/IMAGES/01_briefing.png"])); err != nil {
+		t.Fatalf("briefing page is not a PNG: %v", err)
+	}
+	res1 := parseLua(t, "mapResource", string(files["l10n/DEFAULT/mapResource"]))
+	if res1["ResKey_ImageBriefing_1"] != "Lage_Karte.png" {
+		t.Fatalf("mapResource: %v", res1)
+	}
+	m := parseLua(t, "mission", string(files["mission"]))
+	if get(t, m, "pictureFileNameR", "1") != "ResKey_ImageBriefing_1" {
+		t.Fatalf("pictureFileNameR: %v", get(t, m, "pictureFileNameR"))
+	}
+	if got := get(t, m, "pictureFileNameB").(map[string]any); len(got) != 0 {
+		t.Fatalf("blue (enemy) must get no picture: %v", got)
+	}
+}
+
+// Challenge: every enemy group hidden, F10 restricted to own aircraft.
+func TestGenerateMizChallenge(t *testing.T) {
+	dir := t.TempDir()
+	mp := samplePlan()
+	mp.Challenge = true
+	res, err := Generate(mp, dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	files := readMiz(t, res.MainFile)
+	m := parseLua(t, "mission", string(files["mission"]))
+	if get(t, m, "forcedOptions", "optionsView") != "optview_myaircraft" {
+		t.Fatalf("forcedOptions: %v", get(t, m, "forcedOptions"))
+	}
+	blue := get(t, m, "coalition", "blue", "country").(map[string]any)
+	hidden, total := 0, 0
+	for _, c := range blue {
+		for _, cat := range []string{"plane", "vehicle", "helicopter", "ship"} {
+			cm, ok := c.(map[string]any)[cat]
+			if !ok {
+				continue
+			}
+			for _, g := range cm.(map[string]any)["group"].(map[string]any) {
+				total++
+				if g.(map[string]any)["hidden"] == true && g.(map[string]any)["hiddenOnPlanner"] == true {
+					hidden++
+				}
+			}
+		}
+	}
+	if total == 0 || hidden != total {
+		t.Fatalf("hidden %d of %d enemy groups", hidden, total)
+	}
+	red := get(t, m, "coalition", "red", "country").(map[string]any)
+	for _, c := range red {
+		pg := get(t, c, "plane", "group").(map[string]any)
+		for _, g := range pg {
+			if g.(map[string]any)["hidden"] == true {
+				t.Fatal("player side must stay visible")
+			}
+		}
+	}
+}
+
+func mapKeys(m map[string][]byte) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	return out
 }

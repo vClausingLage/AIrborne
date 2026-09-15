@@ -1,6 +1,7 @@
 // Package il2 turns a MissionPlan into an IL-2 Korea mission file set
-// (NAME.Mission + NAME.ger/.eng/... + NAME.list). The text format follows the
-// verified reference mission described in docs/il2-korea-missions.md.
+// (NAME.Mission + NAME.ger/.eng/... + NAME.list, optionally NAME.png as the
+// briefing picture). The text format follows the verified reference mission
+// described in docs/il2-korea-missions.md.
 package il2
 
 import (
@@ -14,6 +15,7 @@ import (
 	"unicode"
 
 	"airborne/internal/gen"
+	"airborne/internal/media"
 	"airborne/internal/plan"
 )
 
@@ -132,6 +134,22 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (
 	if err := write(base+".list", []byte{}); err != nil {
 		return nil, err
 	}
+	// Briefing picture: a PNG with the mission's base name next to the
+	// .Mission (the convention used by the bundled campaign missions).
+	if mp.Media != nil && mp.Media.BriefingImage != "" {
+		img, err := media.LoadPNG(mp.Media.BriefingImage)
+		if err != nil {
+			return nil, fmt.Errorf("Briefing-Bild: %w", err)
+		}
+		if err := write(base+".png", img); err != nil {
+			return nil, err
+		}
+	} else {
+		os.Remove(base + ".png")
+	}
+	if mp.Media != nil && (len(mp.Media.Kneeboards) > 0 || mp.Media.KneeboardBriefing) {
+		w.note("Kneeboards gibt es nur in DCS - fuer IL-2 ignoriert")
+	}
 	// Stale binary mirror from a previous editor save would shadow the new text mission.
 	if err := os.Remove(base + ".msnbin"); err == nil {
 		w.note("Alte %s.msnbin entfernt (wird beim Speichern im Editor neu erzeugt)", name)
@@ -143,11 +161,12 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (
 }
 
 // utf16Lines renders "Index:Text" lines as UTF-16LE with BOM and CRLF.
+// Line breaks inside a text are written as <br> (as in the bundled missions).
 func utf16Lines(lines []plan.Localized, lang string) []byte {
 	var sb strings.Builder
 	for i, l := range lines {
-		t := strings.ReplaceAll(l.Pick(lang), "\r\n", " ")
-		t = strings.ReplaceAll(t, "\n", " ")
+		t := strings.ReplaceAll(l.Pick(lang), "\r\n", "\n")
+		t = strings.ReplaceAll(t, "\n", "<br>")
 		sb.WriteString(strconv.Itoa(i) + ":" + t + "\r\n")
 	}
 	out := []byte{0xFF, 0xFE}
@@ -372,7 +391,13 @@ func (w *writer) build(mp *plan.MissionPlan) {
 		}
 		w.objective(objIdx, logicPos, w.text(title), w.text(o.Desc), playerCoalition)
 	}
+	if mp.Challenge && len(mp.Icons) > 0 {
+		w.note("Herausforderung: %d Karten-Icons nicht exportiert (Zielgebiet bleibt verborgen)", len(mp.Icons))
+	}
 	for i, ic := range mp.Icons {
+		if mp.Challenge {
+			break
+		}
 		from := w.idx()
 		to := w.idx()
 		label := ic.Label

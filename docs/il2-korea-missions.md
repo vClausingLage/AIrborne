@@ -14,11 +14,12 @@ Eine Mission besteht aus einem Set von Dateien mit gleichem Basisnamen:
 | `NAME.Mission` | **Die Mission selbst** (Objekte, MCU-Logik, Wetter, Startzeit) | Text, eigenes Key/Value-Format, CRLF |
 | `NAME.msnbin` | Binär-Spiegel der Mission, vom Editor/Spiel geschrieben | Binär, proprietär |
 | `NAME.ger` / `.eng` / `.rus` / `.fra` / `.spa` / `.chs` | Lokalisierte Texte (Name, Briefing, Autor, Objektiv-Texte, Funk/Subtitle) | UTF-16LE mit BOM, Zeilen `Index:Text` |
-| `NAME.list` | Liste der Missionsbriefing-Bilder (leer = ok) | Text |
+| `NAME.list` | Ressourcenliste (Sprachdateien mit CRC32, z. B. `filename="…/x.ger","d3a8017f"`) für Multiplayer-Checks; leer = ok, der Editor füllt sie beim Speichern | Text |
+| `NAME.png` | **Briefing-Bild** der Mission (optional). Konvention aus `Missions.gtp`: die Kampagnen-Missionen `NN_home_by_christmas.Mission` haben je ein `NN_home_by_christmas.png` daneben | PNG |
 
 **Wichtig:**
 - Das **Spiel und der Editor laden die Text-.Mission vollwertig** – offizielle Demo-Missionen (`data\Missions\[DEMO]*.Mission`, ~411k Zeilen) existieren als reine Textdateien **ohne** .msnbin. .msnbin nicht selbst editieren; er wird beim Speichern im Editor regeneriert.
-- Die Sprachdateien sind **UTF-16LE mit BOM (FF FE)**, Zeilenformat `Index:Text`, CRLF. Umlaute sind kein Problem.
+- Die Sprachdateien sind **UTF-16LE mit BOM (FF FE)**, Zeilenformat `Index:Text`, CRLF. Umlaute sind kein Problem. **Zeilenumbrüche innerhalb eines Textes** (Briefing) stehen als `<br>` (verifiziert in `[DEMO]InchonStrike.ger`); AIrborne schreibt `\n` → `<br>`, der Missions-Editor der App zeigt sie wieder als Zeilen.
 - `LCName/LCDesc/LCAuthor` in `Options` verweisen auf Sprach-Indizes 0/1/2.
 
 ## 2. Aufbau der .Mission (verifizierte Syntax)
