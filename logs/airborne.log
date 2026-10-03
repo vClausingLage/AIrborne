@@ -1159,3 +1159,1793 @@ Scenery: Mi 24, Syria, CAS, is in the area, also en route to convoy to assist
 [2026-09-15 16:42:31] INFO  Mission geoeffnet: C:\Users\vince\AppData\Local\Temp\claude\C--Users-vince-js-projects-AIrborne\85ad771e-8cac-4637-adac-05bc81148514\scratchpad\miz\AB_Damascus_Outskirts_Convoy_Hunt.miz (dcs)
 [2026-09-15 16:42:59] INFO  Mission geoeffnet: C:\Users\vince\AppData\Local\Temp\claude\C--Users-vince-js-projects-AIrborne\85ad771e-8cac-4637-adac-05bc81148514\scratchpad\miz\AB_Damascus_Outskirts_Convoy_Hunt.miz (dcs)
 [2026-09-15 16:43:39] INFO  Mission gespeichert: C:\Users\vince\AppData\Local\Temp\claude\C--Users-vince-js-projects-AIrborne\85ad771e-8cac-4637-adac-05bc81148514\scratchpad\miz\AB_Damascus_Outskirts_Convoy_Hunt.miz
+[2026-09-16 13:59:55] INFO  Token-Limit pro Plan: 50000 (0 = .env)
+[2026-09-16 14:00:18] INFO  Token-Limit pro Plan: 0 (0 = .env)
+[2026-09-16 14:32:32] INFO  Token-Limit pro Plan: 40000 (0 = .env)
+[2026-09-16 14:33:38] INFO  Token-Limit pro Plan: 45000 (0 = .env)
+[2026-09-16 14:34:48] INFO  quick gestartet
+[2026-09-16 14:34:48] ---- SYSTEM quick ----
+Du bist der Missionsdesigner von AIrborne, einem Werkzeug, das aus Nutzer-Vorgaben spielbare Missionen für Kampfflug-Simulationen erzeugt. Diese Aufgabe erzeugt eine Mission für **DCS World**. Du antwortest ausschließlich mit einem Missionsplan als JSON nach dem vorgegebenen Schema – kein Markdown, keine Erklärungen.
+
+Grundsätze für jeden Plan:
+- **Spielbar und zusammenhängend:** Startpunkt, Anflug, Zielgebiet und Rückweg liegen räumlich schlüssig auf der Karte; die Entfernungen passen zur Missionsdauer und zum Flugzeugtyp.
+- **Wegpunkte mit Aufgabe:** Die Spielergruppe bekommt eine Route, die zum Ziel führt (Anflug/IP → Zielgebiet → Rückweg/Landeplatz). Jede bewegliche Einheit (Kolonnen, Patrouillen, Schiffe, gegnerische/verbündete Flugzeuge) bekommt eine Route, die ihr Verhalten abbildet (Patrouillenschleife, Marschweg zum Ziel, CAP-Orbit) und die Begegnung mit dem Spieler plausibel macht.
+- **Routen-Timing über Geschwindigkeit, nie über feste Zeiten:** Der Wegpunkt-Zeitplan ergibt sich in DCS ausschließlich aus Ground Speed (GS) × Distanz - nur der erste Wegpunkt hat eine feste Zeit, alle weiteren Wegpunkte erreicht die Gruppe, wenn sie sie mit ihrer GS erreicht. Plane deshalb keine festen Ankunftszeiten für Wegpunkte ein und stimme Streckenlängen auf eine realistische GS des Typs ab (Jets ~700-900 km/h, Propellerflugzeuge ~300-450 km/h, Hubschrauber ~150-220 km/h, Fahrzeugkolonnen ~20-40 km/h, Schiffe ~20-30 km/h); im Feld `speed` (km/h) kannst du die GS je Gruppe vorgeben. Zeitliche Abstimmung (z. B. "Kolonne erreicht die Brücke, wenn der Spieler ankommt") erreichst du über Distanz und GS, nicht über Zeitvorgaben.
+- **Plausible Bewaffnung:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) erhält eine zur Aufgabe, Epoche und zum Typ passende Bewaffnung im Feld `payload` (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen") und eine Rolle im Feld `task` (CAP, CAS, SEAD, Strike, AntiShip, Intercept, Escort, Transport …). Abfangjäger tragen Luft-Luft-Waffen, Bodenangriff Bomben/Raketen – nichts, was der Typ nie geführt hat. Bei DCS wählt der Generator aus Rolle + Wunsch das passende Mission-Editor-Preset; bevorzuge deshalb gängige Standard-Loadouts (CAP: IR-/radargelenkte Luft-Luft-Raketen; SEAD: Anti-Radar-Raketen, falls der Typ sie hat; CAS/Strike: ungelenkte Raketen/Bomben oder gelenkte Bomben).
+- **Epoche und Fraktion:** Keine Anachronismen; Einheiten, Waffen, Callsigns und Funkton passen zu Jahr, Kriegspartei und Sprache.
+- **Historisch/fiktiv plausibel:** Lücken sinnvoll füllen, Widersprüche zugunsten der Story auflösen, realistisch dosierter Widerstand.
+
+---- /SYSTEM quick ----
+[2026-09-16 14:34:48] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+## Verfuegbare Prefabs (fertige Asset-Gruppen, DCS)
+Diese Prefabs koennen im Plan ueber `prefabs` platziert werden: `{"prefab":"<id>","side":"player|friendly|enemy","name":"...","position":{"lat":..,"lon":..,"heading":..}}`. Die enthaltenen Einheiten NICHT zusaetzlich in enemyGroups/friendlyGroups/statics aufzaehlen. Nutze ein Prefab nur, wenn es zur Story passt (Epoche, Fraktion, Wasser/Land).
+- id "carrier-strike-group": Carrier Strike Group (4 ship, 7 plane, 1 helicopter, 3 static; Country USA) - CVN-73 George Washington mit zwei Arleigh-Burke-Zerstörern und einem Ticonderoga-Kreuzer als Eskorte; auf dem Deck sechs geparkte F/A-18C, ein E-2C Hawkeye, ein SH-60B und Container am Heck.
+- id "mountain-farp": Mountain FARP (2 vehicle, 1 helicopter, 9 static; Country Russia) - FARP im Gelände mit vier Landeplätzen, drei Zelten, Tank- und Munitionslager, zwei Ural-375, geparkter Mi-8MT und Windsack
+
+
+**User-Wunsch (kompakt, kann informell sein):**
+Kleine Skirmish auf der Caucasus Map 1995: Su-25T CAS gegen eine Kolonne aus 3 BMP-2 und 2 Ural-Lkw bei Gudauta, dazu ein Shilka als Flak. Kurzer Einsatz, Luftstart.
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5-20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1-3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2-5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3-6 Sätze). Keine Anachronismen.
+
+**Pflicht:** Die Spielergruppe bekommt eine Route Anflug → Zielgebiet (über den Gegnern) → Rückweg; alle beweglichen Einheiten (Kolonnen, Patrouillen, Schiffe, KI-Flugzeuge) bekommen eigene Routen, die ihr Verhalten abbilden und den Kontakt mit dem Spieler herstellen. Jede Flugzeug-/Hubschraubergruppe erhält eine Rolle `task` (CAP, CAS, SEAD, Strike, AntiShip …) und ein plausibles `payload` passend zu Typ, Epoche und Aufgabe.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung, keine Kommentare im JSON).** Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung) und stelle sicher, dass das JSON vollständig und syntaktisch gültig ist.
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"task":"CAS","payload":"4x FAB-100, 8x RS-82, volle Kanonen","start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},
+     "route":[{"x":95000,"z":242000,"alt":700},{"x":99800,"z":261800,"alt":500},{"x":88000,"z":247000,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Trucks","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830,"heading":15},"movement":{"type":"static"}},
+    {"name":"Patrol","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":103080,"z":264580,"heading":230},"movement":{"type":"route"},"route":[{"x":103400,"z":264900},{"x":102600,"z":264200}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":99800,"z":261880,"heading":12},{"x":99560,"z":261860,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"...","en":"..."},"desc":{"de":"...","en":"..."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Zeitlimit ...","textEn":"Time limit ..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": [{"from":{"x":86500,"z":244000},"to":{"x":99800,"z":261800},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"...","en":"..."}}]
+}
+```
+
+**Feldregeln (beide Spiele):**
+- `game` = Spiel-Kontext ("il2" oder "dcs"). `date` = YYYY-MM-DD, `time` = HH:MM:SS.
+- `playerGroups`: genau 1 Gruppe, `count` = Anzahl Spielerplätze (1-4). `start.type`: "air" (Luftstart, empfohlen) oder "runway". `route` = 2-4 Wegpunkte (Anflug/IP, Zielgebiet über den Gegnerpositionen, Rückweg zum Start-/Landeplatz) – die Route ist die Aufgabe des Spielers und muss zu den Zielen führen. `payload` = Pflicht: kurze Klartext-Bewaffnung (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen"), passend zu Typ, Epoche und Aufgabe.
+- `enemyGroups`/`friendlyGroups`: `kind` = "vehicle" | "plane" | "helicopter" | "ship". `count` Einheiten stehen in Reihe ab `position`. Bewegung: `movement.type` "static" oder "route" (dann `route` mit 2-4 Wegpunkten; Fahrzeuge fahren die Schleife ab). Flugzeuge/Hubschrauber (`kind` "plane"/"helicopter") brauchen immer eine `route` (Patrouille, CAP-Orbit oder Anflug auf ihr Ziel) und ein `payload` wie bei der Spielergruppe. Optional je Gruppe (Spieler, Gegner, Verbündete): `speed` = Ground Speed in km/h für die Route (z. B. 750 für Jets, 180 für Hubschrauber, 30 für Kolonnen); ohne Angabe wählt der Generator einen typischen Wert. Wegpunkte haben KEINE Zeitangaben - die Ankunftszeit ergibt sich aus GS × Distanz.
+- `objectives`: genau 1 Eintrag. `counter` = Anzahl der zerstörbaren Fahrzeuge in `enemyGroups` (Flak zählt nicht). Titel/Beschreibung DE+EN.
+- `radioQueue`: 2-5 Meldungen, je max. 2 Sätze, authentischer Funkton. Trigger: `mission_begin_delay` (+`delay` Sekunden nach Start), `check_zone` (Spieler betritt `zone`), `all_destroyed` (alle Ziele vernichtet).
+- `briefing`: DE + EN, je 4-8 Sätze (Lage, Auftrag, Durchführung, Gefahren, Rückkehr).
+- `icons`: 0-2 Kartenmarkierungen (Linie von `from` nach `to`).
+
+**IL-2 Korea (`game:"il2"`):** `country` numerisch (501-503 rot/Nordkorea, 601-603 blau/UN). Koordinaten `x`/`z` in Metern auf der Korea-Karte, `alt` in Metern. `aircraft` = Script-Name (il10, la11, mig15bis, yak9p, f51d, f80c10, f84e, f86a5, tu2, li2t, c47b). `script` = "vehicles/<name>", "fixedobjects/<name>", "blocks/<name>", "ships/<name>" (nur Namen aus dem Spiel-Kontext). `weather.cloudConfig` nach Muster "summer\\00_Clear_00\\sky.ini". `task` und `payload` wie bei DCS (Pflicht je Flugzeuggruppe): AIrborne setzt daraus `PayloadId` über die Tabelle `reference/il2-payloads.json` (Rolle, dann Wunsch-Übereinstimmung).
+
+**DCS World (`game:"dcs"`):** `map` = Theatre-Name (Caucasus, Syria, PersianGulf, Nevada, Normandy, MarianaIslands, Sinai, Kola, Falklands). `country` = DCS-Country-String ("USA", "Russia", "Syria", "Israel", "Egypt", "Iran", ...). Alle Positionen (`start`, `position`, `route[]`, `zone`, `icons`) als `{"lat":35.40,"lon":35.95,"alt":2000,"heading":270}` in Dezimalgrad (KEIN x/z). `aircraft`/`script` = exakte DCS-`type`-Namen (z. B. "MiG-21Bis", "F-16C_50", "Mi-24P", "Mi-8MT", "M-113", "M-60", "Ural-375", "ZSU-23-4 Shilka", "BTR-80"). `statics[].script` ebenfalls ein Bodeneinheiten-Typ. `kind` "plane" oder "helicopter" bei Luftfahrzeugen. `weather` wie oben (wird sinngemäß übernommen).
+**Bewaffnung DCS:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) bekommt `task` (Pflicht) = Rolle: "CAP" | "Intercept" | "FighterSweep" | "Escort" | "CAS" | "GroundAttack" | "Strike" | "SEAD" | "AntiShip" | "Transport" | "Recon", und `payload` (Klartext-Wunsch mit DCS-Waffenbezeichnungen, z. B. "AIM-120C*4, AIM-9X*2" oder "S-8KOM, 9M114 Shturm" oder "AGM-88 HARM"). Der Generator wählt daraus das passende Mission-Editor-Preset des Typs; die Rolle steuert auch das Verhalten der KI (CAP greift Luftziele an, SEAD Luftabwehr, AntiShip Schiffe).
+
+**Prefabs (nur DCS, optional):** Wenn im Spiel-Kontext Prefabs gelistet sind, kann der Plan sie über `"prefabs": [{"prefab":"<id>","name":"...","side":"player|friendly|enemy","country":"USA","position":{"lat":35.40,"lon":35.95,"heading":270}}]` platzieren (Ursprung + Ausrichtung des Prefabs; `country` optional). Die Einheiten eines Prefabs nicht zusätzlich einzeln auflisten. Ohne passende Prefabs das Feld weglassen.
+
+
+---- /PROMPT quick ----
+[2026-09-16 14:37:10] INFO  LLM-HTTP 200, 6872 bytes
+[2026-09-16 14:37:10] INFO  LLM-Tokens: prompt=3987 completion=1602 total=5589 (max_tokens=45000)
+[2026-09-16 14:37:10] ---- RESULT quick RAW ----
+```json
+{
+  "game": "dcs",
+  "title": {"de": "Abchasien 1995 – Kolonnenjagd bei Gudauta", "en": "Abkhazia 1995 – Column Hunt near Gudauta"},
+  "author": "AIrborne",
+  "map": "Caucasus",
+  "date": "1995-04-18",
+  "time": "14:20:00",
+  "weather": {"cloudLevel":1200,"cloudHeight":4500,"precLevel":0,"cloudConfig":"summer\\01_LightCirrus\\sky.ini","seaState":2,"turbulence":5,"windLayers":[[0,220,4],[500,230,5],[2000,240,7],[5000,250,9]]},
+  "playerGroups": [
+    {"name":"Sokol-1","aircraft":"Su-25T","count":1,"country":"Russia","task":"CAS","payload":"2x FAB-250, 4x UB-32 S-8, GSh-30 voll","start":{"type":"air","lat":43.115,"lon":40.60,"alt":1500,"heading":95},
+     "route":[{"lat":43.06,"lon":40.95,"alt":1200},{"lat":42.99,"lon":41.08,"alt":800},{"lat":43.10,"lon":40.90,"alt":1500},{"lat":43.115,"lon":40.77,"alt":800}],"speed":550}
+  ],
+  "enemyGroups": [
+    {"name":"Kolonne Adler","kind":"vehicle","script":"BMP-2","count":3,"country":"Georgia","position":{"lat":42.99,"lon":41.08,"heading":80},"movement":{"type":"route"},"route":[{"lat":42.99,"lon":41.08},{"lat":42.985,"lon":41.15},{"lat":42.98,"lon":41.22}],"speed":30},
+    {"name":"Nachschub Lkw","kind":"vehicle","script":"Ural-375","count":2,"country":"Georgia","position":{"lat":42.992,"lon":41.075,"heading":80},"movement":{"type":"route"},"route":[{"lat":42.992,"lon":41.075},{"lat":42.988,"lon":41.15},{"lat":42.985,"lon":41.22}],"speed":30},
+    {"name":"Shilka","kind":"vehicle","script":"ZSU-23-4 Shilka","count":1,"country":"Georgia","position":{"lat":42.995,"lon":41.06,"heading":80},"movement":{"type":"static"}}
+  ],
+  "friendlyGroups": [],
+  "flak": [],
+  "statics": [
+    {"kind":"block","script":"Camo_Net","count":2,"positions":[{"lat":42.993,"lon":41.055,"heading":80},{"lat":42.997,"lon":41.055,"heading":260}],"country":"Georgia"}
+  ],
+  "objectives": [
+    {"title":{"de":"Kolonne bei Gudauta vernichten","en":"Destroy the column near Gudauta"},"desc":{"de":"Zerstöre die feindliche Kolonne: 3 BMP-2, 2 Ural-Lkw. Die Shilka ist eine Bedrohung – schalte sie aus oder bleib außer Reichweite.","en":"Destroy the enemy column: 3 BMP-2 and 2 Ural trucks. The Shilka is a threat – neutralize it or stay out of range."},"counter":6}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"Sokol-1, hier Basis. Feindliche Kolonne auf der Küstenstraße östlich Gudauta gemeldet. Legt sie flach.","textEn":"Sokol-1, Base. Enemy column reported on the coastal road east of Gudauta. Put it flat."},
+    {"trigger":"check_zone","zone":{"lat":42.99,"lon":41.08,"r":3000},"speaker":"Basis","textDe":"Sokol-1, Zielgebiet voraus. Achtung, Shilka in der Kolonne – tief und schnell rein.","textEn":"Sokol-1, target area ahead. Watch out, Shilka in the column – go in low and fast."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"Sokol-1, Kolonne vernichtet, gute Arbeit. Kurs Heimat, Basis Gudauta.","textEn":"Sokol-1, column destroyed, good work. Head home, Gudauta base."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Sokol-1, Zeitlimit erreicht. Komm nach Hause.","textEn":"Sokol-1, time limit reached. Come home."}
+  ],
+  "briefing": {"de":"Lage: Im April 1995 rollt eine georgische Kolonne (3 BMP-2, 2 Ural-Lkw, gesichert durch eine ZSU-23-4 Shilka) auf der Küstenstraße östlich von Gudauta. Auftrag: Sokol-1 vernichtet die gesamte Kolonne. Durchführung: Luftstart westlich der Küste, Anflug über den Checkpoint bei 43.06N/40.95O, Zielgebiet überfliegen und angreifen. Gefahren: Die Shilka feuert bis 2500 m Höhe – Angriffe aus tiefer Deckung, schnell raus. Rückkehr: Nach dem Angriff nach Westen zur Basis Gudauta.","en":"Situation: In April 1995 a Georgian column (3 BMP-2, 2 Ural trucks, covered by a ZSU-23-4 Shilka) is moving on the coastal road east of Gudauta. Task: Sokol-1 destroys the entire column. Execution: Air start west of the coast, ingress via the checkpoint at 43.06N/40.95E, overfly and attack the target area. Threats: The Shilka engages up to 2500 m – attack from low cover, exit fast. Return: After the attack head west to Gudauta base."},
+  "icons": [{"from":{"lat":43.115,"lon":40.60},"to":{"lat":42.99,"lon":41.08},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"Feindliche Kolonne auf der Küstenstraße östlich Gudauta","en":"Enemy column on the coastal road east of Gudauta"}}]
+}
+```
+---- /RESULT quick RAW ----
+[2026-09-16 14:37:10] ---- PLAN JSON (normalisiert) ----
+{"author":"AIrborne","briefing":{"de":"Lage: Im April 1995 rollt eine georgische Kolonne (3 BMP-2, 2 Ural-Lkw, gesichert durch eine ZSU-23-4 Shilka) auf der Küstenstraße östlich von Gudauta. Auftrag: Sokol-1 vernichtet die gesamte Kolonne. Durchführung: Luftstart westlich der Küste, Anflug über den Checkpoint bei 43.06N/40.95O, Zielgebiet überfliegen und angreifen. Gefahren: Die Shilka feuert bis 2500 m Höhe – Angriffe aus tiefer Deckung, schnell raus. Rückkehr: Nach dem Angriff nach Westen zur Basis Gudauta.","en":"Situation: In April 1995 a Georgian column (3 BMP-2, 2 Ural trucks, covered by a ZSU-23-4 Shilka) is moving on the coastal road east of Gudauta. Task: Sokol-1 destroys the entire column. Execution: Air start west of the coast, ingress via the checkpoint at 43.06N/40.95E, overfly and attack the target area. Threats: The Shilka engages up to 2500 m – attack from low cover, exit fast. Return: After the attack head west to Gudauta base."},"date":"1995-04-18","enemyGroups":[{"count":3,"country":"Georgia","kind":"vehicle","movement":{"type":"route"},"name":"Kolonne Adler","position":{"heading":80,"lat":42.99,"lon":41.08},"route":[{"lat":42.99,"lon":41.08},{"lat":42.985,"lon":41.15},{"lat":42.98,"lon":41.22}],"script":"BMP-2","speed":30},{"count":2,"country":"Georgia","kind":"vehicle","movement":{"type":"route"},"name":"Nachschub Lkw","position":{"heading":80,"lat":42.992,"lon":41.075},"route":[{"lat":42.992,"lon":41.075},{"lat":42.988,"lon":41.15},{"lat":42.985,"lon":41.22}],"script":"Ural-375","speed":30},{"count":1,"country":"Georgia","kind":"vehicle","movement":{"type":"static"},"name":"Shilka","position":{"heading":80,"lat":42.995,"lon":41.06},"script":"ZSU-23-4 Shilka"}],"flak":[],"friendlyGroups":[],"game":"dcs","icons":[{"desc":{"de":"Feindliche Kolonne auf der Küstenstraße östlich Gudauta","en":"Enemy column on the coastal road east of Gudauta"},"from":{"lat":43.115,"lon":40.6},"label":{"de":"Zielgebiet","en":"Target area"},"to":{"lat":42.99,"lon":41.08}}],"map":"Caucasus","objectives":[{"counter":6,"desc":{"de":"Zerstöre die feindliche Kolonne: 3 BMP-2, 2 Ural-Lkw. Die Shilka ist eine Bedrohung – schalte sie aus oder bleib außer Reichweite.","en":"Destroy the enemy column: 3 BMP-2 and 2 Ural trucks. The Shilka is a threat – neutralize it or stay out of range."},"title":{"de":"Kolonne bei Gudauta vernichten","en":"Destroy the column near Gudauta"}}],"playerGroups":[{"aircraft":"Su-25T","count":1,"country":"Russia","name":"Sokol-1","payload":"2x FAB-250, 4x UB-32 S-8, GSh-30 voll","route":[{"alt":1200,"lat":43.06,"lon":40.95},{"alt":800,"lat":42.99,"lon":41.08},{"alt":1500,"lat":43.1,"lon":40.9},{"alt":800,"lat":43.115,"lon":40.77}],"speed":550,"start":{"alt":1500,"heading":95,"lat":43.115,"lon":40.6,"type":"air"},"task":"CAS"}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Sokol-1, hier Basis. Feindliche Kolonne auf der Küstenstraße östlich Gudauta gemeldet. Legt sie flach.","textEn":"Sokol-1, Base. Enemy column reported on the coastal road east of Gudauta. Put it flat.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Sokol-1, Zielgebiet voraus. Achtung, Shilka in der Kolonne – tief und schnell rein.","textEn":"Sokol-1, target area ahead. Watch out, Shilka in the column – go in low and fast.","trigger":"check_zone","zone":{"lat":42.99,"lon":41.08,"r":3000}},{"speaker":"Basis","textDe":"Sokol-1, Kolonne vernichtet, gute Arbeit. Kurs Heimat, Basis Gudauta.","textEn":"Sokol-1, column destroyed, good work. Head home, Gudauta base.","trigger":"all_destroyed"},{"delay":1500,"speaker":"Basis","textDe":"Sokol-1, Zeitlimit erreicht. Komm nach Hause.","textEn":"Sokol-1, time limit reached. Come home.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":"Georgia","kind":"block","positions":[{"heading":80,"lat":42.993,"lon":41.055},{"heading":260,"lat":42.997,"lon":41.055}],"script":"Camo_Net"}],"time":"14:20:00","title":{"de":"Abchasien 1995 – Kolonnenjagd bei Gudauta","en":"Abkhazia 1995 – Column Hunt near Gudauta"},"weather":{"cloudConfig":"summer\\01_LightCirrus\\sky.ini","cloudHeight":4500,"cloudLevel":1200,"precLevel":0,"seaState":2,"turbulence":5,"windLayers":[[0,220,4],[500,230,5],[2000,240,7],[5000,250,9]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-16 14:37:10] INFO  DCS-Bewaffnungs-Presets: 133 Typen (DCS_ROOT=C:\Program Files\Eagle Dynamics\DCS World)
+[2026-09-16 14:37:10] INFO  quick: Plan ohne Beanstandungen
+[2026-09-16 14:37:10] INFO  QuickMission erfolgreich: Abchasien 1995 – Kolonnenjagd bei Gudauta
+[2026-09-16 15:14:24] INFO  quick gestartet
+[2026-09-16 15:14:24] ---- SYSTEM quick ----
+Du bist der Missionsdesigner von AIrborne, einem Werkzeug, das aus Nutzer-Vorgaben spielbare Missionen für Kampfflug-Simulationen erzeugt. Diese Aufgabe erzeugt eine Mission für **IL-2 Sturmovik: Korea**. Du antwortest ausschließlich mit einem Missionsplan als JSON nach dem vorgegebenen Schema – kein Markdown, keine Erklärungen.
+
+Grundsätze für jeden Plan:
+- **Spielbar und zusammenhängend:** Startpunkt, Anflug, Zielgebiet und Rückweg liegen räumlich schlüssig auf der Karte; die Entfernungen passen zur Missionsdauer und zum Flugzeugtyp.
+- **Wegpunkte mit Aufgabe:** Die Spielergruppe bekommt eine Route, die zum Ziel führt (Anflug/IP → Zielgebiet → Rückweg/Landeplatz). Jede bewegliche Einheit (Kolonnen, Patrouillen, Schiffe, gegnerische/verbündete Flugzeuge) bekommt eine Route, die ihr Verhalten abbildet (Patrouillenschleife, Marschweg zum Ziel, CAP-Orbit) und die Begegnung mit dem Spieler plausibel macht.
+- **Routen-Timing über Geschwindigkeit, nie über feste Zeiten:** Der Wegpunkt-Zeitplan ergibt sich in DCS ausschließlich aus Ground Speed (GS) × Distanz - nur der erste Wegpunkt hat eine feste Zeit, alle weiteren Wegpunkte erreicht die Gruppe, wenn sie sie mit ihrer GS erreicht. Plane deshalb keine festen Ankunftszeiten für Wegpunkte ein und stimme Streckenlängen auf eine realistische GS des Typs ab (Jets ~700-900 km/h, Propellerflugzeuge ~300-450 km/h, Hubschrauber ~150-220 km/h, Fahrzeugkolonnen ~20-40 km/h, Schiffe ~20-30 km/h); im Feld `speed` (km/h) kannst du die GS je Gruppe vorgeben. Zeitliche Abstimmung (z. B. "Kolonne erreicht die Brücke, wenn der Spieler ankommt") erreichst du über Distanz und GS, nicht über Zeitvorgaben.
+- **Plausible Bewaffnung:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) erhält eine zur Aufgabe, Epoche und zum Typ passende Bewaffnung im Feld `payload` (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen") und eine Rolle im Feld `task` (CAP, CAS, SEAD, Strike, AntiShip, Intercept, Escort, Transport …). Abfangjäger tragen Luft-Luft-Waffen, Bodenangriff Bomben/Raketen – nichts, was der Typ nie geführt hat. Bei DCS wählt der Generator aus Rolle + Wunsch das passende Mission-Editor-Preset; bevorzuge deshalb gängige Standard-Loadouts (CAP: IR-/radargelenkte Luft-Luft-Raketen; SEAD: Anti-Radar-Raketen, falls der Typ sie hat; CAS/Strike: ungelenkte Raketen/Bomben oder gelenkte Bomben).
+- **Epoche und Fraktion:** Keine Anachronismen; Einheiten, Waffen, Callsigns und Funkton passen zu Jahr, Kriegspartei und Sprache.
+- **Historisch/fiktiv plausibel:** Lücken sinnvoll füllen, Widersprüche zugunsten der Story auflösen, realistisch dosierter Widerstand.
+
+---- /SYSTEM quick ----
+[2026-09-16 15:14:24] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: IL-2 Korea
+- Karte: "il2" / LANDSCAPE_Korea (Jahreszeiten su/sp/wi/sw), Region Korea, Referenzorte: Kimpo Airfield (105934, 269477), Seoul (~107000, 286000), Incheon (~96000, 253000), Hafeneinfahrt Palmido (~96000, 251500). Koordinaten in METERN (x, z), Hoehen absolut in Metern.
+- Fraktionen: 501-503 = Ostblock/Nordkorea (Koalition 1), 601-603 = UN/USA (Koalition 2), 0 = neutral.
+- Verfuegbare Flugzeuge (Script-Namen): il10, la11, mig15bis, yak9p (rot); f51d, f80c10, f84e, f86a5 (blau); tu2, li2t, c47b (beide Seiten nutzbar).
+- Verfuegbare Bodeneinheiten (Beispiele): willysmb, studebakerus6, gaz67b, m16-mgmc, m3a1-halftrack, m4a3e8, m46, t34-85, su76m, isu122; Flak: boforsl60, dshk-aa, m2cal50-aa, ks19, s60.
+- Zeitraum: 1950-1953. Keine Einheiten ausserhalb dieses Zeitraums.
+
+**User-Wunsch (kompakt, kann informell sein):**
+I want a mission for the yak 9 start in the air Kaesong area with the task to strafe a railway station (if no railway station in the area choose other location)
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5-20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1-3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2-5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3-6 Sätze). Keine Anachronismen.
+
+**Pflicht:** Die Spielergruppe bekommt eine Route Anflug → Zielgebiet (über den Gegnern) → Rückweg; alle beweglichen Einheiten (Kolonnen, Patrouillen, Schiffe, KI-Flugzeuge) bekommen eigene Routen, die ihr Verhalten abbilden und den Kontakt mit dem Spieler herstellen. Jede Flugzeug-/Hubschraubergruppe erhält eine Rolle `task` (CAP, CAS, SEAD, Strike, AntiShip …) und ein plausibles `payload` passend zu Typ, Epoche und Aufgabe.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung, keine Kommentare im JSON).** Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung) und stelle sicher, dass das JSON vollständig und syntaktisch gültig ist.
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"task":"CAS","payload":"4x FAB-100, 8x RS-82, volle Kanonen","start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},
+     "route":[{"x":95000,"z":242000,"alt":700},{"x":99800,"z":261800,"alt":500},{"x":88000,"z":247000,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Trucks","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830,"heading":15},"movement":{"type":"static"}},
+    {"name":"Patrol","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":103080,"z":264580,"heading":230},"movement":{"type":"route"},"route":[{"x":103400,"z":264900},{"x":102600,"z":264200}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":99800,"z":261880,"heading":12},{"x":99560,"z":261860,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"...","en":"..."},"desc":{"de":"...","en":"..."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Zeitlimit ...","textEn":"Time limit ..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": [{"from":{"x":86500,"z":244000},"to":{"x":99800,"z":261800},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"...","en":"..."}}]
+}
+```
+
+**Feldregeln (beide Spiele):**
+- `game` = Spiel-Kontext ("il2" oder "dcs"). `date` = YYYY-MM-DD, `time` = HH:MM:SS.
+- `playerGroups`: genau 1 Gruppe, `count` = Anzahl Spielerplätze (1-4). `start.type`: "air" (Luftstart, empfohlen) oder "runway". `route` = 2-4 Wegpunkte (Anflug/IP, Zielgebiet über den Gegnerpositionen, Rückweg zum Start-/Landeplatz) – die Route ist die Aufgabe des Spielers und muss zu den Zielen führen. `payload` = Pflicht: kurze Klartext-Bewaffnung (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen"), passend zu Typ, Epoche und Aufgabe.
+- `enemyGroups`/`friendlyGroups`: `kind` = "vehicle" | "plane" | "helicopter" | "ship". `count` Einheiten stehen in Reihe ab `position`. Bewegung: `movement.type` "static" oder "route" (dann `route` mit 2-4 Wegpunkten; Fahrzeuge fahren die Schleife ab). Flugzeuge/Hubschrauber (`kind` "plane"/"helicopter") brauchen immer eine `route` (Patrouille, CAP-Orbit oder Anflug auf ihr Ziel) und ein `payload` wie bei der Spielergruppe. Optional je Gruppe (Spieler, Gegner, Verbündete): `speed` = Ground Speed in km/h für die Route (z. B. 750 für Jets, 180 für Hubschrauber, 30 für Kolonnen); ohne Angabe wählt der Generator einen typischen Wert. Wegpunkte haben KEINE Zeitangaben - die Ankunftszeit ergibt sich aus GS × Distanz.
+- `objectives`: genau 1 Eintrag. `counter` = Anzahl der zerstörbaren Fahrzeuge in `enemyGroups` (Flak zählt nicht). Titel/Beschreibung DE+EN.
+- `radioQueue`: 2-5 Meldungen, je max. 2 Sätze, authentischer Funkton. Trigger: `mission_begin_delay` (+`delay` Sekunden nach Start), `check_zone` (Spieler betritt `zone`), `all_destroyed` (alle Ziele vernichtet).
+- `briefing`: DE + EN, je 4-8 Sätze (Lage, Auftrag, Durchführung, Gefahren, Rückkehr).
+- `icons`: 0-2 Kartenmarkierungen (Linie von `from` nach `to`).
+
+**IL-2 Korea (`game:"il2"`):** `country` numerisch (501-503 rot/Nordkorea, 601-603 blau/UN). Koordinaten `x`/`z` in Metern auf der Korea-Karte, `alt` in Metern. `aircraft` = Script-Name (il10, la11, mig15bis, yak9p, f51d, f80c10, f84e, f86a5, tu2, li2t, c47b). `script` = "vehicles/<name>", "fixedobjects/<name>", "blocks/<name>", "ships/<name>" (nur Namen aus dem Spiel-Kontext). `weather.cloudConfig` nach Muster "summer\\00_Clear_00\\sky.ini". `task` und `payload` wie bei DCS (Pflicht je Flugzeuggruppe): AIrborne setzt daraus `PayloadId` über die Tabelle `reference/il2-payloads.json` (Rolle, dann Wunsch-Übereinstimmung).
+
+**DCS World (`game:"dcs"`):** `map` = Theatre-Name (Caucasus, Syria, PersianGulf, Nevada, Normandy, MarianaIslands, Sinai, Kola, Falklands). `country` = DCS-Country-String ("USA", "Russia", "Syria", "Israel", "Egypt", "Iran", ...). Alle Positionen (`start`, `position`, `route[]`, `zone`, `icons`) als `{"lat":35.40,"lon":35.95,"alt":2000,"heading":270}` in Dezimalgrad (KEIN x/z). `aircraft`/`script` = exakte DCS-`type`-Namen (z. B. "MiG-21Bis", "F-16C_50", "Mi-24P", "Mi-8MT", "M-113", "M-60", "Ural-375", "ZSU-23-4 Shilka", "BTR-80"). `statics[].script` ebenfalls ein Bodeneinheiten-Typ. `kind` "plane" oder "helicopter" bei Luftfahrzeugen. `weather` wie oben (wird sinngemäß übernommen).
+**Bewaffnung DCS:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) bekommt `task` (Pflicht) = Rolle: "CAP" | "Intercept" | "FighterSweep" | "Escort" | "CAS" | "GroundAttack" | "Strike" | "SEAD" | "AntiShip" | "Transport" | "Recon", und `payload` (Klartext-Wunsch mit DCS-Waffenbezeichnungen, z. B. "AIM-120C*4, AIM-9X*2" oder "S-8KOM, 9M114 Shturm" oder "AGM-88 HARM"). Der Generator wählt daraus das passende Mission-Editor-Preset des Typs; die Rolle steuert auch das Verhalten der KI (CAP greift Luftziele an, SEAD Luftabwehr, AntiShip Schiffe).
+
+**Prefabs (nur DCS, optional):** Wenn im Spiel-Kontext Prefabs gelistet sind, kann der Plan sie über `"prefabs": [{"prefab":"<id>","name":"...","side":"player|friendly|enemy","country":"USA","position":{"lat":35.40,"lon":35.95,"heading":270}}]` platzieren (Ursprung + Ausrichtung des Prefabs; `country` optional). Die Einheiten eines Prefabs nicht zusätzlich einzeln auflisten. Ohne passende Prefabs das Feld weglassen.
+
+
+---- /PROMPT quick ----
+[2026-09-16 15:15:01] INFO  LLM-HTTP 200, 16680 bytes
+[2026-09-16 15:15:01] INFO  LLM-Tokens: prompt=3765 completion=3128 total=6893 (max_tokens=30000)
+[2026-09-16 15:15:01] ---- RESULT quick RAW ----
+{
+  "game": "il2",
+  "title": {"de": "Schlag gegen den Bahnhof Kaesong", "en": "Strike on Kaesong Railway Station"},
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1951-04-25",
+  "time": "16:10:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":5000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":2,"turbulence":4,"windLayers":[[0,190,3],[500,200,4],[1000,210,5],[2000,220,6],[5000,230,8]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"yak9p","count":2,"country":501,"task":"CAS","payload":"volle Kanonen (20/23 mm), kein Außenlast - Jagdbomber-Angriff aus niedriger Höhe","start":{"type":"air","x":101500,"z":322000,"alt":1200,"heading":20},
+     "route":[{"x":103200,"z":334000,"alt":700},{"x":103800,"z":336200,"alt":400},{"x":100500,"z":346000,"alt":1000}],"speed":320}
+  ],
+  "enemyGroups": [
+    {"name":"Station Transport","kind":"vehicle","script":"vehicles/studebakerus6","count":4,"country":601,"position":{"x":103850,"z":336250,"heading":15},"movement":{"type":"static"}},
+    {"name":"Vorposten","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":104300,"z":337000,"heading":200},"movement":{"type":"route"},"route":[{"x":104600,"z":337500},{"x":103900,"z":335800}],"speed":30},
+    {"name":"Mustang CAP","kind":"plane","script":"f51d","count":2,"country":601,"task":"CAP","payload":"6x Browning .50 cal, volle Munition","position":{"x":106500,"z":341000,"heading":250},"movement":{"type":"route"},"route":[{"x":106500,"z":341000,"alt":1500},{"x":105200,"z":337500,"alt":1400},{"x":107200,"z":337000,"alt":1500}],"speed":400}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":103650,"z":336500},"country":601,"engageable":true},
+    {"script":"fixedobjects/m16-mgmc","count":1,"position":{"x":104050,"z":335950},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":103780,"z":336330,"heading":12},{"x":103950,"z":336180,"heading":195}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"Bahnhof Kaesong raeumen","en":"Clear Kaesong Station"},
+     "desc":{"de":"Vernichtet die feindlichen Versorgungsfahrzeuge am Bahnhof von Kaesong. Fliegt den Angriff tief und nutzt eure Uebermacht an Kanonen. Kehrt danach nach Norden heim.","en":"Destroy the enemy supply vehicles at Kaesong railway station. Make the attack run low and use your cannon firepower. Return north afterwards."},"counter":5}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"Sowol, hier Basis. Amerikanische Nachschubfahrzeuge stehen am Bahnhof von Kaesong. Greift aus niedriger Hoehe ueberraschend an.","textEn":"Sowol, this is Base. American supply vehicles are parked at Kaesong railway station. Attack by surprise from low altitude."},
+    {"trigger":"check_zone","zone":{"x":103800,"z":336200,"r":2500},"speaker":"Basis","textDe":"Feindliche Jaeger im Raum Kaesong gemeldet. Bleibt tief unter 500 Metern und haltet Ausschau.","textEn":"Enemy fighters reported in the Kaesong area. Stay below 500 meters and keep your eyes open."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"Alle Ziele vernichtet, sauber gearbeitet. Dreht ab und kehrt nach Norden heim.","textEn":"All targets destroyed, well done. Turn away and head home north."},
+    {"trigger":"mission_begin_delay","delay":1200,"speaker":"Basis","textDe":"Sowol, kommt jetzt heim, euer Treibstoff reicht nicht fuer einen weiteren Einsatz.","textEn":"Sowol, come home now, your fuel is not enough for another sortie."}
+  ],
+  "briefing": {"de":"Fruehjahr 1951: Die UN-Truppen dringen langsam nach Norden vor. Der Bahnhof von Kaesong dient den Amerikanern als Umschlagplatz fuer Nachschub. Ihre Staffel startet in der Luft suedlich von Kaesong und fliegt von dort direkt zum Ziel. Vernichtet die Lastwagen und Fahrzeuge am Bahnhof mit Kanonenfeuer aus niedriger Hoehe. Rechnen Sie mit leichter Flak (Bofors und MG-Nest) sowie feindlichen Mustangs im Raum, die als Jagdschutz patrouillieren. Bleiben Sie tief und nutzen Sie Deckung, wenn die Jaeger angreifen. Nach dem Angriff kehren Sie nach Norden zu eigenen Linien zurueck.","en":"Spring 1951: UN forces are pushing slowly north. Kaesong railway station serves the Americans as a supply hub. Your flight starts airborne south of Kaesong and heads straight for the target. Destroy the trucks and vehicles at the station with cannon fire from low altitude. Expect light flak (Bofors guns and an MG nest) as well as enemy Mustangs patrolling the area as fighter cover. Stay low and use cover if the fighters engage. After the attack, return north to friendly lines."},
+  "icons": [{"from":{"x":101500,"z":322000},"to":{"x":103800,"z":336200},"label":{"de":"Zielgebiet Bahnhof Kaesong","en":"Target area Kaesong station"},"desc":{"de":"Anflug ueber den IP nach Norden, Angriff auf die Fahrzeuge am Bahnhof, Rueckweg nach Norden.","en":"Approach via the IP north, attack vehicles at the station, return north."}}]
+}
+---- /RESULT quick RAW ----
+[2026-09-16 15:15:01] ---- PLAN JSON (normalisiert) ----
+{"author":"AIrborne","briefing":{"de":"Fruehjahr 1951: Die UN-Truppen dringen langsam nach Norden vor. Der Bahnhof von Kaesong dient den Amerikanern als Umschlagplatz fuer Nachschub. Ihre Staffel startet in der Luft suedlich von Kaesong und fliegt von dort direkt zum Ziel. Vernichtet die Lastwagen und Fahrzeuge am Bahnhof mit Kanonenfeuer aus niedriger Hoehe. Rechnen Sie mit leichter Flak (Bofors und MG-Nest) sowie feindlichen Mustangs im Raum, die als Jagdschutz patrouillieren. Bleiben Sie tief und nutzen Sie Deckung, wenn die Jaeger angreifen. Nach dem Angriff kehren Sie nach Norden zu eigenen Linien zurueck.","en":"Spring 1951: UN forces are pushing slowly north. Kaesong railway station serves the Americans as a supply hub. Your flight starts airborne south of Kaesong and heads straight for the target. Destroy the trucks and vehicles at the station with cannon fire from low altitude. Expect light flak (Bofors guns and an MG nest) as well as enemy Mustangs patrolling the area as fighter cover. Stay low and use cover if the fighters engage. After the attack, return north to friendly lines."},"date":"1951-04-25","enemyGroups":[{"count":4,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Station Transport","position":{"heading":15,"x":103850,"z":336250},"script":"vehicles/studebakerus6"},{"count":1,"country":601,"kind":"vehicle","movement":{"type":"route"},"name":"Vorposten","position":{"heading":200,"x":104300,"z":337000},"route":[{"x":104600,"z":337500},{"x":103900,"z":335800}],"script":"vehicles/willysmb","speed":30},{"count":2,"country":601,"kind":"plane","movement":{"type":"route"},"name":"Mustang CAP","payload":"6x Browning .50 cal, volle Munition","position":{"heading":250,"x":106500,"z":341000},"route":[{"alt":1500,"x":106500,"z":341000},{"alt":1400,"x":105200,"z":337500},{"alt":1500,"x":107200,"z":337000}],"script":"f51d","speed":400,"task":"CAP"}],"flak":[{"count":2,"country":601,"engageable":true,"position":{"x":103650,"z":336500},"script":"fixedobjects/boforsl60"},{"count":1,"country":601,"engageable":true,"position":{"x":104050,"z":335950},"script":"fixedobjects/m16-mgmc"}],"friendlyGroups":[],"game":"il2","icons":[{"desc":{"de":"Anflug ueber den IP nach Norden, Angriff auf die Fahrzeuge am Bahnhof, Rueckweg nach Norden.","en":"Approach via the IP north, attack vehicles at the station, return north."},"from":{"x":101500,"z":322000},"label":{"de":"Zielgebiet Bahnhof Kaesong","en":"Target area Kaesong station"},"to":{"x":103800,"z":336200}}],"map":"korea","objectives":[{"counter":5,"desc":{"de":"Vernichtet die feindlichen Versorgungsfahrzeuge am Bahnhof von Kaesong. Fliegt den Angriff tief und nutzt eure Uebermacht an Kanonen. Kehrt danach nach Norden heim.","en":"Destroy the enemy supply vehicles at Kaesong railway station. Make the attack run low and use your cannon firepower. Return north afterwards."},"title":{"de":"Bahnhof Kaesong raeumen","en":"Clear Kaesong Station"}}],"playerGroups":[{"aircraft":"yak9p","count":2,"country":501,"name":"Sowol","payload":"volle Kanonen (20/23 mm), kein Außenlast - Jagdbomber-Angriff aus niedriger Höhe","route":[{"alt":700,"x":103200,"z":334000},{"alt":400,"x":103800,"z":336200},{"alt":1000,"x":100500,"z":346000}],"speed":320,"start":{"alt":1200,"heading":20,"type":"air","x":101500,"z":322000},"task":"CAS"}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Sowol, hier Basis. Amerikanische Nachschubfahrzeuge stehen am Bahnhof von Kaesong. Greift aus niedriger Hoehe ueberraschend an.","textEn":"Sowol, this is Base. American supply vehicles are parked at Kaesong railway station. Attack by surprise from low altitude.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Feindliche Jaeger im Raum Kaesong gemeldet. Bleibt tief unter 500 Metern und haltet Ausschau.","textEn":"Enemy fighters reported in the Kaesong area. Stay below 500 meters and keep your eyes open.","trigger":"check_zone","zone":{"r":2500,"x":103800,"z":336200}},{"speaker":"Basis","textDe":"Alle Ziele vernichtet, sauber gearbeitet. Dreht ab und kehrt nach Norden heim.","textEn":"All targets destroyed, well done. Turn away and head home north.","trigger":"all_destroyed"},{"delay":1200,"speaker":"Basis","textDe":"Sowol, kommt jetzt heim, euer Treibstoff reicht nicht fuer einen weiteren Einsatz.","textEn":"Sowol, come home now, your fuel is not enough for another sortie.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":601,"kind":"block","positions":[{"heading":12,"x":103780,"z":336330},{"heading":195,"x":103950,"z":336180}],"script":"blocks/mil_camonet"}],"time":"16:10:00","title":{"de":"Schlag gegen den Bahnhof Kaesong","en":"Strike on Kaesong Railway Station"},"weather":{"cloudConfig":"summer\\00_Clear_00\\sky.ini","cloudHeight":5000,"cloudLevel":1500,"precLevel":0,"seaState":2,"turbulence":4,"windLayers":[[0,190,3],[500,200,4],[1000,210,5],[2000,220,6],[5000,230,8]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-16 15:15:01] INFO  IL-2 Payload-Tabelle: 11 Flugzeuge (C:\Users\vince\js_projects\AIrborne\reference\il2-payloads.json)
+[2026-09-16 15:15:01] INFO  quick: 2 Problem(e) - Reparatur-Durchgang
+[2026-09-16 15:15:01] INFO    - Gruppe Sowol: keine Payloads fuer Flugzeug "yak9p" in Rolle CAS - PayloadId 0 (Script-Name oder task pruefen)
+[2026-09-16 15:15:01] INFO    - Gruppe Mustang CAP: keine Payloads fuer Flugzeug "f51d" in Rolle CAP - PayloadId 0 (Script-Name oder task pruefen)
+[2026-09-16 15:15:01] INFO  quick-repair gestartet
+[2026-09-16 15:15:01] ---- SYSTEM quick-repair ----
+Du bist der Missionsdesigner von AIrborne, einem Werkzeug, das aus Nutzer-Vorgaben spielbare Missionen für Kampfflug-Simulationen erzeugt. Diese Aufgabe erzeugt eine Mission für **IL-2 Sturmovik: Korea**. Du antwortest ausschließlich mit einem Missionsplan als JSON nach dem vorgegebenen Schema – kein Markdown, keine Erklärungen.
+
+Grundsätze für jeden Plan:
+- **Spielbar und zusammenhängend:** Startpunkt, Anflug, Zielgebiet und Rückweg liegen räumlich schlüssig auf der Karte; die Entfernungen passen zur Missionsdauer und zum Flugzeugtyp.
+- **Wegpunkte mit Aufgabe:** Die Spielergruppe bekommt eine Route, die zum Ziel führt (Anflug/IP → Zielgebiet → Rückweg/Landeplatz). Jede bewegliche Einheit (Kolonnen, Patrouillen, Schiffe, gegnerische/verbündete Flugzeuge) bekommt eine Route, die ihr Verhalten abbildet (Patrouillenschleife, Marschweg zum Ziel, CAP-Orbit) und die Begegnung mit dem Spieler plausibel macht.
+- **Routen-Timing über Geschwindigkeit, nie über feste Zeiten:** Der Wegpunkt-Zeitplan ergibt sich in DCS ausschließlich aus Ground Speed (GS) × Distanz - nur der erste Wegpunkt hat eine feste Zeit, alle weiteren Wegpunkte erreicht die Gruppe, wenn sie sie mit ihrer GS erreicht. Plane deshalb keine festen Ankunftszeiten für Wegpunkte ein und stimme Streckenlängen auf eine realistische GS des Typs ab (Jets ~700-900 km/h, Propellerflugzeuge ~300-450 km/h, Hubschrauber ~150-220 km/h, Fahrzeugkolonnen ~20-40 km/h, Schiffe ~20-30 km/h); im Feld `speed` (km/h) kannst du die GS je Gruppe vorgeben. Zeitliche Abstimmung (z. B. "Kolonne erreicht die Brücke, wenn der Spieler ankommt") erreichst du über Distanz und GS, nicht über Zeitvorgaben.
+- **Plausible Bewaffnung:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) erhält eine zur Aufgabe, Epoche und zum Typ passende Bewaffnung im Feld `payload` (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen") und eine Rolle im Feld `task` (CAP, CAS, SEAD, Strike, AntiShip, Intercept, Escort, Transport …). Abfangjäger tragen Luft-Luft-Waffen, Bodenangriff Bomben/Raketen – nichts, was der Typ nie geführt hat. Bei DCS wählt der Generator aus Rolle + Wunsch das passende Mission-Editor-Preset; bevorzuge deshalb gängige Standard-Loadouts (CAP: IR-/radargelenkte Luft-Luft-Raketen; SEAD: Anti-Radar-Raketen, falls der Typ sie hat; CAS/Strike: ungelenkte Raketen/Bomben oder gelenkte Bomben).
+- **Epoche und Fraktion:** Keine Anachronismen; Einheiten, Waffen, Callsigns und Funkton passen zu Jahr, Kriegspartei und Sprache.
+- **Historisch/fiktiv plausibel:** Lücken sinnvoll füllen, Widersprüche zugunsten der Story auflösen, realistisch dosierter Widerstand.
+
+---- /SYSTEM quick-repair ----
+[2026-09-16 15:15:01] ---- PROMPT quick-repair ----
+# Modus: Reparatur (Korrektur eines bestehenden Plans)
+
+Der folgende Missionsplan wurde bereits von dir erstellt. Die Validierung und ein Probelauf des Missionsgenerators haben Probleme gemeldet. Deine Aufgabe ist es, **nur diese Probleme zu beheben** und den vollständigen, korrigierten Plan zurückzugeben.
+
+## Spiel-Kontext: IL-2 Korea
+- Karte: "il2" / LANDSCAPE_Korea (Jahreszeiten su/sp/wi/sw), Region Korea, Referenzorte: Kimpo Airfield (105934, 269477), Seoul (~107000, 286000), Incheon (~96000, 253000), Hafeneinfahrt Palmido (~96000, 251500). Koordinaten in METERN (x, z), Hoehen absolut in Metern.
+- Fraktionen: 501-503 = Ostblock/Nordkorea (Koalition 1), 601-603 = UN/USA (Koalition 2), 0 = neutral.
+- Verfuegbare Flugzeuge (Script-Namen): il10, la11, mig15bis, yak9p (rot); f51d, f80c10, f84e, f86a5 (blau); tu2, li2t, c47b (beide Seiten nutzbar).
+- Verfuegbare Bodeneinheiten (Beispiele): willysmb, studebakerus6, gaz67b, m16-mgmc, m3a1-halftrack, m4a3e8, m46, t34-85, su76m, isu122; Flak: boforsl60, dshk-aa, m2cal50-aa, ks19, s60.
+- Zeitraum: 1950-1953. Keine Einheiten ausserhalb dieses Zeitraums.
+
+**Gemeldete Probleme:**
+- Gruppe Sowol: keine Payloads fuer Flugzeug "yak9p" in Rolle CAS - PayloadId 0 (Script-Name oder task pruefen)
+- Gruppe Mustang CAP: keine Payloads fuer Flugzeug "f51d" in Rolle CAP - PayloadId 0 (Script-Name oder task pruefen)
+
+**Regeln für die Korrektur:**
+- Behebe jedes gemeldete Problem an der Stelle, auf die es sich bezieht (Feldpfade wie `enemyGroups[1].script` zeigen auf das betroffene Element).
+- Alles andere bleibt **unverändert**: Story, Karte, Datum, Einheiten, Positionen, Routen, Bewaffnung, Funksprüche, Briefing-Texte. Keine neuen Ideen, keine Umformulierungen, nichts weglassen.
+- Ist ein Typ-/Script-Name unbekannt, ersetze ihn durch den passenden gültigen Namen aus dem Spiel-Kontext (gleiche Epoche, gleiche Rolle) – nicht durch etwas völlig anderes. Ist ein Name laut Kontext korrekt, lass ihn stehen.
+- Fehlen Ziele oder Positionen, ergänze das Minimum, das der Plan braucht, passend zur bestehenden Story.
+- Meldet die Prüfung Gegnerinformationen in Spieler-Texten (Herausforderung), formuliere nur die betroffenen Sätze neutral um.
+- Gib den **gesamten** Plan zurück, nicht nur die geänderten Teile.
+
+**Bisheriger Plan:**
+```json
+{
+  "game": "il2",
+  "title": {
+    "de": "Schlag gegen den Bahnhof Kaesong",
+    "en": "Strike on Kaesong Railway Station"
+  },
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1951-04-25",
+  "time": "16:10:00",
+  "weather": {
+    "cloudLevel": 1500,
+    "cloudHeight": 5000,
+    "precLevel": 0,
+    "cloudConfig": "summer\\00_Clear_00\\sky.ini",
+    "seaState": 2,
+    "turbulence": 4,
+    "windLayers": [
+      [
+        0,
+        190,
+        3
+      ],
+      [
+        500,
+        200,
+        4
+      ],
+      [
+        1000,
+        210,
+        5
+      ],
+      [
+        2000,
+        220,
+        6
+      ],
+      [
+        5000,
+        230,
+        8
+      ]
+    ]
+  },
+  "playerGroups": [
+    {
+      "name": "Sowol",
+      "aircraft": "yak9p",
+      "count": 2,
+      "country": 501,
+      "start": {
+        "type": "air",
+        "x": 101500,
+        "z": 322000,
+        "alt": 1200,
+        "heading": 20
+      },
+      "route": [
+        {
+          "x": 103200,
+          "z": 334000,
+          "alt": 700
+        },
+        {
+          "x": 103800,
+          "z": 336200,
+          "alt": 400
+        },
+        {
+          "x": 100500,
+          "z": 346000,
+          "alt": 1000
+        }
+      ],
+      "payload": "volle Kanonen (20/23 mm), kein Außenlast - Jagdbomber-Angriff aus niedriger Höhe",
+      "task": "CAS",
+      "speed": 320
+    }
+  ],
+  "enemyGroups": [
+    {
+      "name": "Station Transport",
+      "kind": "vehicle",
+      "script": "vehicles/studebakerus6",
+      "count": 4,
+      "country": 601,
+      "position": {
+        "x": 103850,
+        "z": 336250,
+        "heading": 15
+      },
+      "movement": {
+        "type": "static"
+      }
+    },
+    {
+      "name": "Vorposten",
+      "kind": "vehicle",
+      "script": "vehicles/willysmb",
+      "count": 1,
+      "country": 601,
+      "position": {
+        "x": 104300,
+        "z": 337000,
+        "heading": 200
+      },
+      "movement": {
+        "type": "route"
+      },
+      "route": [
+        {
+          "x": 104600,
+          "z": 337500
+        },
+        {
+          "x": 103900,
+          "z": 335800
+        }
+      ],
+      "speed": 30
+    },
+    {
+      "name": "Mustang CAP",
+      "kind": "plane",
+      "script": "f51d",
+      "count": 2,
+      "country": 601,
+      "position": {
+        "x": 106500,
+        "z": 341000,
+        "heading": 250
+      },
+      "movement": {
+        "type": "route"
+      },
+      "route": [
+        {
+          "x": 106500,
+          "z": 341000,
+          "alt": 1500
+        },
+        {
+          "x": 105200,
+          "z": 337500,
+          "alt": 1400
+        },
+        {
+          "x": 107200,
+          "z": 337000,
+          "alt": 1500
+        }
+      ],
+      "payload": "6x Browning .50 cal, volle Munition",
+      "task": "CAP",
+      "speed": 400
+    }
+  ],
+  "flak": [
+    {
+      "script": "fixedobjects/boforsl60",
+      "count": 2,
+      "position": {
+        "x": 103650,
+        "z": 336500
+      },
+      "country": 601,
+      "engageable": true
+    },
+    {
+      "script": "fixedobjects/m16-mgmc",
+      "count": 1,
+      "position": {
+        "x": 104050,
+        "z": 335950
+      },
+      "country": 601,
+      "engageable": true
+    }
+  ],
+  "statics": [
+    {
+      "kind": "block",
+      "script": "blocks/mil_camonet",
+      "count": 2,
+      "country": 601,
+      "positions": [
+        {
+          "x": 103780,
+          "z": 336330,
+          "heading": 12
+        },
+        {
+          "x": 103950,
+          "z": 336180,
+          "heading": 195
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "title": {
+        "de": "Bahnhof Kaesong raeumen",
+        "en": "Clear Kaesong Station"
+      },
+      "desc": {
+        "de": "Vernichtet die feindlichen Versorgungsfahrzeuge am Bahnhof von Kaesong. Fliegt den Angriff tief und nutzt eure Uebermacht an Kanonen. Kehrt danach nach Norden heim.",
+        "en": "Destroy the enemy supply vehicles at Kaesong railway station. Make the attack run low and use your cannon firepower. Return north afterwards."
+      },
+      "counter": 5
+    }
+  ],
+  "radioQueue": [
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 10,
+      "speaker": "Basis",
+      "textDe": "Sowol, hier Basis. Amerikanische Nachschubfahrzeuge stehen am Bahnhof von Kaesong. Greift aus niedriger Hoehe ueberraschend an.",
+      "textEn": "Sowol, this is Base. American supply vehicles are parked at Kaesong railway station. Attack by surprise from low altitude."
+    },
+    {
+      "trigger": "check_zone",
+      "zone": {
+        "x": 103800,
+        "z": 336200,
+        "r": 2500
+      },
+      "speaker": "Basis",
+      "textDe": "Feindliche Jaeger im Raum Kaesong gemeldet. Bleibt tief unter 500 Metern und haltet Ausschau.",
+      "textEn": "Enemy fighters reported in the Kaesong area. Stay below 500 meters and keep your eyes open."
+    },
+    {
+      "trigger": "all_destroyed",
+      "speaker": "Basis",
+      "textDe": "Alle Ziele vernichtet, sauber gearbeitet. Dreht ab und kehrt nach Norden heim.",
+      "textEn": "All targets destroyed, well done. Turn away and head home north."
+    },
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 1200,
+      "speaker": "Basis",
+      "textDe": "Sowol, kommt jetzt heim, euer Treibstoff reicht nicht fuer einen weiteren Einsatz.",
+      "textEn": "Sowol, come home now, your fuel is not enough for another sortie."
+    }
+  ],
+  "briefing": {
+    "de": "Fruehjahr 1951: Die UN-Truppen dringen langsam nach Norden vor. Der Bahnhof von Kaesong dient den Amerikanern als Umschlagplatz fuer Nachschub. Ihre Staffel startet in der Luft suedlich von Kaesong und fliegt von dort direkt zum Ziel. Vernichtet die Lastwagen und Fahrzeuge am Bahnhof mit Kanonenfeuer aus niedriger Hoehe. Rechnen Sie mit leichter Flak (Bofors und MG-Nest) sowie feindlichen Mustangs im Raum, die als Jagdschutz patrouillieren. Bleiben Sie tief und nutzen Sie Deckung, wenn die Jaeger angreifen. Nach dem Angriff kehren Sie nach Norden zu eigenen Linien zurueck.",
+    "en": "Spring 1951: UN forces are pushing slowly north. Kaesong railway station serves the Americans as a supply hub. Your flight starts airborne south of Kaesong and heads straight for the target. Destroy the trucks and vehicles at the station with cannon fire from low altitude. Expect light flak (Bofors guns and an MG nest) as well as enemy Mustangs patrolling the area as fighter cover. Stay low and use cover if the fighters engage. After the attack, return north to friendly lines."
+  },
+  "icons": [
+    {
+      "from": {
+        "x": 101500,
+        "z": 322000
+      },
+      "to": {
+        "x": 103800,
+        "z": 336200
+      },
+      "label": {
+        "de": "Zielgebiet Bahnhof Kaesong",
+        "en": "Target area Kaesong station"
+      },
+      "desc": {
+        "de": "Anflug ueber den IP nach Norden, Angriff auf die Fahrzeuge am Bahnhof, Rueckweg nach Norden.",
+        "en": "Approach via the IP north, attack vehicles at the station, return north."
+      }
+    }
+  ]
+}
+```
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung, keine Kommentare im JSON).** Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung) und stelle sicher, dass das JSON vollständig und syntaktisch gültig ist.
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"task":"CAS","payload":"4x FAB-100, 8x RS-82, volle Kanonen","start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},
+     "route":[{"x":95000,"z":242000,"alt":700},{"x":99800,"z":261800,"alt":500},{"x":88000,"z":247000,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Trucks","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830,"heading":15},"movement":{"type":"static"}},
+    {"name":"Patrol","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":103080,"z":264580,"heading":230},"movement":{"type":"route"},"route":[{"x":103400,"z":264900},{"x":102600,"z":264200}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":99800,"z":261880,"heading":12},{"x":99560,"z":261860,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"...","en":"..."},"desc":{"de":"...","en":"..."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Zeitlimit ...","textEn":"Time limit ..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": [{"from":{"x":86500,"z":244000},"to":{"x":99800,"z":261800},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"...","en":"..."}}]
+}
+```
+
+**Feldregeln (beide Spiele):**
+- `game` = Spiel-Kontext ("il2" oder "dcs"). `date` = YYYY-MM-DD, `time` = HH:MM:SS.
+- `playerGroups`: genau 1 Gruppe, `count` = Anzahl Spielerplätze (1-4). `start.type`: "air" (Luftstart, empfohlen) oder "runway". `route` = 2-4 Wegpunkte (Anflug/IP, Zielgebiet über den Gegnerpositionen, Rückweg zum Start-/Landeplatz) – die Route ist die Aufgabe des Spielers und muss zu den Zielen führen. `payload` = Pflicht: kurze Klartext-Bewaffnung (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen"), passend zu Typ, Epoche und Aufgabe.
+- `enemyGroups`/`friendlyGroups`: `kind` = "vehicle" | "plane" | "helicopter" | "ship". `count` Einheiten stehen in Reihe ab `position`. Bewegung: `movement.type` "static" oder "route" (dann `route` mit 2-4 Wegpunkten; Fahrzeuge fahren die Schleife ab). Flugzeuge/Hubschrauber (`kind` "plane"/"helicopter") brauchen immer eine `route` (Patrouille, CAP-Orbit oder Anflug auf ihr Ziel) und ein `payload` wie bei der Spielergruppe. Optional je Gruppe (Spieler, Gegner, Verbündete): `speed` = Ground Speed in km/h für die Route (z. B. 750 für Jets, 180 für Hubschrauber, 30 für Kolonnen); ohne Angabe wählt der Generator einen typischen Wert. Wegpunkte haben KEINE Zeitangaben - die Ankunftszeit ergibt sich aus GS × Distanz.
+- `objectives`: genau 1 Eintrag. `counter` = Anzahl der zerstörbaren Fahrzeuge in `enemyGroups` (Flak zählt nicht). Titel/Beschreibung DE+EN.
+- `radioQueue`: 2-5 Meldungen, je max. 2 Sätze, authentischer Funkton. Trigger: `mission_begin_delay` (+`delay` Sekunden nach Start), `check_zone` (Spieler betritt `zone`), `all_destroyed` (alle Ziele vernichtet).
+- `briefing`: DE + EN, je 4-8 Sätze (Lage, Auftrag, Durchführung, Gefahren, Rückkehr).
+- `icons`: 0-2 Kartenmarkierungen (Linie von `from` nach `to`).
+
+**IL-2 Korea (`game:"il2"`):** `country` numerisch (501-503 rot/Nordkorea, 601-603 blau/UN). Koordinaten `x`/`z` in Metern auf der Korea-Karte, `alt` in Metern. `aircraft` = Script-Name (il10, la11, mig15bis, yak9p, f51d, f80c10, f84e, f86a5, tu2, li2t, c47b). `script` = "vehicles/<name>", "fixedobjects/<name>", "blocks/<name>", "ships/<name>" (nur Namen aus dem Spiel-Kontext). `weather.cloudConfig` nach Muster "summer\\00_Clear_00\\sky.ini". `task` und `payload` wie bei DCS (Pflicht je Flugzeuggruppe): AIrborne setzt daraus `PayloadId` über die Tabelle `reference/il2-payloads.json` (Rolle, dann Wunsch-Übereinstimmung).
+
+**DCS World (`game:"dcs"`):** `map` = Theatre-Name (Caucasus, Syria, PersianGulf, Nevada, Normandy, MarianaIslands, Sinai, Kola, Falklands). `country` = DCS-Country-String ("USA", "Russia", "Syria", "Israel", "Egypt", "Iran", ...). Alle Positionen (`start`, `position`, `route[]`, `zone`, `icons`) als `{"lat":35.40,"lon":35.95,"alt":2000,"heading":270}` in Dezimalgrad (KEIN x/z). `aircraft`/`script` = exakte DCS-`type`-Namen (z. B. "MiG-21Bis", "F-16C_50", "Mi-24P", "Mi-8MT", "M-113", "M-60", "Ural-375", "ZSU-23-4 Shilka", "BTR-80"). `statics[].script` ebenfalls ein Bodeneinheiten-Typ. `kind` "plane" oder "helicopter" bei Luftfahrzeugen. `weather` wie oben (wird sinngemäß übernommen).
+**Bewaffnung DCS:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) bekommt `task` (Pflicht) = Rolle: "CAP" | "Intercept" | "FighterSweep" | "Escort" | "CAS" | "GroundAttack" | "Strike" | "SEAD" | "AntiShip" | "Transport" | "Recon", und `payload` (Klartext-Wunsch mit DCS-Waffenbezeichnungen, z. B. "AIM-120C*4, AIM-9X*2" oder "S-8KOM, 9M114 Shturm" oder "AGM-88 HARM"). Der Generator wählt daraus das passende Mission-Editor-Preset des Typs; die Rolle steuert auch das Verhalten der KI (CAP greift Luftziele an, SEAD Luftabwehr, AntiShip Schiffe).
+
+**Prefabs (nur DCS, optional):** Wenn im Spiel-Kontext Prefabs gelistet sind, kann der Plan sie über `"prefabs": [{"prefab":"<id>","name":"...","side":"player|friendly|enemy","country":"USA","position":{"lat":35.40,"lon":35.95,"heading":270}}]` platzieren (Ursprung + Ausrichtung des Prefabs; `country` optional). Die Einheiten eines Prefabs nicht zusätzlich einzeln auflisten. Ohne passende Prefabs das Feld weglassen.
+
+
+---- /PROMPT quick-repair ----
+[2026-09-16 15:15:29] INFO  LLM-HTTP 200, 15997 bytes
+[2026-09-16 15:15:29] INFO  LLM-Tokens: prompt=5923 completion=3181 total=9104 (max_tokens=30000)
+[2026-09-16 15:15:29] ---- RESULT quick-repair RAW ----
+{
+  "game": "il2",
+  "title": {
+    "de": "Schlag gegen den Bahnhof Kaesong",
+    "en": "Strike on Kaesong Railway Station"
+  },
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1951-04-25",
+  "time": "16:10:00",
+  "weather": {
+    "cloudLevel": 1500,
+    "cloudHeight": 5000,
+    "precLevel": 0,
+    "cloudConfig": "summer\\00_Clear_00\\sky.ini",
+    "seaState": 2,
+    "turbulence": 4,
+    "windLayers": [
+      [
+        0,
+        190,
+        3
+      ],
+      [
+        500,
+        200,
+        4
+      ],
+      [
+        1000,
+        210,
+        5
+      ],
+      [
+        2000,
+        220,
+        6
+      ],
+      [
+        5000,
+        230,
+        8
+      ]
+    ]
+  },
+  "playerGroups": [
+    {
+      "name": "Sowol",
+      "aircraft": "yak9p",
+      "count": 2,
+      "country": 501,
+      "start": {
+        "type": "air",
+        "x": 101500,
+        "z": 322000,
+        "alt": 1200,
+        "heading": 20
+      },
+      "route": [
+        {
+          "x": 103200,
+          "z": 334000,
+          "alt": 700
+        },
+        {
+          "x": 103800,
+          "z": 336200,
+          "alt": 400
+        },
+        {
+          "x": 100500,
+          "z": 346000,
+          "alt": 1000
+        }
+      ],
+      "payload": "1x 23mm Kanone und 2x 20mm Kanonen, volle Munition, keine Außenlasten",
+      "task": "FighterSweep",
+      "speed": 320
+    }
+  ],
+  "enemyGroups": [
+    {
+      "name": "Station Transport",
+      "kind": "vehicle",
+      "script": "vehicles/studebakerus6",
+      "count": 4,
+      "country": 601,
+      "position": {
+        "x": 103850,
+        "z": 336250,
+        "heading": 15
+      },
+      "movement": {
+        "type": "static"
+      }
+    },
+    {
+      "name": "Vorposten",
+      "kind": "vehicle",
+      "script": "vehicles/willysmb",
+      "count": 1,
+      "country": 601,
+      "position": {
+        "x": 104300,
+        "z": 337000,
+        "heading": 200
+      },
+      "movement": {
+        "type": "route"
+      },
+      "route": [
+        {
+          "x": 104600,
+          "z": 337500
+        },
+        {
+          "x": 103900,
+          "z": 335800
+        }
+      ],
+      "speed": 30
+    },
+    {
+      "name": "Mustang CAP",
+      "kind": "plane",
+      "script": "f51d",
+      "count": 2,
+      "country": 601,
+      "position": {
+        "x": 106500,
+        "z": 341000,
+        "heading": 250
+      },
+      "movement": {
+        "type": "route"
+      },
+      "route": [
+        {
+          "x": 106500,
+          "z": 341000,
+          "alt": 1500
+        },
+        {
+          "x": 105200,
+          "z": 337500,
+          "alt": 1400
+        },
+        {
+          "x": 107200,
+          "z": 337000,
+          "alt": 1500
+        }
+      ],
+      "payload": "6x Browning MG, volle Munition, keine Außenlasten",
+      "task": "Intercept",
+      "speed": 400
+    }
+  ],
+  "flak": [
+    {
+      "script": "fixedobjects/boforsl60",
+      "count": 2,
+      "position": {
+        "x": 103650,
+        "z": 336500
+      },
+      "country": 601,
+      "engageable": true
+    },
+    {
+      "script": "fixedobjects/m16-mgmc",
+      "count": 1,
+      "position": {
+        "x": 104050,
+        "z": 335950
+      },
+      "country": 601,
+      "engageable": true
+    }
+  ],
+  "statics": [
+    {
+      "kind": "block",
+      "script": "blocks/mil_camonet",
+      "count": 2,
+      "country": 601,
+      "positions": [
+        {
+          "x": 103780,
+          "z": 336330,
+          "heading": 12
+        },
+        {
+          "x": 103950,
+          "z": 336180,
+          "heading": 195
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "title": {
+        "de": "Bahnhof Kaesong raeumen",
+        "en": "Clear Kaesong Station"
+      },
+      "desc": {
+        "de": "Vernichtet die feindlichen Versorgungsfahrzeuge am Bahnhof von Kaesong. Fliegt den Angriff tief und nutzt eure Uebermacht an Kanonen. Kehrt danach nach Norden heim.",
+        "en": "Destroy the enemy supply vehicles at Kaesong railway station. Make the attack run low and use your cannon firepower. Return north afterwards."
+      },
+      "counter": 5
+    }
+  ],
+  "radioQueue": [
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 10,
+      "speaker": "Basis",
+      "textDe": "Sowol, hier Basis. Amerikanische Nachschubfahrzeuge stehen am Bahnhof von Kaesong. Greift aus niedriger Hoehe ueberraschend an.",
+      "textEn": "Sowol, this is Base. American supply vehicles are parked at Kaesong railway station. Attack by surprise from low altitude."
+    },
+    {
+      "trigger": "check_zone",
+      "zone": {
+        "x": 103800,
+        "z": 336200,
+        "r": 2500
+      },
+      "speaker": "Basis",
+      "textDe": "Feindliche Jaeger im Raum Kaesong gemeldet. Bleibt tief unter 500 Metern und haltet Ausschau.",
+      "textEn": "Enemy fighters reported in the Kaesong area. Stay below 500 meters and keep your eyes open."
+    },
+    {
+      "trigger": "all_destroyed",
+      "speaker": "Basis",
+      "textDe": "Alle Ziele vernichtet, sauber gearbeitet. Dreht ab und kehrt nach Norden heim.",
+      "textEn": "All targets destroyed, well done. Turn away and head home north."
+    },
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 1200,
+      "speaker": "Basis",
+      "textDe": "Sowol, kommt jetzt heim, euer Treibstoff reicht nicht fuer einen weiteren Einsatz.",
+      "textEn": "Sowol, come home now, your fuel is not enough for another sortie."
+    }
+  ],
+  "briefing": {
+    "de": "Fruehjahr 1951: Die UN-Truppen dringen langsam nach Norden vor. Der Bahnhof von Kaesong dient den Amerikanern als Umschlagplatz fuer Nachschub. Ihre Staffel startet in der Luft suedlich von Kaesong und fliegt von dort direkt zum Ziel. Vernichtet die Lastwagen und Fahrzeuge am Bahnhof mit Kanonenfeuer aus niedriger Hoehe. Rechnen Sie mit leichter Flak (Bofors und MG-Nest) sowie feindlichen Mustangs im Raum, die als Jagdschutz patrouillieren. Bleiben Sie tief und nutzen Sie Deckung, wenn die Jaeger angreifen. Nach dem Angriff kehren Sie nach Norden zu eigenen Linien zurueck.",
+    "en": "Spring 1951: UN forces are pushing slowly north. Kaesong railway station serves the Americans as a supply hub. Your flight starts airborne south of Kaesong and heads straight for the target. Destroy the trucks and vehicles at the station with cannon fire from low altitude. Expect light flak (Bofors guns and an MG nest) as well as enemy Mustangs patrolling the area as fighter cover. Stay low and use cover if the fighters engage. After the attack, return north to friendly lines."
+  },
+  "icons": [
+    {
+      "from": {
+        "x": 101500,
+        "z": 322000
+      },
+      "to": {
+        "x": 103800,
+        "z": 336200
+      },
+      "label": {
+        "de": "Zielgebiet Bahnhof Kaesong",
+        "en": "Target area Kaesong station"
+      },
+      "desc": {
+        "de": "Anflug ueber den IP nach Norden, Angriff auf die Fahrzeuge am Bahnhof, Rueckweg nach Norden.",
+        "en": "Approach via the IP north, attack vehicles at the station, return north."
+      }
+    }
+  ]
+}
+---- /RESULT quick-repair RAW ----
+[2026-09-16 15:15:29] ---- PLAN JSON (normalisiert) ----
+{"author":"AIrborne","briefing":{"de":"Fruehjahr 1951: Die UN-Truppen dringen langsam nach Norden vor. Der Bahnhof von Kaesong dient den Amerikanern als Umschlagplatz fuer Nachschub. Ihre Staffel startet in der Luft suedlich von Kaesong und fliegt von dort direkt zum Ziel. Vernichtet die Lastwagen und Fahrzeuge am Bahnhof mit Kanonenfeuer aus niedriger Hoehe. Rechnen Sie mit leichter Flak (Bofors und MG-Nest) sowie feindlichen Mustangs im Raum, die als Jagdschutz patrouillieren. Bleiben Sie tief und nutzen Sie Deckung, wenn die Jaeger angreifen. Nach dem Angriff kehren Sie nach Norden zu eigenen Linien zurueck.","en":"Spring 1951: UN forces are pushing slowly north. Kaesong railway station serves the Americans as a supply hub. Your flight starts airborne south of Kaesong and heads straight for the target. Destroy the trucks and vehicles at the station with cannon fire from low altitude. Expect light flak (Bofors guns and an MG nest) as well as enemy Mustangs patrolling the area as fighter cover. Stay low and use cover if the fighters engage. After the attack, return north to friendly lines."},"date":"1951-04-25","enemyGroups":[{"count":4,"country":601,"kind":"vehicle","movement":{"type":"static"},"name":"Station Transport","position":{"heading":15,"x":103850,"z":336250},"script":"vehicles/studebakerus6"},{"count":1,"country":601,"kind":"vehicle","movement":{"type":"route"},"name":"Vorposten","position":{"heading":200,"x":104300,"z":337000},"route":[{"x":104600,"z":337500},{"x":103900,"z":335800}],"script":"vehicles/willysmb","speed":30},{"count":2,"country":601,"kind":"plane","movement":{"type":"route"},"name":"Mustang CAP","payload":"6x Browning MG, volle Munition, keine Außenlasten","position":{"heading":250,"x":106500,"z":341000},"route":[{"alt":1500,"x":106500,"z":341000},{"alt":1400,"x":105200,"z":337500},{"alt":1500,"x":107200,"z":337000}],"script":"f51d","speed":400,"task":"Intercept"}],"flak":[{"count":2,"country":601,"engageable":true,"position":{"x":103650,"z":336500},"script":"fixedobjects/boforsl60"},{"count":1,"country":601,"engageable":true,"position":{"x":104050,"z":335950},"script":"fixedobjects/m16-mgmc"}],"game":"il2","icons":[{"desc":{"de":"Anflug ueber den IP nach Norden, Angriff auf die Fahrzeuge am Bahnhof, Rueckweg nach Norden.","en":"Approach via the IP north, attack vehicles at the station, return north."},"from":{"x":101500,"z":322000},"label":{"de":"Zielgebiet Bahnhof Kaesong","en":"Target area Kaesong station"},"to":{"x":103800,"z":336200}}],"map":"korea","objectives":[{"counter":5,"desc":{"de":"Vernichtet die feindlichen Versorgungsfahrzeuge am Bahnhof von Kaesong. Fliegt den Angriff tief und nutzt eure Uebermacht an Kanonen. Kehrt danach nach Norden heim.","en":"Destroy the enemy supply vehicles at Kaesong railway station. Make the attack run low and use your cannon firepower. Return north afterwards."},"title":{"de":"Bahnhof Kaesong raeumen","en":"Clear Kaesong Station"}}],"playerGroups":[{"aircraft":"yak9p","count":2,"country":501,"name":"Sowol","payload":"1x 23mm Kanone und 2x 20mm Kanonen, volle Munition, keine Außenlasten","route":[{"alt":700,"x":103200,"z":334000},{"alt":400,"x":103800,"z":336200},{"alt":1000,"x":100500,"z":346000}],"speed":320,"start":{"alt":1200,"heading":20,"type":"air","x":101500,"z":322000},"task":"FighterSweep"}],"radioQueue":[{"delay":10,"speaker":"Basis","textDe":"Sowol, hier Basis. Amerikanische Nachschubfahrzeuge stehen am Bahnhof von Kaesong. Greift aus niedriger Hoehe ueberraschend an.","textEn":"Sowol, this is Base. American supply vehicles are parked at Kaesong railway station. Attack by surprise from low altitude.","trigger":"mission_begin_delay"},{"speaker":"Basis","textDe":"Feindliche Jaeger im Raum Kaesong gemeldet. Bleibt tief unter 500 Metern und haltet Ausschau.","textEn":"Enemy fighters reported in the Kaesong area. Stay below 500 meters and keep your eyes open.","trigger":"check_zone","zone":{"r":2500,"x":103800,"z":336200}},{"speaker":"Basis","textDe":"Alle Ziele vernichtet, sauber gearbeitet. Dreht ab und kehrt nach Norden heim.","textEn":"All targets destroyed, well done. Turn away and head home north.","trigger":"all_destroyed"},{"delay":1200,"speaker":"Basis","textDe":"Sowol, kommt jetzt heim, euer Treibstoff reicht nicht fuer einen weiteren Einsatz.","textEn":"Sowol, come home now, your fuel is not enough for another sortie.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":601,"kind":"block","positions":[{"heading":12,"x":103780,"z":336330},{"heading":195,"x":103950,"z":336180}],"script":"blocks/mil_camonet"}],"time":"16:10:00","title":{"de":"Schlag gegen den Bahnhof Kaesong","en":"Strike on Kaesong Railway Station"},"weather":{"cloudConfig":"summer\\00_Clear_00\\sky.ini","cloudHeight":5000,"cloudLevel":1500,"precLevel":0,"seaState":2,"turbulence":4,"windLayers":[[0,190,3],[500,200,4],[1000,210,5],[2000,220,6],[5000,230,8]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-16 15:15:29] INFO  IL-2 Payload-Tabelle: 11 Flugzeuge (C:\Users\vince\js_projects\AIrborne\reference\il2-payloads.json)
+[2026-09-16 15:15:29] INFO  Reparatur verworfen: korrigierter Plan hat nicht weniger Probleme als der erste (2 >= 2)
+[2026-09-16 15:15:29] INFO  QuickMission erfolgreich: Schlag gegen den Bahnhof Kaesong
+[2026-09-16 15:15:36] INFO  IL-2 Payload-Tabelle: 11 Flugzeuge (C:\Users\vince\js_projects\AIrborne\reference\il2-payloads.json)
+[2026-09-16 15:15:36] INFO  Generate (il2) erfolgreich: C:\Users\vince\OneDrive\Persönliches\IL2\AB_Strike_on_Kaesong_Railway_Station.Mission
+[2026-09-16 15:15:36] INFO    Hinweis: Gruppe Sowol: keine Payloads fuer Flugzeug "yak9p" in Rolle CAS - PayloadId 0 (Script-Name oder task pruefen)
+[2026-09-16 15:15:36] INFO    Hinweis: Gruppe Mustang CAP: keine Payloads fuer Flugzeug "f51d" in Rolle CAP - PayloadId 0 (Script-Name oder task pruefen)
+[2026-09-16 15:30:08] INFO  IL-2 Payload-Tabelle: 11 Flugzeuge (C:\Users\vince\js_projects\AIrborne\reference\il2-payloads.json)
+[2026-09-16 15:30:08] INFO  Generate (il2) erfolgreich: C:\Users\vince\OneDrive\Persönliches\IL2\AB_Strike_on_Kaesong_Railway_Station.Mission
+[2026-09-16 15:30:08] INFO    Hinweis: Gruppe Sowol: keine Payloads fuer Flugzeug "yak9p" in Rolle CAS - PayloadId 0 (Script-Name oder task pruefen)
+[2026-09-16 15:30:08] INFO    Hinweis: Gruppe Mustang CAP: keine Payloads fuer Flugzeug "f51d" in Rolle CAP - PayloadId 0 (Script-Name oder task pruefen)
+[2026-09-16 16:42:41] INFO  quick gestartet
+[2026-09-16 16:42:41] ---- SYSTEM quick ----
+Du bist der Missionsdesigner von AIrborne, einem Werkzeug, das aus Nutzer-Vorgaben spielbare Missionen für Kampfflug-Simulationen erzeugt. Diese Aufgabe erzeugt eine Mission für **DCS World**. Du antwortest ausschließlich mit einem Missionsplan als JSON nach dem vorgegebenen Schema – kein Markdown, keine Erklärungen.
+
+Grundsätze für jeden Plan:
+- **Spielbar und zusammenhängend:** Startpunkt, Anflug, Zielgebiet und Rückweg liegen räumlich schlüssig auf der Karte; die Entfernungen passen zur Missionsdauer und zum Flugzeugtyp.
+- **Wegpunkte mit Aufgabe:** Die Spielergruppe bekommt eine Route, die zum Ziel führt (Anflug/IP → Zielgebiet → Rückweg/Landeplatz). Jede bewegliche Einheit (Kolonnen, Patrouillen, Schiffe, gegnerische/verbündete Flugzeuge) bekommt eine Route, die ihr Verhalten abbildet (Patrouillenschleife, Marschweg zum Ziel, CAP-Orbit) und die Begegnung mit dem Spieler plausibel macht.
+- **Routen-Timing über Geschwindigkeit, nie über feste Zeiten:** Der Wegpunkt-Zeitplan ergibt sich in DCS ausschließlich aus Ground Speed (GS) × Distanz - nur der erste Wegpunkt hat eine feste Zeit, alle weiteren Wegpunkte erreicht die Gruppe, wenn sie sie mit ihrer GS erreicht. Plane deshalb keine festen Ankunftszeiten für Wegpunkte ein und stimme Streckenlängen auf eine realistische GS des Typs ab (Jets ~700-900 km/h, Propellerflugzeuge ~300-450 km/h, Hubschrauber ~150-220 km/h, Fahrzeugkolonnen ~20-40 km/h, Schiffe ~20-30 km/h); im Feld `speed` (km/h) kannst du die GS je Gruppe vorgeben. Zeitliche Abstimmung (z. B. "Kolonne erreicht die Brücke, wenn der Spieler ankommt") erreichst du über Distanz und GS, nicht über Zeitvorgaben.
+- **Plausible Bewaffnung:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) erhält eine zur Aufgabe, Epoche und zum Typ passende Bewaffnung im Feld `payload` (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen") und eine Rolle im Feld `task` (CAP, CAS, SEAD, Strike, AntiShip, Intercept, Escort, Transport …). Abfangjäger tragen Luft-Luft-Waffen, Bodenangriff Bomben/Raketen – nichts, was der Typ nie geführt hat. Bei DCS wählt der Generator aus Rolle + Wunsch das passende Mission-Editor-Preset; bevorzuge deshalb gängige Standard-Loadouts (CAP: IR-/radargelenkte Luft-Luft-Raketen; SEAD: Anti-Radar-Raketen, falls der Typ sie hat; CAS/Strike: ungelenkte Raketen/Bomben oder gelenkte Bomben).
+- **Epoche und Fraktion:** Keine Anachronismen; Einheiten, Waffen, Callsigns und Funkton passen zu Jahr, Kriegspartei und Sprache.
+- **Historisch/fiktiv plausibel:** Lücken sinnvoll füllen, Widersprüche zugunsten der Story auflösen, realistisch dosierter Widerstand.
+
+---- /SYSTEM quick ----
+[2026-09-16 16:42:41] ---- PROMPT quick ----
+# Modus: Blitz-Skirmish (Schnellgenerierung)
+
+Du übernimmst ALLE Rollen in einem Schritt (Story, Player, Gegner, Widerstand, Briefing) und lieferst direkt den Missionsplan.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+## Verfuegbare Prefabs (fertige Asset-Gruppen, DCS)
+Diese Prefabs koennen im Plan ueber `prefabs` platziert werden: `{"prefab":"<id>","side":"player|friendly|enemy","name":"...","position":{"lat":..,"lon":..,"heading":..}}`. Die enthaltenen Einheiten NICHT zusaetzlich in enemyGroups/friendlyGroups/statics aufzaehlen. Nutze ein Prefab nur, wenn es zur Story passt (Epoche, Fraktion, Wasser/Land).
+- id "carrier-strike-group": Carrier Strike Group (4 ship, 7 plane, 1 helicopter, 3 static; Country USA) - CVN-73 George Washington mit zwei Arleigh-Burke-Zerstörern und einem Ticonderoga-Kreuzer als Eskorte; auf dem Deck sechs geparkte F/A-18C, ein E-2C Hawkeye, ein SH-60B und Container am Heck.
+- id "mountain-farp": Mountain FARP (2 vehicle, 1 helicopter, 9 static; Country Russia) - FARP im Gelände mit vier Landeplätzen, drei Zelten, Tank- und Munitionslager, zwei Ural-375, geparkter Mi-8MT und Windsack
+
+
+**User-Wunsch (kompakt, kann informell sein):**
+Ich will eine Mission mit der F 14 A, beladen mit lasergelenkten Bomben GBU 12. 
+
+Map: Syria, a wadi or other region with some mountains, lakes/rivers
+
+Target is a Depot of parked trucks, some shelter and oil tanks (Syrian rebels)
+
+The target is defended by manpad and aaa
+
+**Aufgabe:** Entwirf daraus eine kleine, lebendige, plausible Skirmish-Mission (5-20 Minuten Spielzeit, 1 Spielergruppe). Entscheide selbst: Karte/Datum/Zeit/Wetter (zur Epoche passend), 1-3 Gegnergruppen (mind. ein bekämpfbares Boden- oder Luftziel), optional Flak/Statics (realistisch dosiert), genau 1 primäres Missionsziel (Counter = Anzahl zerstörbarer Zielfahrzeuge), 2-5 Funksprüche (Intro nach Missionsstart, Kontakt-/Statusmeldung, Erfolgsmeldung; max. 2 Sätze je Meldung, authentischer Ton), kurzes Briefing (DE + EN, je 3-6 Sätze). Keine Anachronismen.
+
+**Pflicht:** Die Spielergruppe bekommt eine Route Anflug → Zielgebiet (über den Gegnern) → Rückweg; alle beweglichen Einheiten (Kolonnen, Patrouillen, Schiffe, KI-Flugzeuge) bekommen eigene Routen, die ihr Verhalten abbilden und den Kontakt mit dem Spieler herstellen. Jede Flugzeug-/Hubschraubergruppe erhält eine Rolle `task` (CAP, CAS, SEAD, Strike, AntiShip …) und ein plausibles `payload` passend zu Typ, Epoche und Aufgabe.
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung, keine Kommentare im JSON).** Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung) und stelle sicher, dass das JSON vollständig und syntaktisch gültig ist.
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"task":"CAS","payload":"4x FAB-100, 8x RS-82, volle Kanonen","start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},
+     "route":[{"x":95000,"z":242000,"alt":700},{"x":99800,"z":261800,"alt":500},{"x":88000,"z":247000,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Trucks","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830,"heading":15},"movement":{"type":"static"}},
+    {"name":"Patrol","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":103080,"z":264580,"heading":230},"movement":{"type":"route"},"route":[{"x":103400,"z":264900},{"x":102600,"z":264200}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":99800,"z":261880,"heading":12},{"x":99560,"z":261860,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"...","en":"..."},"desc":{"de":"...","en":"..."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Zeitlimit ...","textEn":"Time limit ..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": [{"from":{"x":86500,"z":244000},"to":{"x":99800,"z":261800},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"...","en":"..."}}]
+}
+```
+
+**Feldregeln (beide Spiele):**
+- `game` = Spiel-Kontext ("il2" oder "dcs"). `date` = YYYY-MM-DD, `time` = HH:MM:SS.
+- `playerGroups`: genau 1 Gruppe, `count` = Anzahl Spielerplätze (1-4). `start.type`: "air" (Luftstart, empfohlen) oder "runway". `route` = 2-4 Wegpunkte (Anflug/IP, Zielgebiet über den Gegnerpositionen, Rückweg zum Start-/Landeplatz) – die Route ist die Aufgabe des Spielers und muss zu den Zielen führen. `payload` = Pflicht: kurze Klartext-Bewaffnung (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen"), passend zu Typ, Epoche und Aufgabe.
+- `enemyGroups`/`friendlyGroups`: `kind` = "vehicle" | "plane" | "helicopter" | "ship". `count` Einheiten stehen in Reihe ab `position`. Bewegung: `movement.type` "static" oder "route" (dann `route` mit 2-4 Wegpunkten; Fahrzeuge fahren die Schleife ab). Flugzeuge/Hubschrauber (`kind` "plane"/"helicopter") brauchen immer eine `route` (Patrouille, CAP-Orbit oder Anflug auf ihr Ziel) und ein `payload` wie bei der Spielergruppe. Optional je Gruppe (Spieler, Gegner, Verbündete): `speed` = Ground Speed in km/h für die Route (z. B. 750 für Jets, 180 für Hubschrauber, 30 für Kolonnen); ohne Angabe wählt der Generator einen typischen Wert. Wegpunkte haben KEINE Zeitangaben - die Ankunftszeit ergibt sich aus GS × Distanz.
+- `objectives`: genau 1 Eintrag. `counter` = Anzahl der zerstörbaren Fahrzeuge in `enemyGroups` (Flak zählt nicht). Titel/Beschreibung DE+EN.
+- `radioQueue`: 2-5 Meldungen, je max. 2 Sätze, authentischer Funkton. Trigger: `mission_begin_delay` (+`delay` Sekunden nach Start), `check_zone` (Spieler betritt `zone`), `all_destroyed` (alle Ziele vernichtet).
+- `briefing`: DE + EN, je 4-8 Sätze (Lage, Auftrag, Durchführung, Gefahren, Rückkehr).
+- `icons`: 0-2 Kartenmarkierungen (Linie von `from` nach `to`).
+
+**IL-2 Korea (`game:"il2"`):** `country` numerisch (501-503 rot/Nordkorea, 601-603 blau/UN). Koordinaten `x`/`z` in Metern auf der Korea-Karte, `alt` in Metern. `aircraft` = Script-Name (il10, la11, mig15bis, yak9p, f51d, f80c10, f84e, f86a5, tu2, li2t, c47b). `script` = "vehicles/<name>", "fixedobjects/<name>", "blocks/<name>", "ships/<name>" (nur Namen aus dem Spiel-Kontext). `weather.cloudConfig` nach Muster "summer\\00_Clear_00\\sky.ini". `task` und `payload` wie bei DCS (Pflicht je Flugzeuggruppe): AIrborne setzt daraus `PayloadId` über die Tabelle `reference/il2-payloads.json` (Rolle, dann Wunsch-Übereinstimmung).
+
+**DCS World (`game:"dcs"`):** `map` = Theatre-Name (Caucasus, Syria, PersianGulf, Nevada, Normandy, MarianaIslands, Sinai, Kola, Falklands). `country` = DCS-Country-String ("USA", "Russia", "Syria", "Israel", "Egypt", "Iran", ...). Alle Positionen (`start`, `position`, `route[]`, `zone`, `icons`) als `{"lat":35.40,"lon":35.95,"alt":2000,"heading":270}` in Dezimalgrad (KEIN x/z). `aircraft`/`script` = exakte DCS-`type`-Namen (z. B. "MiG-21Bis", "F-16C_50", "Mi-24P", "Mi-8MT", "M-113", "M-60", "Ural-375", "ZSU-23-4 Shilka", "BTR-80"). `statics[].script` ebenfalls ein Bodeneinheiten-Typ. `kind` "plane" oder "helicopter" bei Luftfahrzeugen. `weather` wie oben (wird sinngemäß übernommen).
+**Bewaffnung DCS:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) bekommt `task` (Pflicht) = Rolle: "CAP" | "Intercept" | "FighterSweep" | "Escort" | "CAS" | "GroundAttack" | "Strike" | "SEAD" | "AntiShip" | "Transport" | "Recon", und `payload` (Klartext-Wunsch mit DCS-Waffenbezeichnungen, z. B. "AIM-120C*4, AIM-9X*2" oder "S-8KOM, 9M114 Shturm" oder "AGM-88 HARM"). Der Generator wählt daraus das passende Mission-Editor-Preset des Typs; die Rolle steuert auch das Verhalten der KI (CAP greift Luftziele an, SEAD Luftabwehr, AntiShip Schiffe).
+
+**Prefabs (nur DCS, optional):** Wenn im Spiel-Kontext Prefabs gelistet sind, kann der Plan sie über `"prefabs": [{"prefab":"<id>","name":"...","side":"player|friendly|enemy","country":"USA","position":{"lat":35.40,"lon":35.95,"heading":270}}]` platzieren (Ursprung + Ausrichtung des Prefabs; `country` optional). Die Einheiten eines Prefabs nicht zusätzlich einzeln auflisten. Ohne passende Prefabs das Feld weglassen.
+
+
+---- /PROMPT quick ----
+[2026-09-16 16:46:19] INFO  LLM-HTTP 200, 9278 bytes
+[2026-09-16 16:46:19] INFO  LLM-Tokens: prompt=4001 completion=1973 total=5974 (max_tokens=30000)
+[2026-09-16 16:46:19] ---- RESULT quick RAW ----
+```json
+{
+  "game": "dcs",
+  "title": {"de": "Operation Wadisturm – Depot-Schlag", "en": "Operation Wadi Storm – Depot Strike"},
+  "author": "AIrborne",
+  "map": "Syria",
+  "date": "2015-11-14",
+  "time": "14:20:00",
+  "weather": {"cloudLevel":1200,"cloudHeight":5000,"precLevel":0,"cloudConfig":"autumn\\00_Clear_00\\sky.ini","seaState":2,"turbulence":3,"windLayers":[[0,240,3],[1000,250,5],[3000,260,7]]},
+  "playerGroups": [
+    {"name":"Dagger 1","aircraft":"F-14A-135-GR","count":1,"country":"USA","task":"Strike","payload":"4x GBU-12 Paveway II, 2x AIM-9M, 2x AIM-7M, volle Kanone","start":{"type":"air","lat":35.05,"lon":35.85,"alt":4500,"heading":95},
+     "route":[
+       {"lat":35.05,"lon":36.20,"alt":4500,"heading":95},
+       {"lat":35.18,"lon":37.55,"alt":3500,"heading":60},
+       {"lat":35.32,"lon":37.70,"alt":1800,"heading":140},
+       {"lat":35.05,"lon":37.35,"alt":4000,"heading":250}
+     ],"speed":800}
+  ],
+  "enemyGroups": [
+    {"name":"Rebel Truck Depot","kind":"vehicle","script":"Ural-375","count":4,"country":"Syria","position":{"lat":35.32,"lon":37.70,"heading":30},"movement":{"type":"static"}},
+    {"name":"Supply Patrol","kind":"vehicle","script":"M-113","count":2,"country":"Syria","position":{"lat":35.36,"lon":37.62,"heading":200},"movement":{"type":"route"},"route":[{"lat":35.36,"lon":37.62},{"lat":35.33,"lon":37.72},{"lat":35.35,"lon":37.66}],"speed":25}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"ZSU-23-4 Shilka","count":1,"position":{"lat":35.325,"lon":37.685},"country":"Syria","engageable":true},
+    {"script":"SA-18 Igla-S MANPADS","count":2,"position":{"lat":35.315,"lon":37.72},"country":"Syria","engageable":true},
+    {"script":"ZU-23 AA Gun","count":2,"position":{"lat":35.33,"lon":37.71},"country":"Syria","engageable":true}
+  ],
+  "statics": [
+    {"kind":"structure","script":"Oil tank","count":2,"positions":[{"lat":35.318,"lon":37.695,"heading":0},{"lat":35.322,"lon":37.697,"heading":0}],"country":"Syria"},
+    {"kind":"structure","script":"Shelter","count":2,"positions":[{"lat":35.325,"lon":37.705,"heading":20},{"lat":35.317,"lon":37.708,"heading":20}],"country":"Syria"},
+    {"kind":"camouflage","script":"Camonet","count":2,"positions":[{"lat":35.319,"lon":37.7,"heading":45},{"lat":35.324,"lon":37.695,"heading":120}],"country":"Syria"}
+  ],
+  "objectives": [
+    {"title":{"de":"Depot zerstören","en":"Destroy the Depot"},"desc":{"de":"Vernichte alle vier LKW im Versorgungsdepot im Wadi nordwestlich des Assad-Stausees. Öl tanks und Unterstände sind Sekundärziele.","en":"Destroy all four trucks in the supply depot in the wadi northwest of Lake Assad. Oil tanks and shelters are secondary targets."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Overlord","textDe":"Dagger 1, hier Overlord. Ihr Zieldepot liegt im Wadi nordwestlich des Stausees, vier LKW bestätigt. Waffe frei, Achtung leichte Flugabwehr im Zielgebiet.","textEn":"Dagger 1, Overlord. Your target depot is in the wadi northwest of the reservoir, four trucks confirmed. Weapons free, expect light AAA in the target area."},
+    {"trigger":"check_zone","zone":{"lat":35.32,"lon":37.70,"r":4000},"speaker":"Overlord","textDe":"Dagger 1, Overlord: Sie sind im Zielgebiet. Feindliche Luftabwehr ist aufmerksam, suchen Sie nach Startsackschützen.","textEn":"Dagger 1, Overlord: you are in the target area. Enemy air defense is alert, watch for MANPADS teams."},
+    {"trigger":"all_destroyed","speaker":"Overlord","textDe":"Gute Arbeit, Dagger 1 – Depot vernichtet, sekundäre Brände bestätigt. Drehen Sie ab und kehren Sie nach Incirlik zurück.","textEn":"Good job Dagger 1 – depot destroyed, secondary fires confirmed. Egress and return to Incirlik."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Overlord","textDe":"Dagger 1, Zeitlimit erreicht – brechen Sie ab und kehren Sie zurück.","textEn":"Dagger 1, time limit reached – break off and return."}
+  ],
+  "briefing": {"de":"Lage: Rebellen unterhalten ein Versorgungsdepot in einem Wadi nordwestlich des Assad-Stausees. Dort stehen vier LKW, zwei Öl tanks und einfache Unterstände; die Stellung wird durch eine ZSU-23-4, ZU-23-Geschütze und eine Igla-MANPADS-Truppe geschützt. Auftrag: Dagger 1 fliegt mit vier GBU-12 vom Carrier-Standard auf F-14A und zerstört sämtliche LKW. Durchführung: Anflug auf Wegpunkt 1, dann niedrig in das Wadi, Ziel markieren und lasergelenkt werfen. Gefahren: Flak und MANPADS sind aktiv, bleiben Sie in Bewegung und beachten Sie den Bergschatten. Rückkehr: Nach dem Abwurf nach Westen abdrehen, Rückweg über Wegpunkt 4, Landung auf eigener Basis oder Ausweichplatz.","en":"Situation: Rebels maintain a supply depot in a wadi northwest of Lake Assad. Four trucks, two oil tanks and simple shelters are located there; the position is defended by a ZSU-23-4, ZU-23 guns and an Igla MANPADS team. Task: Dagger 1 launches in an F-14A carrying four GBU-12s and destroys all trucks. Execution: Fly to waypoint 1, then descend into the wadi, designate the target and deliver laser-guided bombs. Threats: AAA and MANPADS are active, keep moving and mind terrain masking. Recovery: After weapon release egress west via waypoint 4 and recover at your base or divert field."},
+  "icons": [{"from":{"lat":35.05,"lon":35.85},"to":{"lat":35.32,"lon":37.70},"label":{"de":"Zielgebiet Depot","en":"Target Depot"},"desc":{"de":"Rebellen-Versorgungsdepot im Wadi, vier LKW, Flak und MANPADS aktiv.","en":"Rebel supply depot in the wadi, four trucks, AAA and MANPADS active."}}]
+}
+```
+---- /RESULT quick RAW ----
+[2026-09-16 16:46:19] ---- PLAN JSON (normalisiert) ----
+{"author":"AIrborne","briefing":{"de":"Lage: Rebellen unterhalten ein Versorgungsdepot in einem Wadi nordwestlich des Assad-Stausees. Dort stehen vier LKW, zwei Öl tanks und einfache Unterstände; die Stellung wird durch eine ZSU-23-4, ZU-23-Geschütze und eine Igla-MANPADS-Truppe geschützt. Auftrag: Dagger 1 fliegt mit vier GBU-12 vom Carrier-Standard auf F-14A und zerstört sämtliche LKW. Durchführung: Anflug auf Wegpunkt 1, dann niedrig in das Wadi, Ziel markieren und lasergelenkt werfen. Gefahren: Flak und MANPADS sind aktiv, bleiben Sie in Bewegung und beachten Sie den Bergschatten. Rückkehr: Nach dem Abwurf nach Westen abdrehen, Rückweg über Wegpunkt 4, Landung auf eigener Basis oder Ausweichplatz.","en":"Situation: Rebels maintain a supply depot in a wadi northwest of Lake Assad. Four trucks, two oil tanks and simple shelters are located there; the position is defended by a ZSU-23-4, ZU-23 guns and an Igla MANPADS team. Task: Dagger 1 launches in an F-14A carrying four GBU-12s and destroys all trucks. Execution: Fly to waypoint 1, then descend into the wadi, designate the target and deliver laser-guided bombs. Threats: AAA and MANPADS are active, keep moving and mind terrain masking. Recovery: After weapon release egress west via waypoint 4 and recover at your base or divert field."},"date":"2015-11-14","enemyGroups":[{"count":4,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Rebel Truck Depot","position":{"heading":30,"lat":35.32,"lon":37.7},"script":"Ural-375"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"route"},"name":"Supply Patrol","position":{"heading":200,"lat":35.36,"lon":37.62},"route":[{"lat":35.36,"lon":37.62},{"lat":35.33,"lon":37.72},{"lat":35.35,"lon":37.66}],"script":"M-113","speed":25}],"flak":[{"count":1,"country":"Syria","engageable":true,"position":{"lat":35.325,"lon":37.685},"script":"ZSU-23-4 Shilka"},{"count":2,"country":"Syria","engageable":true,"position":{"lat":35.315,"lon":37.72},"script":"SA-18 Igla-S MANPADS"},{"count":2,"country":"Syria","engageable":true,"position":{"lat":35.33,"lon":37.71},"script":"ZU-23 AA Gun"}],"friendlyGroups":[],"game":"dcs","icons":[{"desc":{"de":"Rebellen-Versorgungsdepot im Wadi, vier LKW, Flak und MANPADS aktiv.","en":"Rebel supply depot in the wadi, four trucks, AAA and MANPADS active."},"from":{"lat":35.05,"lon":35.85},"label":{"de":"Zielgebiet Depot","en":"Target Depot"},"to":{"lat":35.32,"lon":37.7}}],"map":"Syria","objectives":[{"counter":4,"desc":{"de":"Vernichte alle vier LKW im Versorgungsdepot im Wadi nordwestlich des Assad-Stausees. Öl tanks und Unterstände sind Sekundärziele.","en":"Destroy all four trucks in the supply depot in the wadi northwest of Lake Assad. Oil tanks and shelters are secondary targets."},"title":{"de":"Depot zerstören","en":"Destroy the Depot"}}],"playerGroups":[{"aircraft":"F-14A-135-GR","count":1,"country":"USA","name":"Dagger 1","payload":"4x GBU-12 Paveway II, 2x AIM-9M, 2x AIM-7M, volle Kanone","route":[{"alt":4500,"heading":95,"lat":35.05,"lon":36.2},{"alt":3500,"heading":60,"lat":35.18,"lon":37.55},{"alt":1800,"heading":140,"lat":35.32,"lon":37.7},{"alt":4000,"heading":250,"lat":35.05,"lon":37.35}],"speed":800,"start":{"alt":4500,"heading":95,"lat":35.05,"lon":35.85,"type":"air"},"task":"Strike"}],"radioQueue":[{"delay":10,"speaker":"Overlord","textDe":"Dagger 1, hier Overlord. Ihr Zieldepot liegt im Wadi nordwestlich des Stausees, vier LKW bestätigt. Waffe frei, Achtung leichte Flugabwehr im Zielgebiet.","textEn":"Dagger 1, Overlord. Your target depot is in the wadi northwest of the reservoir, four trucks confirmed. Weapons free, expect light AAA in the target area.","trigger":"mission_begin_delay"},{"speaker":"Overlord","textDe":"Dagger 1, Overlord: Sie sind im Zielgebiet. Feindliche Luftabwehr ist aufmerksam, suchen Sie nach Startsackschützen.","textEn":"Dagger 1, Overlord: you are in the target area. Enemy air defense is alert, watch for MANPADS teams.","trigger":"check_zone","zone":{"lat":35.32,"lon":37.7,"r":4000}},{"speaker":"Overlord","textDe":"Gute Arbeit, Dagger 1 – Depot vernichtet, sekundäre Brände bestätigt. Drehen Sie ab und kehren Sie nach Incirlik zurück.","textEn":"Good job Dagger 1 – depot destroyed, secondary fires confirmed. Egress and return to Incirlik.","trigger":"all_destroyed"},{"delay":1500,"speaker":"Overlord","textDe":"Dagger 1, Zeitlimit erreicht – brechen Sie ab und kehren Sie zurück.","textEn":"Dagger 1, time limit reached – break off and return.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":"Syria","kind":"structure","positions":[{"heading":0,"lat":35.318,"lon":37.695},{"heading":0,"lat":35.322,"lon":37.697}],"script":"Oil tank"},{"count":2,"country":"Syria","kind":"structure","positions":[{"heading":20,"lat":35.325,"lon":37.705},{"heading":20,"lat":35.317,"lon":37.708}],"script":"Shelter"},{"count":2,"country":"Syria","kind":"camouflage","positions":[{"heading":45,"lat":35.319,"lon":37.7},{"heading":120,"lat":35.324,"lon":37.695}],"script":"Camonet"}],"time":"14:20:00","title":{"de":"Operation Wadisturm – Depot-Schlag","en":"Operation Wadi Storm – Depot Strike"},"weather":{"cloudConfig":"autumn\\00_Clear_00\\sky.ini","cloudHeight":5000,"cloudLevel":1200,"precLevel":0,"seaState":2,"turbulence":3,"windLayers":[[0,240,3],[1000,250,5],[3000,260,7]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-16 16:46:20] INFO  DCS-Bewaffnungs-Presets: 133 Typen (DCS_ROOT=C:\Program Files\Eagle Dynamics\DCS World)
+[2026-09-16 16:46:20] INFO  quick: 1 Problem(e) - Reparatur-Durchgang
+[2026-09-16 16:46:20] INFO    - Gruppe Dagger 1: keine Presets fuer Typ "F-14A-135-GR" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)
+[2026-09-16 16:46:20] INFO  quick-repair gestartet
+[2026-09-16 16:46:20] ---- SYSTEM quick-repair ----
+Du bist der Missionsdesigner von AIrborne, einem Werkzeug, das aus Nutzer-Vorgaben spielbare Missionen für Kampfflug-Simulationen erzeugt. Diese Aufgabe erzeugt eine Mission für **DCS World**. Du antwortest ausschließlich mit einem Missionsplan als JSON nach dem vorgegebenen Schema – kein Markdown, keine Erklärungen.
+
+Grundsätze für jeden Plan:
+- **Spielbar und zusammenhängend:** Startpunkt, Anflug, Zielgebiet und Rückweg liegen räumlich schlüssig auf der Karte; die Entfernungen passen zur Missionsdauer und zum Flugzeugtyp.
+- **Wegpunkte mit Aufgabe:** Die Spielergruppe bekommt eine Route, die zum Ziel führt (Anflug/IP → Zielgebiet → Rückweg/Landeplatz). Jede bewegliche Einheit (Kolonnen, Patrouillen, Schiffe, gegnerische/verbündete Flugzeuge) bekommt eine Route, die ihr Verhalten abbildet (Patrouillenschleife, Marschweg zum Ziel, CAP-Orbit) und die Begegnung mit dem Spieler plausibel macht.
+- **Routen-Timing über Geschwindigkeit, nie über feste Zeiten:** Der Wegpunkt-Zeitplan ergibt sich in DCS ausschließlich aus Ground Speed (GS) × Distanz - nur der erste Wegpunkt hat eine feste Zeit, alle weiteren Wegpunkte erreicht die Gruppe, wenn sie sie mit ihrer GS erreicht. Plane deshalb keine festen Ankunftszeiten für Wegpunkte ein und stimme Streckenlängen auf eine realistische GS des Typs ab (Jets ~700-900 km/h, Propellerflugzeuge ~300-450 km/h, Hubschrauber ~150-220 km/h, Fahrzeugkolonnen ~20-40 km/h, Schiffe ~20-30 km/h); im Feld `speed` (km/h) kannst du die GS je Gruppe vorgeben. Zeitliche Abstimmung (z. B. "Kolonne erreicht die Brücke, wenn der Spieler ankommt") erreichst du über Distanz und GS, nicht über Zeitvorgaben.
+- **Plausible Bewaffnung:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) erhält eine zur Aufgabe, Epoche und zum Typ passende Bewaffnung im Feld `payload` (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen") und eine Rolle im Feld `task` (CAP, CAS, SEAD, Strike, AntiShip, Intercept, Escort, Transport …). Abfangjäger tragen Luft-Luft-Waffen, Bodenangriff Bomben/Raketen – nichts, was der Typ nie geführt hat. Bei DCS wählt der Generator aus Rolle + Wunsch das passende Mission-Editor-Preset; bevorzuge deshalb gängige Standard-Loadouts (CAP: IR-/radargelenkte Luft-Luft-Raketen; SEAD: Anti-Radar-Raketen, falls der Typ sie hat; CAS/Strike: ungelenkte Raketen/Bomben oder gelenkte Bomben).
+- **Epoche und Fraktion:** Keine Anachronismen; Einheiten, Waffen, Callsigns und Funkton passen zu Jahr, Kriegspartei und Sprache.
+- **Historisch/fiktiv plausibel:** Lücken sinnvoll füllen, Widersprüche zugunsten der Story auflösen, realistisch dosierter Widerstand.
+
+---- /SYSTEM quick-repair ----
+[2026-09-16 16:46:20] ---- PROMPT quick-repair ----
+# Modus: Reparatur (Korrektur eines bestehenden Plans)
+
+Der folgende Missionsplan wurde bereits von dir erstellt. Die Validierung und ein Probelauf des Missionsgenerators haben Probleme gemeldet. Deine Aufgabe ist es, **nur diese Probleme zu beheben** und den vollständigen, korrigierten Plan zurückzugeben.
+
+## Spiel-Kontext: DCS World
+- Karten (theatre): Syria, Sinai, Caucasus, Persian Gulf, Normandy, Kola, Marianas. Waehle die zur Epoche/Region passende.
+- Einheiten: Verwende exakte DCS-Einheiten-"type"-Namen (z. B. "MiG-21Bis", "Mi-24P", "Mi-8MT", "F-16C_50"). Pruefe die Aera-Plausibilitaet (frueher/mittlerer/spaeter Kalter Krieg vs. modern).
+- Fraktionen als DCS-Country-Namen (z. B. "USA", "Russia", "Syria", "Israel", "Egypt", "Ukraine"). Weise jede Gruppe einer Country zu.
+- Der Spieler muss die Module besitzen; markiere im Plan, welche Module bentigt werden (aircraft = type-Name).
+- Positionen: lat/lon auf der gewaehlten Karte; wenn unbekannt, lat/lon = 0 lassen und "notes" mit relativer Beschreibung fuellen (Generator/platzieren spaeter).
+- Funk/Briefing-Texte landen spaeter im dictionary (DictKey_*), Sounds als OGG.
+
+## Verfuegbare Prefabs (fertige Asset-Gruppen, DCS)
+Diese Prefabs koennen im Plan ueber `prefabs` platziert werden: `{"prefab":"<id>","side":"player|friendly|enemy","name":"...","position":{"lat":..,"lon":..,"heading":..}}`. Die enthaltenen Einheiten NICHT zusaetzlich in enemyGroups/friendlyGroups/statics aufzaehlen. Nutze ein Prefab nur, wenn es zur Story passt (Epoche, Fraktion, Wasser/Land).
+- id "carrier-strike-group": Carrier Strike Group (4 ship, 7 plane, 1 helicopter, 3 static; Country USA) - CVN-73 George Washington mit zwei Arleigh-Burke-Zerstörern und einem Ticonderoga-Kreuzer als Eskorte; auf dem Deck sechs geparkte F/A-18C, ein E-2C Hawkeye, ein SH-60B und Container am Heck.
+- id "mountain-farp": Mountain FARP (2 vehicle, 1 helicopter, 9 static; Country Russia) - FARP im Gelände mit vier Landeplätzen, drei Zelten, Tank- und Munitionslager, zwei Ural-375, geparkter Mi-8MT und Windsack
+
+
+**Gemeldete Probleme:**
+- Gruppe Dagger 1: keine Presets fuer Typ "F-14A-135-GR" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)
+
+**Regeln für die Korrektur:**
+- Behebe jedes gemeldete Problem an der Stelle, auf die es sich bezieht (Feldpfade wie `enemyGroups[1].script` zeigen auf das betroffene Element).
+- Alles andere bleibt **unverändert**: Story, Karte, Datum, Einheiten, Positionen, Routen, Bewaffnung, Funksprüche, Briefing-Texte. Keine neuen Ideen, keine Umformulierungen, nichts weglassen.
+- Ist ein Typ-/Script-Name unbekannt, ersetze ihn durch den passenden gültigen Namen aus dem Spiel-Kontext (gleiche Epoche, gleiche Rolle) – nicht durch etwas völlig anderes. Ist ein Name laut Kontext korrekt, lass ihn stehen.
+- Fehlen Ziele oder Positionen, ergänze das Minimum, das der Plan braucht, passend zur bestehenden Story.
+- Meldet die Prüfung Gegnerinformationen in Spieler-Texten (Herausforderung), formuliere nur die betroffenen Sätze neutral um.
+- Gib den **gesamten** Plan zurück, nicht nur die geänderten Teile.
+
+**Bisheriger Plan:**
+```json
+{
+  "game": "dcs",
+  "title": {
+    "de": "Operation Wadisturm – Depot-Schlag",
+    "en": "Operation Wadi Storm – Depot Strike"
+  },
+  "author": "AIrborne",
+  "map": "Syria",
+  "date": "2015-11-14",
+  "time": "14:20:00",
+  "weather": {
+    "cloudLevel": 1200,
+    "cloudHeight": 5000,
+    "precLevel": 0,
+    "cloudConfig": "autumn\\00_Clear_00\\sky.ini",
+    "seaState": 2,
+    "turbulence": 3,
+    "windLayers": [
+      [
+        0,
+        240,
+        3
+      ],
+      [
+        1000,
+        250,
+        5
+      ],
+      [
+        3000,
+        260,
+        7
+      ]
+    ]
+  },
+  "playerGroups": [
+    {
+      "name": "Dagger 1",
+      "aircraft": "F-14A-135-GR",
+      "count": 1,
+      "country": "USA",
+      "start": {
+        "type": "air",
+        "lat": 35.05,
+        "lon": 35.85,
+        "alt": 4500,
+        "heading": 95
+      },
+      "route": [
+        {
+          "alt": 4500,
+          "lat": 35.05,
+          "lon": 36.2,
+          "heading": 95
+        },
+        {
+          "alt": 3500,
+          "lat": 35.18,
+          "lon": 37.55,
+          "heading": 60
+        },
+        {
+          "alt": 1800,
+          "lat": 35.32,
+          "lon": 37.7,
+          "heading": 140
+        },
+        {
+          "alt": 4000,
+          "lat": 35.05,
+          "lon": 37.35,
+          "heading": 250
+        }
+      ],
+      "payload": "4x GBU-12 Paveway II, 2x AIM-9M, 2x AIM-7M, volle Kanone",
+      "task": "Strike",
+      "speed": 800
+    }
+  ],
+  "enemyGroups": [
+    {
+      "name": "Rebel Truck Depot",
+      "kind": "vehicle",
+      "script": "Ural-375",
+      "count": 4,
+      "country": "Syria",
+      "position": {
+        "lat": 35.32,
+        "lon": 37.7,
+        "heading": 30
+      },
+      "movement": {
+        "type": "static"
+      }
+    },
+    {
+      "name": "Supply Patrol",
+      "kind": "vehicle",
+      "script": "M-113",
+      "count": 2,
+      "country": "Syria",
+      "position": {
+        "lat": 35.36,
+        "lon": 37.62,
+        "heading": 200
+      },
+      "movement": {
+        "type": "route"
+      },
+      "route": [
+        {
+          "lat": 35.36,
+          "lon": 37.62
+        },
+        {
+          "lat": 35.33,
+          "lon": 37.72
+        },
+        {
+          "lat": 35.35,
+          "lon": 37.66
+        }
+      ],
+      "speed": 25
+    }
+  ],
+  "flak": [
+    {
+      "script": "ZSU-23-4 Shilka",
+      "count": 1,
+      "position": {
+        "lat": 35.325,
+        "lon": 37.685
+      },
+      "country": "Syria",
+      "engageable": true
+    },
+    {
+      "script": "SA-18 Igla-S MANPADS",
+      "count": 2,
+      "position": {
+        "lat": 35.315,
+        "lon": 37.72
+      },
+      "country": "Syria",
+      "engageable": true
+    },
+    {
+      "script": "ZU-23 AA Gun",
+      "count": 2,
+      "position": {
+        "lat": 35.33,
+        "lon": 37.71
+      },
+      "country": "Syria",
+      "engageable": true
+    }
+  ],
+  "statics": [
+    {
+      "kind": "structure",
+      "script": "Oil tank",
+      "count": 2,
+      "country": "Syria",
+      "positions": [
+        {
+          "lat": 35.318,
+          "lon": 37.695
+        },
+        {
+          "lat": 35.322,
+          "lon": 37.697
+        }
+      ]
+    },
+    {
+      "kind": "structure",
+      "script": "Shelter",
+      "count": 2,
+      "country": "Syria",
+      "positions": [
+        {
+          "lat": 35.325,
+          "lon": 37.705,
+          "heading": 20
+        },
+        {
+          "lat": 35.317,
+          "lon": 37.708,
+          "heading": 20
+        }
+      ]
+    },
+    {
+      "kind": "camouflage",
+      "script": "Camonet",
+      "count": 2,
+      "country": "Syria",
+      "positions": [
+        {
+          "lat": 35.319,
+          "lon": 37.7,
+          "heading": 45
+        },
+        {
+          "lat": 35.324,
+          "lon": 37.695,
+          "heading": 120
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "title": {
+        "de": "Depot zerstören",
+        "en": "Destroy the Depot"
+      },
+      "desc": {
+        "de": "Vernichte alle vier LKW im Versorgungsdepot im Wadi nordwestlich des Assad-Stausees. Öl tanks und Unterstände sind Sekundärziele.",
+        "en": "Destroy all four trucks in the supply depot in the wadi northwest of Lake Assad. Oil tanks and shelters are secondary targets."
+      },
+      "counter": 4
+    }
+  ],
+  "radioQueue": [
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 10,
+      "speaker": "Overlord",
+      "textDe": "Dagger 1, hier Overlord. Ihr Zieldepot liegt im Wadi nordwestlich des Stausees, vier LKW bestätigt. Waffe frei, Achtung leichte Flugabwehr im Zielgebiet.",
+      "textEn": "Dagger 1, Overlord. Your target depot is in the wadi northwest of the reservoir, four trucks confirmed. Weapons free, expect light AAA in the target area."
+    },
+    {
+      "trigger": "check_zone",
+      "zone": {
+        "lat": 35.32,
+        "lon": 37.7,
+        "r": 4000
+      },
+      "speaker": "Overlord",
+      "textDe": "Dagger 1, Overlord: Sie sind im Zielgebiet. Feindliche Luftabwehr ist aufmerksam, suchen Sie nach Startsackschützen.",
+      "textEn": "Dagger 1, Overlord: you are in the target area. Enemy air defense is alert, watch for MANPADS teams."
+    },
+    {
+      "trigger": "all_destroyed",
+      "speaker": "Overlord",
+      "textDe": "Gute Arbeit, Dagger 1 – Depot vernichtet, sekundäre Brände bestätigt. Drehen Sie ab und kehren Sie nach Incirlik zurück.",
+      "textEn": "Good job Dagger 1 – depot destroyed, secondary fires confirmed. Egress and return to Incirlik."
+    },
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 1500,
+      "speaker": "Overlord",
+      "textDe": "Dagger 1, Zeitlimit erreicht – brechen Sie ab und kehren Sie zurück.",
+      "textEn": "Dagger 1, time limit reached – break off and return."
+    }
+  ],
+  "briefing": {
+    "de": "Lage: Rebellen unterhalten ein Versorgungsdepot in einem Wadi nordwestlich des Assad-Stausees. Dort stehen vier LKW, zwei Öl tanks und einfache Unterstände; die Stellung wird durch eine ZSU-23-4, ZU-23-Geschütze und eine Igla-MANPADS-Truppe geschützt. Auftrag: Dagger 1 fliegt mit vier GBU-12 vom Carrier-Standard auf F-14A und zerstört sämtliche LKW. Durchführung: Anflug auf Wegpunkt 1, dann niedrig in das Wadi, Ziel markieren und lasergelenkt werfen. Gefahren: Flak und MANPADS sind aktiv, bleiben Sie in Bewegung und beachten Sie den Bergschatten. Rückkehr: Nach dem Abwurf nach Westen abdrehen, Rückweg über Wegpunkt 4, Landung auf eigener Basis oder Ausweichplatz.",
+    "en": "Situation: Rebels maintain a supply depot in a wadi northwest of Lake Assad. Four trucks, two oil tanks and simple shelters are located there; the position is defended by a ZSU-23-4, ZU-23 guns and an Igla MANPADS team. Task: Dagger 1 launches in an F-14A carrying four GBU-12s and destroys all trucks. Execution: Fly to waypoint 1, then descend into the wadi, designate the target and deliver laser-guided bombs. Threats: AAA and MANPADS are active, keep moving and mind terrain masking. Recovery: After weapon release egress west via waypoint 4 and recover at your base or divert field."
+  },
+  "icons": [
+    {
+      "from": {
+        "lat": 35.05,
+        "lon": 35.85
+      },
+      "to": {
+        "lat": 35.32,
+        "lon": 37.7
+      },
+      "label": {
+        "de": "Zielgebiet Depot",
+        "en": "Target Depot"
+      },
+      "desc": {
+        "de": "Rebellen-Versorgungsdepot im Wadi, vier LKW, Flak und MANPADS aktiv.",
+        "en": "Rebel supply depot in the wadi, four trucks, AAA and MANPADS active."
+      }
+    }
+  ]
+}
+```
+
+**Output: NUR das JSON-Objekt, exakt dieses Schema (kein Markdown, keine Erklärung, keine Kommentare im JSON).** Halte dein Nachdenken sehr knapp (max. 10 Sätze Planung) und stelle sicher, dass das JSON vollständig und syntaktisch gültig ist.
+
+```json
+{
+  "game": "il2",
+  "title": {"de": "...", "en": "..."},
+  "author": "AIrborne",
+  "map": "korea",
+  "date": "1950-09-14",
+  "time": "15:35:00",
+  "weather": {"cloudLevel":1500,"cloudHeight":6000,"precLevel":0,"cloudConfig":"summer\\00_Clear_00\\sky.ini","seaState":3,"turbulence":5,"windLayers":[[0,150,4],[500,160,5],[1000,170,6],[2000,180,8],[5000,190,10]]},
+  "playerGroups": [
+    {"name":"Sowol","aircraft":"il10","count":2,"country":501,"task":"CAS","payload":"4x FAB-100, 8x RS-82, volle Kanonen","start":{"type":"air","x":86500,"z":244000,"alt":1000,"heading":40},
+     "route":[{"x":95000,"z":242000,"alt":700},{"x":99800,"z":261800,"alt":500},{"x":88000,"z":247000,"alt":800}]}
+  ],
+  "enemyGroups": [
+    {"name":"Trucks","kind":"vehicle","script":"vehicles/studebakerus6","count":3,"country":601,"position":{"x":99870,"z":261830,"heading":15},"movement":{"type":"static"}},
+    {"name":"Patrol","kind":"vehicle","script":"vehicles/willysmb","count":1,"country":601,"position":{"x":103080,"z":264580,"heading":230},"movement":{"type":"route"},"route":[{"x":103400,"z":264900},{"x":102600,"z":264200}]}
+  ],
+  "friendlyGroups": [],
+  "flak": [
+    {"script":"fixedobjects/boforsl60","count":2,"position":{"x":100180,"z":261640},"country":601,"engageable":true}
+  ],
+  "statics": [
+    {"kind":"block","script":"blocks/mil_camonet","count":2,"positions":[{"x":99800,"z":261880,"heading":12},{"x":99560,"z":261860,"heading":192}],"country":601}
+  ],
+  "objectives": [
+    {"title":{"de":"...","en":"..."},"desc":{"de":"...","en":"..."},"counter":4}
+  ],
+  "radioQueue": [
+    {"trigger":"mission_begin_delay","delay":10,"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"check_zone","zone":{"x":99800,"z":261800,"r":2500},"speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"all_destroyed","speaker":"Basis","textDe":"...","textEn":"..."},
+    {"trigger":"mission_begin_delay","delay":1500,"speaker":"Basis","textDe":"Zeitlimit ...","textEn":"Time limit ..."}
+  ],
+  "briefing": {"de":"...","en":"..."},
+  "icons": [{"from":{"x":86500,"z":244000},"to":{"x":99800,"z":261800},"label":{"de":"Zielgebiet","en":"Target area"},"desc":{"de":"...","en":"..."}}]
+}
+```
+
+**Feldregeln (beide Spiele):**
+- `game` = Spiel-Kontext ("il2" oder "dcs"). `date` = YYYY-MM-DD, `time` = HH:MM:SS.
+- `playerGroups`: genau 1 Gruppe, `count` = Anzahl Spielerplätze (1-4). `start.type`: "air" (Luftstart, empfohlen) oder "runway". `route` = 2-4 Wegpunkte (Anflug/IP, Zielgebiet über den Gegnerpositionen, Rückweg zum Start-/Landeplatz) – die Route ist die Aufgabe des Spielers und muss zu den Zielen führen. `payload` = Pflicht: kurze Klartext-Bewaffnung (z. B. "2x FAB-250, 2x UB-16 S-5, volle Kanonen"), passend zu Typ, Epoche und Aufgabe.
+- `enemyGroups`/`friendlyGroups`: `kind` = "vehicle" | "plane" | "helicopter" | "ship". `count` Einheiten stehen in Reihe ab `position`. Bewegung: `movement.type` "static" oder "route" (dann `route` mit 2-4 Wegpunkten; Fahrzeuge fahren die Schleife ab). Flugzeuge/Hubschrauber (`kind` "plane"/"helicopter") brauchen immer eine `route` (Patrouille, CAP-Orbit oder Anflug auf ihr Ziel) und ein `payload` wie bei der Spielergruppe. Optional je Gruppe (Spieler, Gegner, Verbündete): `speed` = Ground Speed in km/h für die Route (z. B. 750 für Jets, 180 für Hubschrauber, 30 für Kolonnen); ohne Angabe wählt der Generator einen typischen Wert. Wegpunkte haben KEINE Zeitangaben - die Ankunftszeit ergibt sich aus GS × Distanz.
+- `objectives`: genau 1 Eintrag. `counter` = Anzahl der zerstörbaren Fahrzeuge in `enemyGroups` (Flak zählt nicht). Titel/Beschreibung DE+EN.
+- `radioQueue`: 2-5 Meldungen, je max. 2 Sätze, authentischer Funkton. Trigger: `mission_begin_delay` (+`delay` Sekunden nach Start), `check_zone` (Spieler betritt `zone`), `all_destroyed` (alle Ziele vernichtet).
+- `briefing`: DE + EN, je 4-8 Sätze (Lage, Auftrag, Durchführung, Gefahren, Rückkehr).
+- `icons`: 0-2 Kartenmarkierungen (Linie von `from` nach `to`).
+
+**IL-2 Korea (`game:"il2"`):** `country` numerisch (501-503 rot/Nordkorea, 601-603 blau/UN). Koordinaten `x`/`z` in Metern auf der Korea-Karte, `alt` in Metern. `aircraft` = Script-Name (il10, la11, mig15bis, yak9p, f51d, f80c10, f84e, f86a5, tu2, li2t, c47b). `script` = "vehicles/<name>", "fixedobjects/<name>", "blocks/<name>", "ships/<name>" (nur Namen aus dem Spiel-Kontext). `weather.cloudConfig` nach Muster "summer\\00_Clear_00\\sky.ini". `task` und `payload` wie bei DCS (Pflicht je Flugzeuggruppe): AIrborne setzt daraus `PayloadId` über die Tabelle `reference/il2-payloads.json` (Rolle, dann Wunsch-Übereinstimmung).
+
+**DCS World (`game:"dcs"`):** `map` = Theatre-Name (Caucasus, Syria, PersianGulf, Nevada, Normandy, MarianaIslands, Sinai, Kola, Falklands). `country` = DCS-Country-String ("USA", "Russia", "Syria", "Israel", "Egypt", "Iran", ...). Alle Positionen (`start`, `position`, `route[]`, `zone`, `icons`) als `{"lat":35.40,"lon":35.95,"alt":2000,"heading":270}` in Dezimalgrad (KEIN x/z). `aircraft`/`script` = exakte DCS-`type`-Namen (z. B. "MiG-21Bis", "F-16C_50", "Mi-24P", "Mi-8MT", "M-113", "M-60", "Ural-375", "ZSU-23-4 Shilka", "BTR-80"). `statics[].script` ebenfalls ein Bodeneinheiten-Typ. `kind` "plane" oder "helicopter" bei Luftfahrzeugen. `weather` wie oben (wird sinngemäß übernommen).
+**Bewaffnung DCS:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) bekommt `task` (Pflicht) = Rolle: "CAP" | "Intercept" | "FighterSweep" | "Escort" | "CAS" | "GroundAttack" | "Strike" | "SEAD" | "AntiShip" | "Transport" | "Recon", und `payload` (Klartext-Wunsch mit DCS-Waffenbezeichnungen, z. B. "AIM-120C*4, AIM-9X*2" oder "S-8KOM, 9M114 Shturm" oder "AGM-88 HARM"). Der Generator wählt daraus das passende Mission-Editor-Preset des Typs; die Rolle steuert auch das Verhalten der KI (CAP greift Luftziele an, SEAD Luftabwehr, AntiShip Schiffe).
+
+**Prefabs (nur DCS, optional):** Wenn im Spiel-Kontext Prefabs gelistet sind, kann der Plan sie über `"prefabs": [{"prefab":"<id>","name":"...","side":"player|friendly|enemy","country":"USA","position":{"lat":35.40,"lon":35.95,"heading":270}}]` platzieren (Ursprung + Ausrichtung des Prefabs; `country` optional). Die Einheiten eines Prefabs nicht zusätzlich einzeln auflisten. Ohne passende Prefabs das Feld weglassen.
+
+
+---- /PROMPT quick-repair ----
+[2026-09-16 16:48:34] INFO  LLM-HTTP 200, 14508 bytes
+[2026-09-16 16:48:34] INFO  LLM-Tokens: prompt=6309 completion=3142 total=9451 (max_tokens=30000)
+[2026-09-16 16:48:34] ---- RESULT quick-repair RAW ----
+{
+  "game": "dcs",
+  "title": {
+    "de": "Operation Wadisturm – Depot-Schlag",
+    "en": "Operation Wadi Storm – Depot Strike"
+  },
+  "author": "AIrborne",
+  "map": "Syria",
+  "date": "2015-11-14",
+  "time": "14:20:00",
+  "weather": {
+    "cloudLevel": 1200,
+    "cloudHeight": 5000,
+    "precLevel": 0,
+    "cloudConfig": "autumn\\00_Clear_00\\sky.ini",
+    "seaState": 2,
+    "turbulence": 3,
+    "windLayers": [
+      [
+        0,
+        240,
+        3
+      ],
+      [
+        1000,
+        250,
+        5
+      ],
+      [
+        3000,
+        260,
+        7
+      ]
+    ]
+  },
+  "playerGroups": [
+    {
+      "name": "Dagger 1",
+      "aircraft": "F-14A-135-GR",
+      "count": 1,
+      "country": "USA",
+      "start": {
+        "type": "air",
+        "lat": 35.05,
+        "lon": 35.85,
+        "alt": 4500,
+        "heading": 95
+      },
+      "route": [
+        {
+          "alt": 4500,
+          "lat": 35.05,
+          "lon": 36.2,
+          "heading": 95
+        },
+        {
+          "alt": 3500,
+          "lat": 35.18,
+          "lon": 37.55,
+          "heading": 60
+        },
+        {
+          "alt": 1800,
+          "lat": 35.32,
+          "lon": 37.7,
+          "heading": 140
+        },
+        {
+          "alt": 4000,
+          "lat": 35.05,
+          "lon": 37.35,
+          "heading": 250
+        }
+      ],
+      "payload": "4x GBU-12, 2x AIM-9M, 2x AIM-7M",
+      "task": "Strike",
+      "speed": 800
+    }
+  ],
+  "enemyGroups": [
+    {
+      "name": "Rebel Truck Depot",
+      "kind": "vehicle",
+      "script": "Ural-375",
+      "count": 4,
+      "country": "Syria",
+      "position": {
+        "lat": 35.32,
+        "lon": 37.7,
+        "heading": 30
+      },
+      "movement": {
+        "type": "static"
+      }
+    },
+    {
+      "name": "Supply Patrol",
+      "kind": "vehicle",
+      "script": "M-113",
+      "count": 2,
+      "country": "Syria",
+      "position": {
+        "lat": 35.36,
+        "lon": 37.62,
+        "heading": 200
+      },
+      "movement": {
+        "type": "route"
+      },
+      "route": [
+        {
+          "lat": 35.36,
+          "lon": 37.62
+        },
+        {
+          "lat": 35.33,
+          "lon": 37.72
+        },
+        {
+          "lat": 35.35,
+          "lon": 37.66
+        }
+      ],
+      "speed": 25
+    }
+  ],
+  "flak": [
+    {
+      "script": "ZSU-23-4 Shilka",
+      "count": 1,
+      "position": {
+        "lat": 35.325,
+        "lon": 37.685
+      },
+      "country": "Syria",
+      "engageable": true
+    },
+    {
+      "script": "SA-18 Igla-S MANPADS",
+      "count": 2,
+      "position": {
+        "lat": 35.315,
+        "lon": 37.72
+      },
+      "country": "Syria",
+      "engageable": true
+    },
+    {
+      "script": "ZU-23 AA Gun",
+      "count": 2,
+      "position": {
+        "lat": 35.33,
+        "lon": 37.71
+      },
+      "country": "Syria",
+      "engageable": true
+    }
+  ],
+  "statics": [
+    {
+      "kind": "structure",
+      "script": "Oil tank",
+      "count": 2,
+      "country": "Syria",
+      "positions": [
+        {
+          "lat": 35.318,
+          "lon": 37.695
+        },
+        {
+          "lat": 35.322,
+          "lon": 37.697
+        }
+      ]
+    },
+    {
+      "kind": "structure",
+      "script": "Shelter",
+      "count": 2,
+      "country": "Syria",
+      "positions": [
+        {
+          "lat": 35.325,
+          "lon": 37.705,
+          "heading": 20
+        },
+        {
+          "lat": 35.317,
+          "lon": 37.708,
+          "heading": 20
+        }
+      ]
+    },
+    {
+      "kind": "camouflage",
+      "script": "Camonet",
+      "count": 2,
+      "country": "Syria",
+      "positions": [
+        {
+          "lat": 35.319,
+          "lon": 37.7,
+          "heading": 45
+        },
+        {
+          "lat": 35.324,
+          "lon": 37.695,
+          "heading": 120
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "title": {
+        "de": "Depot zerstören",
+        "en": "Destroy the Depot"
+      },
+      "desc": {
+        "de": "Vernichte alle vier LKW im Versorgungsdepot im Wadi nordwestlich des Assad-Stausees. Öl tanks und Unterstände sind Sekundärziele.",
+        "en": "Destroy all four trucks in the supply depot in the wadi northwest of Lake Assad. Oil tanks and shelters are secondary targets."
+      },
+      "counter": 4
+    }
+  ],
+  "radioQueue": [
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 10,
+      "speaker": "Overlord",
+      "textDe": "Dagger 1, hier Overlord. Ihr Zieldepot liegt im Wadi nordwestlich des Stausees, vier LKW bestätigt. Waffe frei, Achtung leichte Flugabwehr im Zielgebiet.",
+      "textEn": "Dagger 1, Overlord. Your target depot is in the wadi northwest of the reservoir, four trucks confirmed. Weapons free, expect light AAA in the target area."
+    },
+    {
+      "trigger": "check_zone",
+      "zone": {
+        "lat": 35.32,
+        "lon": 37.7,
+        "r": 4000
+      },
+      "speaker": "Overlord",
+      "textDe": "Dagger 1, Overlord: Sie sind im Zielgebiet. Feindliche Luftabwehr ist aufmerksam, suchen Sie nach Startsackschützen.",
+      "textEn": "Dagger 1, Overlord: you are in the target area. Enemy air defense is alert, watch for MANPADS teams."
+    },
+    {
+      "trigger": "all_destroyed",
+      "speaker": "Overlord",
+      "textDe": "Gute Arbeit, Dagger 1 – Depot vernichtet, sekundäre Brände bestätigt. Drehen Sie ab und kehren Sie nach Incirlik zurück.",
+      "textEn": "Good job Dagger 1 – depot destroyed, secondary fires confirmed. Egress and return to Incirlik."
+    },
+    {
+      "trigger": "mission_begin_delay",
+      "delay": 1500,
+      "speaker": "Overlord",
+      "textDe": "Dagger 1, Zeitlimit erreicht – brechen Sie ab und kehren Sie zurück.",
+      "textEn": "Dagger 1, time limit reached – break off and return."
+    }
+  ],
+  "briefing": {
+    "de": "Lage: Rebellen unterhalten ein Versorgungsdepot in einem Wadi nordwestlich des Assad-Stausees. Dort stehen vier LKW, zwei Öl tanks und einfache Unterstände; die Stellung wird durch eine ZSU-23-4, ZU-23-Geschütze und eine Igla-MANPADS-Truppe geschützt. Auftrag: Dagger 1 fliegt mit vier GBU-12 vom Carrier-Standard auf F-14A und zerstört sämtliche LKW. Durchführung: Anflug auf Wegpunkt 1, dann niedrig in das Wadi, Ziel markieren und lasergelenkt werfen. Gefahren: Flak und MANPADS sind aktiv, bleiben Sie in Bewegung und beachten Sie den Bergschatten. Rückkehr: Nach dem Abwurf nach Westen abdrehen, Rückweg über Wegpunkt 4, Landung auf eigener Basis oder Ausweichplatz.",
+    "en": "Situation: Rebels maintain a supply depot in a wadi northwest of Lake Assad. Four trucks, two oil tanks and simple shelters are located there; the position is defended by a ZSU-23-4, ZU-23 guns and an Igla MANPADS team. Task: Dagger 1 launches in an F-14A carrying four GBU-12s and destroys all trucks. Execution: Fly to waypoint 1, then descend into the wadi, designate the target and deliver laser-guided bombs. Threats: AAA and MANPADS are active, keep moving and mind terrain masking. Recovery: After weapon release egress west via waypoint 4 and recover at your base or divert field."
+  },
+  "icons": [
+    {
+      "from": {
+        "lat": 35.05,
+        "lon": 35.85
+      },
+      "to": {
+        "lat": 35.32,
+        "lon": 37.7
+      },
+      "label": {
+        "de": "Zielgebiet Depot",
+        "en": "Target Depot"
+      },
+      "desc": {
+        "de": "Rebellen-Versorgungsdepot im Wadi, vier LKW, Flak und MANPADS aktiv.",
+        "en": "Rebel supply depot in the wadi, four trucks, AAA and MANPADS active."
+      }
+    }
+  ]
+}
+---- /RESULT quick-repair RAW ----
+[2026-09-16 16:48:34] ---- PLAN JSON (normalisiert) ----
+{"author":"AIrborne","briefing":{"de":"Lage: Rebellen unterhalten ein Versorgungsdepot in einem Wadi nordwestlich des Assad-Stausees. Dort stehen vier LKW, zwei Öl tanks und einfache Unterstände; die Stellung wird durch eine ZSU-23-4, ZU-23-Geschütze und eine Igla-MANPADS-Truppe geschützt. Auftrag: Dagger 1 fliegt mit vier GBU-12 vom Carrier-Standard auf F-14A und zerstört sämtliche LKW. Durchführung: Anflug auf Wegpunkt 1, dann niedrig in das Wadi, Ziel markieren und lasergelenkt werfen. Gefahren: Flak und MANPADS sind aktiv, bleiben Sie in Bewegung und beachten Sie den Bergschatten. Rückkehr: Nach dem Abwurf nach Westen abdrehen, Rückweg über Wegpunkt 4, Landung auf eigener Basis oder Ausweichplatz.","en":"Situation: Rebels maintain a supply depot in a wadi northwest of Lake Assad. Four trucks, two oil tanks and simple shelters are located there; the position is defended by a ZSU-23-4, ZU-23 guns and an Igla MANPADS team. Task: Dagger 1 launches in an F-14A carrying four GBU-12s and destroys all trucks. Execution: Fly to waypoint 1, then descend into the wadi, designate the target and deliver laser-guided bombs. Threats: AAA and MANPADS are active, keep moving and mind terrain masking. Recovery: After weapon release egress west via waypoint 4 and recover at your base or divert field."},"date":"2015-11-14","enemyGroups":[{"count":4,"country":"Syria","kind":"vehicle","movement":{"type":"static"},"name":"Rebel Truck Depot","position":{"heading":30,"lat":35.32,"lon":37.7},"script":"Ural-375"},{"count":2,"country":"Syria","kind":"vehicle","movement":{"type":"route"},"name":"Supply Patrol","position":{"heading":200,"lat":35.36,"lon":37.62},"route":[{"lat":35.36,"lon":37.62},{"lat":35.33,"lon":37.72},{"lat":35.35,"lon":37.66}],"script":"M-113","speed":25}],"flak":[{"count":1,"country":"Syria","engageable":true,"position":{"lat":35.325,"lon":37.685},"script":"ZSU-23-4 Shilka"},{"count":2,"country":"Syria","engageable":true,"position":{"lat":35.315,"lon":37.72},"script":"SA-18 Igla-S MANPADS"},{"count":2,"country":"Syria","engageable":true,"position":{"lat":35.33,"lon":37.71},"script":"ZU-23 AA Gun"}],"game":"dcs","icons":[{"desc":{"de":"Rebellen-Versorgungsdepot im Wadi, vier LKW, Flak und MANPADS aktiv.","en":"Rebel supply depot in the wadi, four trucks, AAA and MANPADS active."},"from":{"lat":35.05,"lon":35.85},"label":{"de":"Zielgebiet Depot","en":"Target Depot"},"to":{"lat":35.32,"lon":37.7}}],"map":"Syria","objectives":[{"counter":4,"desc":{"de":"Vernichte alle vier LKW im Versorgungsdepot im Wadi nordwestlich des Assad-Stausees. Öl tanks und Unterstände sind Sekundärziele.","en":"Destroy all four trucks in the supply depot in the wadi northwest of Lake Assad. Oil tanks and shelters are secondary targets."},"title":{"de":"Depot zerstören","en":"Destroy the Depot"}}],"playerGroups":[{"aircraft":"F-14A-135-GR","count":1,"country":"USA","name":"Dagger 1","payload":"4x GBU-12, 2x AIM-9M, 2x AIM-7M","route":[{"alt":4500,"heading":95,"lat":35.05,"lon":36.2},{"alt":3500,"heading":60,"lat":35.18,"lon":37.55},{"alt":1800,"heading":140,"lat":35.32,"lon":37.7},{"alt":4000,"heading":250,"lat":35.05,"lon":37.35}],"speed":800,"start":{"alt":4500,"heading":95,"lat":35.05,"lon":35.85,"type":"air"},"task":"Strike"}],"radioQueue":[{"delay":10,"speaker":"Overlord","textDe":"Dagger 1, hier Overlord. Ihr Zieldepot liegt im Wadi nordwestlich des Stausees, vier LKW bestätigt. Waffe frei, Achtung leichte Flugabwehr im Zielgebiet.","textEn":"Dagger 1, Overlord. Your target depot is in the wadi northwest of the reservoir, four trucks confirmed. Weapons free, expect light AAA in the target area.","trigger":"mission_begin_delay"},{"speaker":"Overlord","textDe":"Dagger 1, Overlord: Sie sind im Zielgebiet. Feindliche Luftabwehr ist aufmerksam, suchen Sie nach Startsackschützen.","textEn":"Dagger 1, Overlord: you are in the target area. Enemy air defense is alert, watch for MANPADS teams.","trigger":"check_zone","zone":{"lat":35.32,"lon":37.7,"r":4000}},{"speaker":"Overlord","textDe":"Gute Arbeit, Dagger 1 – Depot vernichtet, sekundäre Brände bestätigt. Drehen Sie ab und kehren Sie nach Incirlik zurück.","textEn":"Good job Dagger 1 – depot destroyed, secondary fires confirmed. Egress and return to Incirlik.","trigger":"all_destroyed"},{"delay":1500,"speaker":"Overlord","textDe":"Dagger 1, Zeitlimit erreicht – brechen Sie ab und kehren Sie zurück.","textEn":"Dagger 1, time limit reached – break off and return.","trigger":"mission_begin_delay"}],"statics":[{"count":2,"country":"Syria","kind":"structure","positions":[{"lat":35.318,"lon":37.695},{"lat":35.322,"lon":37.697}],"script":"Oil tank"},{"count":2,"country":"Syria","kind":"structure","positions":[{"heading":20,"lat":35.325,"lon":37.705},{"heading":20,"lat":35.317,"lon":37.708}],"script":"Shelter"},{"count":2,"country":"Syria","kind":"camouflage","positions":[{"heading":45,"lat":35.319,"lon":37.7},{"heading":120,"lat":35.324,"lon":37.695}],"script":"Camonet"}],"time":"14:20:00","title":{"de":"Operation Wadisturm – Depot-Schlag","en":"Operation Wadi Storm – Depot Strike"},"weather":{"cloudConfig":"autumn\\00_Clear_00\\sky.ini","cloudHeight":5000,"cloudLevel":1200,"precLevel":0,"seaState":2,"turbulence":3,"windLayers":[[0,240,3],[1000,250,5],[3000,260,7]]}}
+---- /PLAN JSON (normalisiert) ----
+[2026-09-16 16:48:34] INFO  DCS-Bewaffnungs-Presets: 133 Typen (DCS_ROOT=C:\Program Files\Eagle Dynamics\DCS World)
+[2026-09-16 16:48:34] INFO  Reparatur verworfen: korrigierter Plan hat nicht weniger Probleme als der erste (1 >= 1)
+[2026-09-16 16:48:34] INFO  QuickMission erfolgreich: Operation Wadisturm – Depot-Schlag
+[2026-09-16 16:50:10] INFO  DCS-Bewaffnungs-Presets: 133 Typen (DCS_ROOT=C:\Program Files\Eagle Dynamics\DCS World)
+[2026-09-16 16:50:10] INFO  Generate (dcs) erfolgreich: C:\Users\vince\Saved Games\DCS\Missions\AB_Operation_Wadi_Storm_Depot_Strike.miz
+[2026-09-16 16:50:10] INFO    Hinweis: Gruppe Dagger 1: keine Presets fuer Typ "F-14A-135-GR" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)
+[2026-10-03 13:15:45] INFO  Sprache: en
+[2026-10-03 13:15:59] INFO  Sprache: de

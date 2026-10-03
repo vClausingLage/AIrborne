@@ -14,7 +14,7 @@ func TestSystemPrompt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New(%s): %v", root, err)
 	}
-	for _, f := range []string{systemFile, mergeFile, quickFile, prefabFile, challengeFile, schemaFile} {
+	for _, f := range []string{systemFile, mergeFile, quickFile, prefabFile, challengeFile, repairFile, schemaFile} {
 		if strings.TrimSpace(p.tmpl[f]) == "" {
 			t.Errorf("template %s is empty", f)
 		}

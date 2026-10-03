@@ -15,6 +15,11 @@ type Result struct {
 	MainFile  string   `json:"mainFile"`
 	Files     []string `json:"files"`
 	Notes     []string `json:"notes"`
+	// Problems is the subset of Notes that describes defects of the plan
+	// itself (unknown types, missing targets, ...) - things the plan author
+	// can fix, as opposed to environment hints. The repair loop feeds them
+	// back to the LLM.
+	Problems []string `json:"problems"`
 }
 
 var nonWord = regexp.MustCompile(`[^A-Za-z0-9]+`)

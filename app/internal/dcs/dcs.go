@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"airborne/internal/gen"
+	"airborne/internal/i18n"
 	"airborne/internal/media"
 	"airborne/internal/plan"
 )
@@ -39,6 +40,7 @@ type builder struct {
 	mp            *plan.MissionPlan
 	terr          terrain
 	notes         []string
+	problems      []string
 	groupID       int
 	unitID        int
 	zoneID        int
@@ -64,10 +66,20 @@ type builder struct {
 
 	resources T                 // l10n/DEFAULT/mapResource: ResKey -> file name
 	extra     map[string][]byte // additional zip entries (pictures, kneeboards)
+
+	// lang is the primary text language (UI language); DCS has one text per
+	// field, so the other language is appended below it.
+	lang string
 }
 
-func (b *builder) note(format string, args ...any) {
-	b.notes = append(b.notes, fmt.Sprintf(format, args...))
+func (b *builder) note(de, en string, args ...any) {
+	b.notes = append(b.notes, i18n.Sprintf(de, en, args...))
+}
+
+// problem is a note about a defect of the plan itself (see gen.Result.Problems).
+func (b *builder) problem(de, en string, args ...any) {
+	b.note(de, en, args...)
+	b.problems = append(b.problems, i18n.Sprintf(de, en, args...))
 }
 
 func (b *builder) nextGroup() int { b.groupID++; return b.groupID }
@@ -88,14 +100,14 @@ func GenerateWith(mp *plan.MissionPlan, outDir string, prefabs PrefabSource) (*g
 // to arm aircraft (nil = empty pylons).
 func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, payloads *PayloadDB) (*gen.Result, error) {
 	if len(mp.PlayerGroups) == 0 || mp.PlayerGroups[0].Start == nil {
-		return nil, fmt.Errorf("Plan hat keine Spielergruppe mit Startposition")
+		return nil, i18n.Errorf("Plan hat keine Spielergruppe mit Startposition", "Plan has no player group with a start position")
 	}
 	terr, ok := lookupTerrain(mp.Map)
 	if !ok {
-		return nil, fmt.Errorf("DCS-Karte %q unbekannt (bekannt: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)", mp.Map)
+		return nil, i18n.Errorf("DCS-Karte %q unbekannt (bekannt: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)", "Unknown DCS map %q (known: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)", mp.Map)
 	}
 	b := &builder{mp: mp, terr: terr, zoneID: 100, assigned: map[string]string{}, prefabs: prefabs, payloads: payloads,
-		extra: map[string][]byte{}}
+		extra: map[string][]byte{}, lang: i18n.Lang()}
 	if err := b.media(); err != nil {
 		return nil, err
 	}
@@ -103,7 +115,7 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, pay
 
 	name := gen.MissionName(mp.Title.Pick("en"))
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
-		return nil, fmt.Errorf("Missionsordner nicht erreichbar: %w", err)
+		return nil, i18n.Errorf("Missionsordner nicht erreichbar: %w", "Mission folder not reachable: %w", err)
 	}
 	out := filepath.Join(outDir, name+".miz")
 	files := map[string][]byte{
@@ -122,7 +134,7 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, pay
 	}
 	return &gen.Result{
 		Game: "dcs", Name: name, OutputDir: outDir, MainFile: out,
-		Files: []string{out}, Notes: gen.NonNil(b.notes),
+		Files: []string{out}, Notes: gen.NonNil(b.notes), Problems: gen.NonNil(b.problems),
 	}, nil
 }
 
@@ -140,7 +152,7 @@ func (b *builder) media() error {
 	if m.BriefingImage != "" {
 		data, err := media.LoadPNG(m.BriefingImage)
 		if err != nil {
-			return fmt.Errorf("Briefing-Bild: %w", err)
+			return i18n.Errorf("Briefing-Bild: %w", "Briefing image: %w", err)
 		}
 		name := media.SafeName(m.BriefingImage) + ".png"
 		b.extra["l10n/DEFAULT/"+name] = data
@@ -152,14 +164,14 @@ func (b *builder) media() error {
 		b.extra[fmt.Sprintf("%s%02d_%s.png", KneeboardDir, page, label)] = data
 	}
 	if m.KneeboardBriefing {
-		title := b.mp.Title.Pick("de")
-		body := b.mp.Briefing.Pick("de")
+		title := b.mp.Title.Pick(b.lang)
+		body := b.mp.Briefing.Pick(b.lang)
 		if b.mp.Briefing.En != "" && b.mp.Briefing.De != "" {
-			body = b.mp.Briefing.De + "\n\n" + b.mp.Briefing.En
+			body += "\n\n" + b.mp.Briefing.Pick(i18n.Other(b.lang))
 		}
 		data, err := media.RenderTextPage(title, body)
 		if err != nil {
-			return fmt.Errorf("Kneeboard-Briefing: %w", err)
+			return i18n.Errorf("Kneeboard-Briefing: %w", "Kneeboard briefing: %w", err)
 		}
 		add("briefing", data)
 	}
@@ -171,7 +183,7 @@ func (b *builder) media() error {
 		add(media.SafeName(kb), data)
 	}
 	if page > 0 {
-		b.note("%d Kneeboard-Seite(n) unter %s", page, KneeboardDir)
+		b.note("%d Kneeboard-Seite(n) unter %s", "%d kneeboard page(s) in %s", page, KneeboardDir)
 	}
 	return nil
 }
@@ -211,7 +223,7 @@ func (b *builder) xy(p plan.Position) (float64, float64) {
 	// Tolerate lat/lon that ended up in x/z.
 	if (p.X != 0 || p.Z != 0) && math.Abs(p.X) <= 90 && math.Abs(p.Z) <= 180 {
 		if !b.llWarned {
-			b.note("Positionen ohne lat/lon: x/z als Breite/Laenge interpretiert")
+			b.problem("Positionen ohne lat/lon: x/z als Breite/Laenge interpretiert - DCS-Positionen als lat/lon in Dezimalgrad angeben", "Positions without lat/lon: x/z interpreted as latitude/longitude - give DCS positions as lat/lon in decimal degrees")
 			b.llWarned = true
 		}
 		return b.terr.toXY(p.X, p.Z)
@@ -276,14 +288,15 @@ func (b *builder) build() T {
 	b.placePrefabs()
 
 	// ---- texts -------------------------------------------------------------
-	briefing := mp.Briefing.Pick("de")
+	briefing := mp.Briefing.Pick(b.lang)
 	if mp.Briefing.En != "" && mp.Briefing.De != "" {
-		briefing = mp.Briefing.De + "\n\n--- EN ---\n" + mp.Briefing.En
+		other := i18n.Other(b.lang)
+		briefing += "\n\n--- " + strings.ToUpper(other) + " ---\n" + mp.Briefing.Pick(other)
 	}
 	task := ""
 	if len(mp.Objectives) > 0 {
 		o := mp.Objectives[0]
-		task = strings.TrimSpace(o.Title.Pick("de") + "\n" + o.Desc.Pick("de"))
+		task = strings.TrimSpace(o.Title.Pick(b.lang) + "\n" + o.Desc.Pick(b.lang))
 	}
 	descKey := b.dictKey("descriptionText", briefing)
 	blueTask, redTask := task, ""
@@ -293,7 +306,7 @@ func (b *builder) build() T {
 	blueKey := b.dictKey("descriptionBlueTask", blueTask)
 	redKey := b.dictKey("descriptionRedTask", redTask)
 	neutralKey := b.dictKey("descriptionNeutralsTask", "")
-	sortieKey := b.dictKey("sortie", mp.Title.Pick("de"))
+	sortieKey := b.dictKey("sortie", mp.Title.Pick(b.lang))
 
 	// ---- triggers ----------------------------------------------------------
 	for _, r := range mp.RadioQueue {
@@ -421,7 +434,7 @@ func (b *builder) hideEnemies() {
 		}
 	}
 	if n > 0 {
-		b.note("Herausforderung: %d Gegnergruppen auf Karte/Planer verborgen, F10 zeigt nur das eigene Flugzeug", n)
+		b.note("Herausforderung: %d Gegnergruppen auf Karte/Planer verborgen, F10 zeigt nur das eigene Flugzeug", "Challenge: %d enemy groups hidden on map/planner, F10 shows only your own aircraft", n)
 	}
 }
 
@@ -469,7 +482,7 @@ func (b *builder) country(v any, def string) string {
 		return c
 	}
 	if s != "" {
-		b.note("Country %q unbekannt - %s verwendet", s, def)
+		b.problem("Country %q unbekannt - %s verwendet (DCS-Country-Namen wie \"USA\", \"Russia\", \"Syria\" verwenden)", "Unknown country %q - using %s (use DCS country names like \"USA\", \"Russia\", \"Syria\")", s, def)
 	}
 	return def
 }
@@ -487,7 +500,7 @@ func (b *builder) sideCountry(v any, s *side) string {
 		if s.name == "red" {
 			repl = "Combined Joint Task Forces Red"
 		}
-		b.note("Country %s ist bereits auf Seite %s - %s verwendet", c, owner, repl)
+		b.note("Country %s ist bereits auf Seite %s - %s verwendet", "Country %s is already on side %s - using %s", c, owner, repl)
 		c = repl
 	}
 	b.assigned[c] = s.name
@@ -536,9 +549,10 @@ func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string)
 	if heli {
 		speed = 50
 	}
+	speed = groundSpeed(g, speed)
 	if isPlayer && g.Start != nil {
 		if t := strings.ToLower(g.Start.Type); t != "" && t != "air" {
-			b.note("Startart %q nicht unterstuetzt - Luftstart verwendet (Flugplatz im Editor zuweisen)", g.Start.Type)
+			b.problem("Startart %q nicht unterstuetzt - Luftstart verwendet (start.type \"air\" verwenden)", "Start type %q not supported - using air start (use start.type \"air\")", g.Start.Type)
 		}
 	}
 	gid := b.nextGroup()
@@ -593,18 +607,21 @@ func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string)
 			k("params", tbl(k("targetTypes", arr(targets...)), k("priority", 0))),
 		))
 	}
-	points := arr(airPoint(x, y, altM, speed, wpTasks, true))
+	points := arr(airPoint(x, y, altM, speed, 0, wpTasks, true))
 	route := g.Route
 	if len(route) == 0 && g.Start != nil {
 		route = g.Start.Route
 	}
+	px, py, eta := x, y, 0.0
 	for i, r := range route {
 		rx, ry := b.xy(r)
 		ra := r.Alt
 		if ra <= 0 {
 			ra = altM
 		}
-		points = append(points, k(i+2, airPoint(rx, ry, ra, speed, tbl(), false)))
+		eta += math.Hypot(rx-px, ry-py) / speed
+		px, py = rx, ry
+		points = append(points, k(i+2, airPoint(rx, ry, ra, speed, eta, tbl(), false)))
 	}
 	freq := 251.0
 	if numeric {
@@ -638,7 +655,21 @@ func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string)
 	return gid
 }
 
-func airPoint(x, y, alt, speed float64, tasks T, first bool) T {
+// groundSpeed returns the group's route speed in m/s: the plan's km/h value
+// when set, otherwise the type default.
+func groundSpeed(g plan.Group, defMS float64) float64 {
+	if g.Speed > 0 {
+		return g.Speed / 3.6
+	}
+	return defMS
+}
+
+// Waypoint timing in DCS is derived from ground speed x distance: only the
+// first point carries a locked ETA (the start time), every later point has
+// ETA_locked=false and an ETA that matches speed and leg length. Locking the
+// ETA of later points (or leaving ETA=0 on them) makes the mission editor flag
+// the route as unreachable.
+func airPoint(x, y, alt, speed, eta float64, tasks T, first bool) T {
 	return tbl(
 		k("alt", alt),
 		k("action", "Turning Point"),
@@ -646,7 +677,7 @@ func airPoint(x, y, alt, speed float64, tasks T, first bool) T {
 		k("speed", speed),
 		k("task", tbl(k("id", "ComboTask"), k("params", tbl(k("tasks", tasks))))),
 		k("type", "Turning Point"),
-		k("ETA", 0),
+		k("ETA", eta),
 		k("ETA_locked", first),
 		k("y", y),
 		k("x", x),
@@ -677,16 +708,20 @@ func (b *builder) groundGroup(g plan.Group, s *side, country string) int {
 		if ship {
 			speed = 8
 		}
+		speed = groundSpeed(g, speed)
 	}
 	action := "Off Road"
 	if ship {
 		action = "Turning Point"
 	}
-	points := arr(groundPoint(x, y, speed, action))
+	points := arr(groundPoint(x, y, speed, 0, action, true))
 	if g.Moves() {
+		px, py, eta := x, y, 0.0
 		for i, r := range g.Route {
 			rx, ry := b.xy(r)
-			points = append(points, k(i+2, groundPoint(rx, ry, speed, action)))
+			eta += math.Hypot(rx-px, ry-py) / speed
+			px, py = rx, ry
+			points = append(points, k(i+2, groundPoint(rx, ry, speed, eta, action, false)))
 		}
 	}
 	s.add(country, cat, groundGroupTable(g.Name, gid, units, x, y, points))
@@ -732,16 +767,17 @@ func groundGroupTable(name string, gid int, units T, x, y float64, points T) T {
 	)
 }
 
-func groundPoint(x, y, speed float64, action string) T {
+// groundPoint: same ETA rule as airPoint - only the first point is time-locked.
+func groundPoint(x, y, speed, eta float64, action string, first bool) T {
 	return tbl(
 		k("alt", 0),
 		k("type", "Turning Point"),
-		k("ETA", 0),
+		k("ETA", eta),
 		k("alt_type", "BARO"),
 		k("formation_template", ""),
 		k("y", y),
 		k("x", x),
-		k("ETA_locked", true),
+		k("ETA_locked", first),
 		k("speed", speed),
 		k("action", action),
 		k("task", tbl(k("id", "ComboTask"), k("params", tbl(k("tasks", tbl()))))),
@@ -801,15 +837,15 @@ func (b *builder) addRule(comment string, rules T, expr string, textKey string, 
 }
 
 func (b *builder) radio(r plan.Radio) {
-	text := r.Text("de")
+	text := r.Text(b.lang)
 	if r.TextEn != "" && r.TextDe != "" {
-		text = r.Text("de") + "\n" + r.Text("en")
+		text += "\n" + r.Text(i18n.Other(b.lang))
 	}
 	key := b.dictKey("ActionText", text)
 	switch strings.ToLower(strings.TrimSpace(r.Trigger)) {
 	case "all_destroyed", "targets_destroyed", "success":
 		if len(b.enemyGroupIDs) == 0 {
-			b.note("all_destroyed-Funkspruch ohne Gegnergruppen uebersprungen")
+			b.problem("all_destroyed-Funkspruch ohne Gegnergruppen uebersprungen - enemyGroups fehlen oder Trigger aendern", "all_destroyed radio message without enemy groups skipped - enemyGroups missing, or change the trigger")
 			return
 		}
 		rules := tbl()
@@ -1002,7 +1038,7 @@ func (b *builder) roleFor(g plan.Group, s *side, isPlayer bool) role {
 		return r
 	}
 	if strings.TrimSpace(g.Task) != "" {
-		b.note("Gruppe %s: Rolle %q unbekannt - Standardrolle verwendet", g.Name, g.Task)
+		b.problem("Gruppe %s: Rolle %q unbekannt - Standardrolle verwendet (task = CAP, Intercept, FighterSweep, Escort, CAS, GroundAttack, Strike, SEAD, AntiShip, Transport, Recon)", "Group %s: unknown role %q - default role used (task = CAP, Intercept, FighterSweep, Escort, CAS, GroundAttack, Strike, SEAD, AntiShip, Transport, Recon)", g.Name, g.Task)
 	}
 	def := "CAS"
 	if !isPlayer && s == b.enemy {
@@ -1017,16 +1053,16 @@ func (b *builder) roleFor(g plan.Group, s *side, isPlayer bool) role {
 func (b *builder) pylonsFor(g plan.Group, typ string, r role) T {
 	if b.payloads == nil || b.payloads.Files == 0 {
 		if !b.payloadWarned {
-			b.note("Keine DCS-Bewaffnungs-Presets gefunden (DCS_ROOT in .env pruefen) - Pylons bleiben leer")
+			b.note("Keine DCS-Bewaffnungs-Presets gefunden (DCS_ROOT in .env pruefen) - Pylons bleiben leer", "No DCS loadout presets found (check DCS_ROOT in .env) - pylons stay empty")
 			b.payloadWarned = true
 		}
 		return tbl()
 	}
 	p, ok := b.payloads.Pick(typ, r, g.Payload)
 	if !ok {
-		b.note("Gruppe %s: keine Presets fuer Typ %q - Bewaffnung im Editor setzen", g.Name, typ)
+		b.problem("Gruppe %s: keine Presets fuer Typ %q - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)", "Group %s: no presets for type %q - pylons stay empty (check the exact DCS type name; if the type is correct, leave it)", g.Name, typ)
 		return tbl()
 	}
-	b.note("Bewaffnung %s (%s, %s): %s", g.Name, typ, r.key, p.Name)
+	b.note("Bewaffnung %s (%s, %s): %s", "Loadout %s (%s, %s): %s", g.Name, typ, r.key, p.Name)
 	return pylonTable(p)
 }

@@ -16,6 +16,7 @@ KI-gestützte Meta-App zur Erstellung realistischer, immersiver Missionen für *
 | `prompts/07-quick.md` | Blitz-Skirmish: ein Freitext → Missionsplan-JSON |
 | `prompts/09-challenge.md` | 🎯 Herausforderung: nur Flugzeug wählen → fordernde Mission, Gegnerinfos bleiben verborgen |
 | `prompts/08-prefab.md` | Prefab-Builder (DCS): Beschreibung → Asset-Gruppe als JSON (relative Meter, Statics-Katalog) |
+| `prompts/10-repair.md` | Reparatur-Durchgang: nach jeder KI-Antwort laufen Validierung + Probelauf des Generators; bei Problemen ein zweiter Aufruf mit Fehlerliste + Plan → korrigierter Plan (nur uebernommen, wenn er weniger Probleme hat) |
 | `prompts/schema.md` | Gemeinsames JSON-Schema + Feldregeln (IL-2 / DCS), wird in beide Prompts eingesetzt |
 | `reference/.env.example` | API-Keys (LLM, ElevenLabs) + alle Pfade (IL-2 Editor, DCS, Missionsordner) |
 | `prefabs/*.json` | Prefab-Bibliothek (Trägerverband, FARP, …) – wird in den DCS-Spiel-Kontext eingeblendet und per `plan.prefabs` platziert |
@@ -33,7 +34,7 @@ wails build      # build/bin/airborne.exe
 ## Prinzip
 
 1. **Eingabe** – ⚡ Blitz (ein Freitext), Schritt für Schritt (5 Felder: Story, Player, Gegner, Widerstand, Briefing – werden **nicht** einzeln an die KI geschickt, sondern in *einen* strukturierten Prompt eingebettet, `prompts/06-merge.md`) oder 🎯 Herausforderung (nur das Flugzeug wählen; Briefing/Funk ohne Gegnerinfos, DCS-Gegner „hidden“, F10 auf das eigene Flugzeug beschränkt, Plan-Validierung meldet Leaks).
-2. **Missionsplan (JSON)** – die KI liefert ausschließlich den schemavalidierten Plan (`prompts/schema.md`); er ist im Tab „Plan & Export“ editierbar. Dort hängst du auch **Medien ohne KI** an: ein Briefing-Bild (IL-2: `<Mission>.png`, DCS: `l10n/DEFAULT` + `mapResource`) und bei DCS Kneeboard-Seiten (`KNEEBOARD/IMAGES`, eigene PNG/JPG oder das Briefing als gerenderte Textseite).
+2. **Missionsplan (JSON)** – die KI liefert ausschließlich den schemavalidierten Plan (`prompts/schema.md`); Validierung + Probelauf des Generators pruefen jede Antwort, gemeldete Probleme gehen einmal zur Korrektur an die KI zurueck (`prompts/10-repair.md`, Ergebnis unter „🔧 Reparatur“ im Plan-Tab); ueber „⚙ Einstellungen“ laesst sich das Token-Limit pro Plan setzen (`settings.json`, Standard `AI_MAX_TOKENS` aus `.env`); er ist im Tab „Plan & Export“ editierbar. Dort hängst du auch **Medien ohne KI** an: ein Briefing-Bild (IL-2: `<Mission>.png`, DCS: `l10n/DEFAULT` + `mapResource`) und bei DCS Kneeboard-Seiten (`KNEEBOARD/IMAGES`, eigene PNG/JPG oder das Briefing als gerenderte Textseite).
 3. **Generieren & Exportieren** – deterministische Go-Generatoren schreiben die Missionsdateien direkt in den Spielordner:
    - IL-2 Korea (`app/internal/il2`): `AB_<Titel>.Mission` + `.ger/.eng/.rus/.fra/.spa/.chs` (UTF-16LE) + `.list` nach `IL2_MISSIONS_DIR`, anschließend „IL-2 Editor starten“ (CWD `bin\editor`).
    - DCS World (`app/internal/dcs`): `AB_<Titel>.miz` (mission/options/theatre/warehouses/l10n) nach `DCS_SAVED_GAMES\Missions`; lat/lon → Kartenkoordinaten per Transverse-Mercator je Theatre.

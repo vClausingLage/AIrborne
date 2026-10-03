@@ -37,7 +37,7 @@ Options
   Textures = "...textures.tini";
   Forests = "...trees\woods.wds";
   GuiMap = "landscape_korea_su";  -- GUI-Kartenname, unabhängig von SeasonPrefix
-  SeasonPrefix = "su";
+  SeasonPrefix = "su";            -- nur "su" oder "wi"! Die Demo-Missionen nutzen "su" auch auf _sp/_sw; "sp" ⇒ Editor öffnet die Mission nicht
   MissionType = 1;                -- 0 = Single/Dogfight, 1 = Cooperative
   CloudLevel = 1500; CloudHeight = 6000; PrecLevel = 0; PrecType = 0;
   CloudConfig = "summer\00_Clear_00\sky.ini";   -- Pfad enthält Saison!
@@ -160,5 +160,7 @@ Alle Skripte unter `data\LuaScripts\WorldObjects\...`, Modelle unter `data\graph
 - Editor falsch gestartet (CWD) → alle Shader/Texturen „fehlen" (fxerr.log/tex.log im `data\`-Ordner zeigen FAILED loads).
 - MCU-Verweise zeigen immer auf **TR_Entity-Indizes**, nicht auf Objekt-Indizes.
 - Missionsdateien ohne `LinkTrId`-Paarung oder mit doppelten `Index` → Ladefehler.
-- `PlayerConfig` in Options muss zur Spielerflugezeug-Script-Passage passen (z. B. `LuaScripts\WorldObjects\Planes\il10.txt`).
+- `PlayerConfig` in Options muss zur Spielerflugezeug-Script-Passage passen (z. B. `LuaScripts\WorldObjects\Planes\il10.txt`); in Coop-Missionen (`MissionType = 1`) bleibt es leer, wie in `_test_cooperative_basic.Mission`.
+- `SeasonPrefix` kennt nur `su`/`wi` – unabhängig vom `LANDSCAPE_Korea_*`-Ordner. Ein anderer Wert (z. B. `sp`) ⇒ Editor öffnet die Mission nicht.
+- Fahrzeug-Flak (`m16-mgmc`) liegt unter `vehicles\`, Geschütze (`boforsl60`, `dshk-aa`, …) unter `fixedobjects\`; ein falscher Ordner ergibt einen Script-Pfad, den der Editor nicht laden kann.
 - Coop-Missionen: für jeden Spielerplatz ein eigenes `Plane`-Objekt mit `CoopStart = 1`, gemeinsame Formation über `NumberInFormation`/`Callsign`.

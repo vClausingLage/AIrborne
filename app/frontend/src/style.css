@@ -79,6 +79,29 @@ body {
   font-weight: 600;
 }
 
+/* DE | EN */
+.langsel {
+  display: flex;
+  border: 1px solid #2c3d5c;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.langsel-btn {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
+.langsel-btn.active {
+  background: #2c3d5c;
+  color: var(--fg);
+  font-weight: 600;
+}
+
 /* --- two-stage flow: Eingabe (Blitz | Schritt) -> Plan & Export ---------- */
 .flow {
   display: flex;
@@ -270,6 +293,20 @@ button.primary {
   padding: 0;
   color: var(--warn);
   font-size: 13px;
+}
+
+.repair {
+  margin: 8px 0;
+  font-size: 13px;
+}
+
+.repair summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.repair .issues {
+  margin: 6px 0 0 8px;
 }
 
 .ok {

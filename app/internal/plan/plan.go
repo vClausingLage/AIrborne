@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"airborne/internal/i18n"
 )
 
 type MissionPlan struct {
@@ -144,7 +146,10 @@ type Group struct {
 	Route       []Position `json:"route,omitempty"`
 	Payload     string     `json:"payload,omitempty"`
 	Task        string     `json:"task,omitempty"` // DCS role: CAP, CAS, SEAD, Strike, ...
-	Notes       string     `json:"notes,omitempty"`
+	// Speed is the ground speed in km/h the group flies/drives its route with
+	// (optional; the generators pick a type-typical default when 0).
+	Speed float64 `json:"speed,omitempty"`
+	Notes string  `json:"notes,omitempty"`
 }
 
 // Units returns the number of units in the group (at least 1).
@@ -298,76 +303,76 @@ func CountryString(v any) string {
 func (p *MissionPlan) Validate() []string {
 	var issues []string
 	if p.Game != "il2" && p.Game != "dcs" {
-		issues = append(issues, "game muss \"il2\" oder \"dcs\" sein")
+		issues = append(issues, i18n.T("game muss \"il2\" oder \"dcs\" sein", "game must be \"il2\" or \"dcs\""))
 	}
 	if p.Title.De == "" && p.Title.En == "" {
-		issues = append(issues, "title (de/en) fehlt")
+		issues = append(issues, i18n.T("title (de/en) fehlt", "title (de/en) missing"))
 	}
 	if p.Date == "" {
-		issues = append(issues, "date fehlt")
+		issues = append(issues, i18n.T("date fehlt", "date missing"))
 	}
 	if p.Time == "" {
-		issues = append(issues, "time fehlt")
+		issues = append(issues, i18n.T("time fehlt", "time missing"))
 	}
 	if p.Map == "" {
-		issues = append(issues, "map fehlt")
+		issues = append(issues, i18n.T("map fehlt", "map missing"))
 	}
 	if len(p.PlayerGroups) == 0 {
-		issues = append(issues, "playerGroups ist leer")
+		issues = append(issues, i18n.T("playerGroups ist leer", "playerGroups is empty"))
 	}
 	if p.Briefing.De == "" && p.Briefing.En == "" {
-		issues = append(issues, "briefing (de/en) fehlt")
+		issues = append(issues, i18n.T("briefing (de/en) fehlt", "briefing (de/en) missing"))
 	}
 	if len(p.Objectives) == 0 {
-		issues = append(issues, "objectives ist leer")
+		issues = append(issues, i18n.T("objectives ist leer", "objectives is empty"))
 	}
 	for i, g := range p.PlayerGroups {
 		if g.Start == nil {
-			issues = append(issues, fmt.Sprintf("playerGroups[%d].start fehlt (Startposition)", i))
+			issues = append(issues, i18n.Sprintf("playerGroups[%d].start fehlt (Startposition)", "playerGroups[%d].start missing (start position)", i))
 			continue
 		}
 		if p.Game == "dcs" && g.Start.Lat == 0 && g.Start.Lon == 0 && g.Start.X == 0 && g.Start.Z == 0 {
-			issues = append(issues, fmt.Sprintf("playerGroups[%d].start ohne lat/lon", i))
+			issues = append(issues, i18n.Sprintf("playerGroups[%d].start ohne lat/lon", "playerGroups[%d].start without lat/lon", i))
 		}
 		if g.TypeName() == "" {
-			issues = append(issues, fmt.Sprintf("playerGroups[%d].aircraft fehlt", i))
+			issues = append(issues, i18n.Sprintf("playerGroups[%d].aircraft fehlt", "playerGroups[%d].aircraft missing", i))
 		}
 	}
 	for i, g := range p.EnemyGroups {
 		if g.TypeName() == "" {
-			issues = append(issues, fmt.Sprintf("enemyGroups[%d].script fehlt", i))
+			issues = append(issues, i18n.Sprintf("enemyGroups[%d].script fehlt", "enemyGroups[%d].script missing", i))
 		}
 		if g.Position == nil && g.Start == nil {
-			issues = append(issues, fmt.Sprintf("enemyGroups[%d].position fehlt", i))
+			issues = append(issues, i18n.Sprintf("enemyGroups[%d].position fehlt", "enemyGroups[%d].position missing", i))
 		}
 	}
 	for i, pp := range p.Prefabs {
 		if strings.TrimSpace(pp.Prefab) == "" {
-			issues = append(issues, fmt.Sprintf("prefabs[%d].prefab fehlt", i))
+			issues = append(issues, i18n.Sprintf("prefabs[%d].prefab fehlt", "prefabs[%d].prefab missing", i))
 		}
 		switch strings.ToLower(strings.TrimSpace(pp.Side)) {
 		case "player", "friendly", "enemy", "red", "blue", "gegner", "opfor", "hostile", "":
 		default:
-			issues = append(issues, fmt.Sprintf("prefabs[%d].side %q unbekannt (player|friendly|enemy)", i, pp.Side))
+			issues = append(issues, i18n.Sprintf("prefabs[%d].side %q unbekannt (player|friendly|enemy)", "prefabs[%d].side %q unknown (player|friendly|enemy)", i, pp.Side))
 		}
 		if p.Game == "dcs" && pp.Position.Lat == 0 && pp.Position.Lon == 0 {
-			issues = append(issues, fmt.Sprintf("prefabs[%d].position ohne lat/lon", i))
+			issues = append(issues, i18n.Sprintf("prefabs[%d].position ohne lat/lon", "prefabs[%d].position without lat/lon", i))
 		}
 		if p.Game == "il2" {
-			issues = append(issues, fmt.Sprintf("prefabs[%d]: Prefabs werden nur fuer DCS unterstuetzt", i))
+			issues = append(issues, i18n.Sprintf("prefabs[%d]: Prefabs werden nur fuer DCS unterstuetzt", "prefabs[%d]: prefabs are only supported for DCS", i))
 		}
 	}
 	if p.Media != nil {
 		if p.Media.BriefingImage != "" && !isImageFile(p.Media.BriefingImage) {
-			issues = append(issues, "media.briefingImage: Datei fehlt oder ist kein PNG/JPG: "+p.Media.BriefingImage)
+			issues = append(issues, i18n.T("media.briefingImage: Datei fehlt oder ist kein PNG/JPG: ", "media.briefingImage: file missing or not a PNG/JPG:")+p.Media.BriefingImage)
 		}
 		for i, kb := range p.Media.Kneeboards {
 			if !isImageFile(kb) {
-				issues = append(issues, fmt.Sprintf("media.kneeboards[%d]: Datei fehlt oder ist kein PNG/JPG: %s", i, kb))
+				issues = append(issues, i18n.Sprintf("media.kneeboards[%d]: Datei fehlt oder ist kein PNG/JPG: %s", "media.kneeboards[%d]: file missing or not a PNG/JPG: %s", i, kb))
 			}
 		}
 		if p.Game == "il2" && (len(p.Media.Kneeboards) > 0 || p.Media.KneeboardBriefing) {
-			issues = append(issues, "media.kneeboards: Kneeboards gibt es nur in DCS (werden ignoriert)")
+			issues = append(issues, i18n.T("media.kneeboards: Kneeboards gibt es nur in DCS (werden ignoriert)", "media.kneeboards: kneeboards exist only in DCS (ignored)"))
 		}
 	}
 	if p.Challenge {
@@ -446,12 +451,12 @@ func (p *MissionPlan) challengeLeaks() []string {
 		text := strings.ToLower(fields[n])
 		for _, term := range terms {
 			if strings.Contains(text, strings.ToLower(term)) {
-				issues = append(issues, fmt.Sprintf("Herausforderung: %s verraet den Gegner (%q)", n, term))
+				issues = append(issues, i18n.Sprintf("Herausforderung: %s verraet den Gegner (%q)", "Challenge: %s reveals the enemy (%q)", n, term))
 			}
 		}
 	}
 	if len(p.Icons) > 0 {
-		issues = append(issues, "Herausforderung: icons werden nicht exportiert (Zielgebiet bleibt verborgen)")
+		issues = append(issues, i18n.T("Herausforderung: icons werden nicht exportiert (Zielgebiet bleibt verborgen)", "Challenge: icons are not exported (target area stays hidden)"))
 	}
 	return issues
 }

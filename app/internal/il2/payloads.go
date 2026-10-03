@@ -164,7 +164,7 @@ func (w *writer) payloadFor(g plan.Group, a asset, isPlayer bool) (int, string) 
 	plane := planeName(a.script)
 	if w.payloads == nil || len(w.payloads.Planes) == 0 {
 		if !w.payloadWarned {
-			w.note("Keine IL-2 Payload-Tabelle (reference/il2-payloads.json) - alle Flugzeuge mit PayloadId 0")
+			w.note("Keine IL-2 Payload-Tabelle (reference/il2-payloads.json) - alle Flugzeuge mit PayloadId 0", "No IL-2 payload table (reference/il2-payloads.json) - all aircraft use PayloadId 0")
 			w.payloadWarned = true
 		}
 		return 0, ""
@@ -178,9 +178,9 @@ func (w *writer) payloadFor(g plan.Group, a asset, isPlayer bool) (int, string) 
 	}
 	p, ok := w.payloads.Pick(plane, task, g.Payload)
 	if !ok {
-		w.note("Gruppe %s: keine Payloads fuer %s in %s - PayloadId 0 (Bewaffnung im Editor setzen)", g.Name, plane, w.payloads.Path)
+		w.problem("Gruppe %s: keine Payloads fuer Flugzeug %q in Rolle %s - PayloadId 0 (Script-Name oder task pruefen)", "Group %s: no payloads for aircraft %q in role %s - PayloadId 0 (check script name or task)", g.Name, plane, task)
 		return 0, ""
 	}
-	w.note("Bewaffnung %s (%s, %s): #%d %s", g.Name, plane, task, p.ID, p.Name)
+	w.note("Bewaffnung %s (%s, %s): #%d %s", "Loadout %s (%s, %s): #%d %s", g.Name, plane, task, p.ID, p.Name)
 	return p.ID, p.ModMask
 }

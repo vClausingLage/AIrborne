@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"airborne/internal/i18n"
 	"airborne/internal/plan"
 )
 
@@ -118,20 +119,20 @@ func (m *Mission) setMetaIL2(meta Meta) error {
 	if meta.Date != "" {
 		var y, mo, d int
 		if _, err := fmt.Sscanf(meta.Date, "%d-%d-%d", &y, &mo, &d); err != nil {
-			return fmt.Errorf("Datum %q nicht im Format YYYY-MM-DD", meta.Date)
+			return i18n.Errorf("Datum %q nicht im Format YYYY-MM-DD", "Date %q is not in YYYY-MM-DD format", meta.Date)
 		}
 		if !il2DateRe.MatchString(mission) {
-			return fmt.Errorf("Options.Date nicht in der .Mission gefunden")
+			return i18n.Errorf("Options.Date nicht in der .Mission gefunden", "Options.Date not found in the .Mission")
 		}
 		mission = il2DateRe.ReplaceAllString(mission, fmt.Sprintf("${1}%d.%d.%d${5}", d, mo, y))
 	}
 	if meta.Time != "" {
 		var h, mi, s int
 		if n, err := fmt.Sscanf(meta.Time, "%d:%d:%d", &h, &mi, &s); err != nil && n < 2 {
-			return fmt.Errorf("Zeit %q nicht im Format HH:MM:SS", meta.Time)
+			return i18n.Errorf("Zeit %q nicht im Format HH:MM:SS", "Time %q is not in HH:MM:SS format", meta.Time)
 		}
 		if !il2TimeRe.MatchString(mission) {
-			return fmt.Errorf("Options.Time nicht in der .Mission gefunden")
+			return i18n.Errorf("Options.Time nicht in der .Mission gefunden", "Options.Time not found in the .Mission")
 		}
 		mission = il2TimeRe.ReplaceAllString(mission, fmt.Sprintf("${1}%d:%d:%d${5}", h, mi, s))
 	}

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"airborne/internal/ai"
+	"airborne/internal/i18n"
 	"airborne/internal/logging"
 	"airborne/internal/plan"
 	"airborne/internal/prefab"
@@ -55,7 +56,7 @@ func orDash(s string) string {
 func (p *Pipeline) GeneratePrefab(ctx context.Context, input string) (prefab.Prefab, error) {
 	input = strings.TrimSpace(input)
 	if input == "" {
-		return prefab.Prefab{}, fmt.Errorf("Bitte beschreiben, was das Prefab enthalten soll")
+		return prefab.Prefab{}, i18n.Errorf("Bitte beschreiben, was das Prefab enthalten soll", "Please describe what the prefab should contain")
 	}
 	p.mu.Lock()
 	prompt := fill(p.tmpl[prefabFile], map[string]string{
@@ -66,8 +67,7 @@ func (p *Pipeline) GeneratePrefab(ctx context.Context, input string) (prefab.Pre
 
 	logging.Infof("prefab gestartet")
 	logging.Block("PROMPT prefab", prompt)
-	cfg := ai.LoadConfig()
-	out, err := cfg.Chat(ctx, []ai.Message{{Role: "user", Content: prompt}})
+	out, err := p.chat(ctx, []ai.Message{{Role: "user", Content: prompt}})
 	if err != nil {
 		logging.Errorf("prefab fehlgeschlagen: %v", err)
 		return prefab.Prefab{}, err
@@ -88,11 +88,11 @@ func (p *Pipeline) GeneratePrefab(ctx context.Context, input string) (prefab.Pre
 func decodePrefab(out string) (prefab.Prefab, error) {
 	raw, err := ai.ExtractJSON(out)
 	if err != nil {
-		return prefab.Prefab{}, fmt.Errorf("Antwort enthaelt kein JSON: %w", err)
+		return prefab.Prefab{}, i18n.Errorf("Antwort enthaelt kein JSON: %w", "Response contains no JSON: %w", err)
 	}
 	var generic any
 	if err := json.Unmarshal(raw, &generic); err != nil {
-		return prefab.Prefab{}, fmt.Errorf("JSON ungueltig: %w", err)
+		return prefab.Prefab{}, i18n.Errorf("JSON ungueltig: %w", "Invalid JSON: %w", err)
 	}
 	data, err := json.Marshal(normalizeJSON(generic))
 	if err != nil {
@@ -100,7 +100,7 @@ func decodePrefab(out string) (prefab.Prefab, error) {
 	}
 	var pf prefab.Prefab
 	if err := json.Unmarshal(data, &pf); err != nil {
-		return prefab.Prefab{}, fmt.Errorf("Prefab-JSON ungueltig: %w", err)
+		return prefab.Prefab{}, i18n.Errorf("Prefab-JSON ungueltig: %w", "Invalid prefab JSON: %w", err)
 	}
 	return pf, nil
 }
@@ -127,15 +127,15 @@ func (p *Pipeline) DeletePrefab(id string) error {
 func (p *Pipeline) PlacePrefab(id, side string, lat, lon, heading float64, country string) error {
 	pf, ok := p.Lib.Find(id)
 	if !ok {
-		return fmt.Errorf("Prefab %q nicht gefunden", id)
+		return i18n.Errorf("Prefab %q nicht gefunden", "Prefab %q not found", id)
 	}
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if p.proj.Plan == nil {
-		return fmt.Errorf("Kein Missionsplan vorhanden - erst Blitz oder Merge ausfuehren, dann Prefab einfuegen")
+		return i18n.Errorf("Kein Missionsplan vorhanden - erst Blitz oder Merge ausfuehren, dann Prefab einfuegen", "No mission plan yet - run Blitz or Merge first, then insert the prefab")
 	}
 	if p.proj.Plan.Game != "dcs" {
-		return fmt.Errorf("Prefabs werden nur fuer DCS unterstuetzt")
+		return i18n.Errorf("Prefabs werden nur fuer DCS unterstuetzt", "Prefabs are only supported for DCS")
 	}
 	pp := plan.PrefabPlacement{Prefab: pf.ID, Name: pf.Name, Side: side,
 		Position: plan.Position{Lat: lat, Lon: lon, Head: heading}}

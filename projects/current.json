@@ -4,203 +4,211 @@
   "plan": {
     "game": "dcs",
     "title": {
-      "de": "Damaskus-Vorfeld: Kolonnenjagd",
-      "en": "Damascus Outskirts: Convoy Hunt"
+      "de": "Operation Wadisturm – Depot-Schlag",
+      "en": "Operation Wadi Storm – Depot Strike"
     },
     "author": "AIrborne",
     "map": "Syria",
-    "date": "2014-06-15",
-    "time": "08:20:00",
+    "date": "2015-11-14",
+    "time": "14:20:00",
     "weather": {
       "cloudLevel": 1200,
-      "cloudHeight": 4500,
+      "cloudHeight": 5000,
       "precLevel": 0,
-      "cloudConfig": "clear\\sky.ini",
-      "seaState": 1,
+      "cloudConfig": "autumn\\00_Clear_00\\sky.ini",
+      "seaState": 2,
       "turbulence": 3,
       "windLayers": [
         [
           0,
-          220,
+          240,
           3
         ],
         [
           1000,
-          230,
-          4
+          250,
+          5
         ],
         [
           3000,
-          240,
-          5
+          260,
+          7
         ]
       ]
     },
     "playerGroups": [
       {
-        "name": "Duo-1",
-        "aircraft": "MiG-21Bis",
+        "name": "Dagger 1",
+        "aircraft": "F-14A-135-GR",
         "count": 1,
-        "country": "Syria",
+        "country": "USA",
         "start": {
           "type": "air",
-          "lat": 33.15,
-          "lon": 36,
-          "alt": 3000,
-          "heading": 75
+          "lat": 35.05,
+          "lon": 35.85,
+          "alt": 4500,
+          "heading": 95
         },
         "route": [
           {
-            "alt": 2000,
-            "lat": 33.24,
-            "lon": 36.18,
-            "heading": 85
+            "alt": 4500,
+            "lat": 35.05,
+            "lon": 36.2,
+            "heading": 95
           },
           {
-            "alt": 1200,
-            "lat": 33.3,
-            "lon": 36.35,
-            "heading": 90
+            "alt": 3500,
+            "lat": 35.18,
+            "lon": 37.55,
+            "heading": 60
           },
           {
-            "alt": 2500,
-            "lat": 33.15,
-            "lon": 36.05,
-            "heading": 255
+            "alt": 1800,
+            "lat": 35.32,
+            "lon": 37.7,
+            "heading": 140
+          },
+          {
+            "alt": 4000,
+            "lat": 35.05,
+            "lon": 37.35,
+            "heading": 250
           }
         ],
-        "payload": "2x UB-32 S-5 Raketen, 2x R-60, volle Kanonen",
-        "task": "CAS"
+        "payload": "4x GBU-12 Paveway II, 2x AIM-9M, 2x AIM-7M, volle Kanone",
+        "task": "Strike",
+        "speed": 800
       }
     ],
     "enemyGroups": [
       {
-        "name": "Kolonne Aufstaendische",
+        "name": "Rebel Truck Depot",
         "kind": "vehicle",
         "script": "Ural-375",
         "count": 4,
-        "country": "Insurgents",
-        "position": {
-          "lat": 33.29,
-          "lon": 36.3,
-          "heading": 95
-        },
-        "movement": {
-          "type": "route"
-        },
-        "route": [
-          {
-            "lat": 33.3,
-            "lon": 36.35
-          },
-          {
-            "lat": 33.31,
-            "lon": 36.42
-          },
-          {
-            "lat": 33.3,
-            "lon": 36.35
-          }
-        ]
-      },
-      {
-        "name": "Spaehwagen",
-        "kind": "vehicle",
-        "script": "GAZ-66",
-        "count": 2,
-        "country": "Insurgents",
-        "position": {
-          "lat": 33.31,
-          "lon": 36.38,
-          "heading": 95
-        },
-        "movement": {
-          "type": "route"
-        },
-        "route": [
-          {
-            "lat": 33.31,
-            "lon": 36.44
-          },
-          {
-            "lat": 33.29,
-            "lon": 36.36
-          },
-          {
-            "lat": 33.31,
-            "lon": 36.44
-          }
-        ]
-      }
-    ],
-    "friendlyGroups": [
-      {
-        "name": "Berg-21",
-        "kind": "helicopter",
-        "script": "Mi-24P",
-        "count": 1,
         "country": "Syria",
         "position": {
-          "alt": 800,
-          "lat": 33.2,
-          "lon": 36.1
+          "lat": 35.32,
+          "lon": 37.7,
+          "heading": 30
+        },
+        "movement": {
+          "type": "static"
+        }
+      },
+      {
+        "name": "Supply Patrol",
+        "kind": "vehicle",
+        "script": "M-113",
+        "count": 2,
+        "country": "Syria",
+        "position": {
+          "lat": 35.36,
+          "lon": 37.62,
+          "heading": 200
         },
         "movement": {
           "type": "route"
         },
         "route": [
           {
-            "alt": 700,
-            "lat": 33.26,
-            "lon": 36.25
+            "lat": 35.36,
+            "lon": 37.62
           },
           {
-            "alt": 600,
-            "lat": 33.3,
-            "lon": 36.35
+            "lat": 35.33,
+            "lon": 37.72
           },
           {
-            "alt": 600,
-            "lat": 33.31,
-            "lon": 36.42
+            "lat": 35.35,
+            "lon": 37.66
           }
         ],
-        "payload": "S-8KOM Raketen, 9M114 Shturm, GSh-30",
-        "task": "CAS"
+        "speed": 25
       }
     ],
     "flak": [
       {
-        "script": "ZU-23 Insurgent",
-        "count": 2,
+        "script": "ZSU-23-4 Shilka",
+        "count": 1,
         "position": {
-          "lat": 33.3,
-          "lon": 36.34
+          "lat": 35.325,
+          "lon": 37.685
         },
-        "country": "Insurgents",
+        "country": "Syria",
         "engageable": true
       },
       {
-        "script": "ZU-23 Insurgent",
+        "script": "SA-18 Igla-S MANPADS",
         "count": 2,
         "position": {
-          "lat": 33.31,
-          "lon": 36.39
+          "lat": 35.315,
+          "lon": 37.72
         },
-        "country": "Insurgents",
+        "country": "Syria",
+        "engageable": true
+      },
+      {
+        "script": "ZU-23 AA Gun",
+        "count": 2,
+        "position": {
+          "lat": 35.33,
+          "lon": 37.71
+        },
+        "country": "Syria",
         "engageable": true
       }
     ],
     "statics": [
       {
-        "kind": "block",
-        "script": "Amunition Depot",
-        "count": 1,
-        "country": "Insurgents",
+        "kind": "structure",
+        "script": "Oil tank",
+        "count": 2,
+        "country": "Syria",
         "positions": [
           {
-            "lat": 33.305,
-            "lon": 36.335
+            "lat": 35.318,
+            "lon": 37.695
+          },
+          {
+            "lat": 35.322,
+            "lon": 37.697
+          }
+        ]
+      },
+      {
+        "kind": "structure",
+        "script": "Shelter",
+        "count": 2,
+        "country": "Syria",
+        "positions": [
+          {
+            "lat": 35.325,
+            "lon": 37.705,
+            "heading": 20
+          },
+          {
+            "lat": 35.317,
+            "lon": 37.708,
+            "heading": 20
+          }
+        ]
+      },
+      {
+        "kind": "camouflage",
+        "script": "Camonet",
+        "count": 2,
+        "country": "Syria",
+        "positions": [
+          {
+            "lat": 35.319,
+            "lon": 37.7,
+            "heading": 45
+          },
+          {
+            "lat": 35.324,
+            "lon": 37.695,
+            "heading": 120
           }
         ]
       }
@@ -208,85 +216,97 @@
     "objectives": [
       {
         "title": {
-          "de": "Kolonne vernichten",
-          "en": "Destroy the convoy"
+          "de": "Depot zerstören",
+          "en": "Destroy the Depot"
         },
         "desc": {
-          "de": "Zerstoere die aufstaendische Nachschubkolonne auf der Strasse suedlich von Damaskus. Mindestens drei Fahrzeuge muessen fallen, damit der Vormarsch gestoppt wird.",
-          "en": "Destroy the insurgent supply convoy on the road south of Damascus. At least three vehicles must be destroyed to stop the advance."
+          "de": "Vernichte alle vier LKW im Versorgungsdepot im Wadi nordwestlich des Assad-Stausees. Öl tanks und Unterstände sind Sekundärziele.",
+          "en": "Destroy all four trucks in the supply depot in the wadi northwest of Lake Assad. Oil tanks and shelters are secondary targets."
         },
-        "counter": 6
+        "counter": 4
       }
     ],
     "radioQueue": [
       {
         "trigger": "mission_begin_delay",
         "delay": 10,
-        "speaker": "Basis",
-        "textDe": "Duo-1, hier Basis. Aufklaerung meldet eine Aufstaendischen-Kolonne auf der Suedroute, mit Flak gesichert. Setzt zum Angriff an, Berg-21 ist bereits im Anflug.",
-        "textEn": "Duo-1, this is Base. Recon reports an insurgent convoy on the southern road, covered by flak. Commence your attack, Berg-21 is already inbound."
+        "speaker": "Overlord",
+        "textDe": "Dagger 1, hier Overlord. Ihr Zieldepot liegt im Wadi nordwestlich des Stausees, vier LKW bestätigt. Waffe frei, Achtung leichte Flugabwehr im Zielgebiet.",
+        "textEn": "Dagger 1, Overlord. Your target depot is in the wadi northwest of the reservoir, four trucks confirmed. Weapons free, expect light AAA in the target area."
       },
       {
         "trigger": "check_zone",
         "zone": {
-          "lat": 33.3,
-          "lon": 36.35,
-          "r": 3000
+          "lat": 35.32,
+          "lon": 37.7,
+          "r": 4000
         },
-        "speaker": "Basis",
-        "textDe": "Duo-1, Feindkontakt bestätigt, ZU-23 in der Kolonne. Bleib tief und schnell, Berg-21 greift die Flakstellung an.",
-        "textEn": "Duo-1, confirmed enemy contact, ZU-23s in the column. Stay low and fast, Berg-21 is engaging the flak position."
+        "speaker": "Overlord",
+        "textDe": "Dagger 1, Overlord: Sie sind im Zielgebiet. Feindliche Luftabwehr ist aufmerksam, suchen Sie nach Startsackschützen.",
+        "textEn": "Dagger 1, Overlord: you are in the target area. Enemy air defense is alert, watch for MANPADS teams."
       },
       {
         "trigger": "all_destroyed",
-        "speaker": "Basis",
-        "textDe": "Bestätigt, die Kolonne ist vernichtet – saubere Arbeit, Duo-1. Kehrt zur Basis zurück, Achtung kleine Waffen noch im Bereich.",
-        "textEn": "Confirmed, the convoy is destroyed – good work, Duo-1. Return to base, watch out for small arms in the area."
+        "speaker": "Overlord",
+        "textDe": "Gute Arbeit, Dagger 1 – Depot vernichtet, sekundäre Brände bestätigt. Drehen Sie ab und kehren Sie nach Incirlik zurück.",
+        "textEn": "Good job Dagger 1 – depot destroyed, secondary fires confirmed. Egress and return to Incirlik."
       },
       {
         "trigger": "mission_begin_delay",
         "delay": 1500,
-        "speaker": "Basis",
-        "textDe": "Duo-1, Sprit-Check. Zeitlimit erreicht – ladet ab und kehrt heim.",
-        "textEn": "Duo-1, fuel check. Time limit reached – break off and come home."
+        "speaker": "Overlord",
+        "textDe": "Dagger 1, Zeitlimit erreicht – brechen Sie ab und kehren Sie zurück.",
+        "textEn": "Dagger 1, time limit reached – break off and return."
       }
     ],
     "briefing": {
-      "de": "Lage: Aufständische Verbände verschieben Nachschub auf der Landstraße südlich von Damaskus. Die Kolonne besteht aus Lastwagen und Jeeps und wird von zwei ZU-23-Flakfahrzeugen gesichert. Auftrag: Duo-1 fliegt einen Raketenangriff und vernichtet die Kolonne, bevor sie die Stadtzone erreicht. Durchführung: Anflug über den Punkt Rayan, Angriff aus niedriger Höhe entlang der Straßenachse. Die Mi-24 'Berg-21' ist bereits unterwegs und legt gleichzeitig die Flakstellungen lahm – koordiniert euren Angriff. Gefahren: Die ZU-23 ist auf niedrige Zielhöhe tödlich, haltet Abstand nach dem Sturzflug. Rückkehr: Nach bestätigter Zerstörung dreht ab und kehrt auf direktem Weg zur Basis bei Damaskus zurück.",
-      "en": "Situation: Insurgent forces are moving supplies on the dirt road south of Damascus. The convoy consists of trucks and jeeps and is protected by two ZU-23 flak vehicles. Mission: Duo-1 performs a rocket attack and destroys the convoy before it reaches the city zone. Execution: Ingress via point Rayan, attack from low altitude along the road axis. The Mi-24 'Berg-21' is already en route and will simultaneously suppress the flak positions – coordinate your runs. Danger: The ZU-23 is lethal at low altitude, maintain separation after your firing pass. Return: After destruction is confirmed, egress and fly a direct route back to base near Damascus."
+      "de": "Lage: Rebellen unterhalten ein Versorgungsdepot in einem Wadi nordwestlich des Assad-Stausees. Dort stehen vier LKW, zwei Öl tanks und einfache Unterstände; die Stellung wird durch eine ZSU-23-4, ZU-23-Geschütze und eine Igla-MANPADS-Truppe geschützt. Auftrag: Dagger 1 fliegt mit vier GBU-12 vom Carrier-Standard auf F-14A und zerstört sämtliche LKW. Durchführung: Anflug auf Wegpunkt 1, dann niedrig in das Wadi, Ziel markieren und lasergelenkt werfen. Gefahren: Flak und MANPADS sind aktiv, bleiben Sie in Bewegung und beachten Sie den Bergschatten. Rückkehr: Nach dem Abwurf nach Westen abdrehen, Rückweg über Wegpunkt 4, Landung auf eigener Basis oder Ausweichplatz.",
+      "en": "Situation: Rebels maintain a supply depot in a wadi northwest of Lake Assad. Four trucks, two oil tanks and simple shelters are located there; the position is defended by a ZSU-23-4, ZU-23 guns and an Igla MANPADS team. Task: Dagger 1 launches in an F-14A carrying four GBU-12s and destroys all trucks. Execution: Fly to waypoint 1, then descend into the wadi, designate the target and deliver laser-guided bombs. Threats: AAA and MANPADS are active, keep moving and mind terrain masking. Recovery: After weapon release egress west via waypoint 4 and recover at your base or divert field."
     },
     "icons": [
       {
         "from": {
-          "lat": 33.15,
-          "lon": 36
+          "lat": 35.05,
+          "lon": 35.85
         },
         "to": {
-          "lat": 33.3,
-          "lon": 36.35
+          "lat": 35.32,
+          "lon": 37.7
         },
         "label": {
-          "de": "Anflug → Zielgebiet",
-          "en": "Ingress → Target area"
+          "de": "Zielgebiet Depot",
+          "en": "Target Depot"
         },
         "desc": {
-          "de": "Route Duo-1 zum Kolonnenangriff südlich von Damaskus.",
-          "en": "Duo-1 route to the convoy strike south of Damascus."
+          "de": "Rebellen-Versorgungsdepot im Wadi, vier LKW, Flak und MANPADS aktiv.",
+          "en": "Rebel supply depot in the wadi, four trucks, AAA and MANPADS active."
         }
       }
     ]
   },
   "output": {
     "game": "dcs",
-    "name": "AB_Damascus_Outskirts_Convoy_Hunt",
+    "name": "AB_Operation_Wadi_Storm_Depot_Strike",
     "outputDir": "C:\\Users\\vince\\Saved Games\\DCS\\Missions",
-    "mainFile": "C:\\Users\\vince\\Saved Games\\DCS\\Missions\\AB_Damascus_Outskirts_Convoy_Hunt.miz",
+    "mainFile": "C:\\Users\\vince\\Saved Games\\DCS\\Missions\\AB_Operation_Wadi_Storm_Depot_Strike.miz",
     "files": [
-      "C:\\Users\\vince\\Saved Games\\DCS\\Missions\\AB_Damascus_Outskirts_Convoy_Hunt.miz"
+      "C:\\Users\\vince\\Saved Games\\DCS\\Missions\\AB_Operation_Wadi_Storm_Depot_Strike.miz"
     ],
     "notes": [
-      "Bewaffnung Duo-1 (MiG-21Bis, CAS): Hard targets, BOMBS",
-      "Bewaffnung Berg-21 (Mi-24P, CAS): 2xB8V20 (S-8KOM)+8xATGM 9M114"
+      "Gruppe Dagger 1: keine Presets fuer Typ \"F-14A-135-GR\" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)"
+    ],
+    "problems": [
+      "Gruppe Dagger 1: keine Presets fuer Typ \"F-14A-135-GR\" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)"
     ]
+  },
+  "repair": {
+    "found": [
+      "Gruppe Dagger 1: keine Presets fuer Typ \"F-14A-135-GR\" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)"
+    ],
+    "repaired": false,
+    "remaining": [
+      "Gruppe Dagger 1: keine Presets fuer Typ \"F-14A-135-GR\" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)"
+    ],
+    "note": "Reparatur verworfen: korrigierter Plan hat nicht weniger Probleme als der erste"
   }
 }

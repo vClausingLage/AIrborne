@@ -14,6 +14,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"airborne/internal/i18n"
 )
 
 type Prefab struct {
@@ -73,10 +75,17 @@ var validKinds = map[string]bool{"ship": true, "vehicle": true, "static": true, 
 
 // Normalize fills defaults from the catalog and returns validation issues.
 func (p *Prefab) Normalize() []string {
-	var issues []string
+	issues, _ := p.normalize()
+	return issues
+}
+
+// normalize also reports whether any issue is a hard error that blocks saving
+// (everything except the "placed as a vehicle" fallback for unknown statics).
+func (p *Prefab) normalize() (issues []string, hard bool) {
 	p.Name = strings.TrimSpace(p.Name)
 	if p.Name == "" {
-		issues = append(issues, "name fehlt")
+		issues = append(issues, i18n.T("name fehlt", "name missing"))
+		hard = true
 	}
 	if p.Game == "" {
 		p.Game = "dcs"
@@ -85,7 +94,8 @@ func (p *Prefab) Normalize() []string {
 		p.ID = Slug(p.Name)
 	}
 	if len(p.Elements) == 0 {
-		issues = append(issues, "elements ist leer")
+		issues = append(issues, i18n.T("elements ist leer", "elements is empty"))
+		hard = true
 	}
 	names := map[string]int{}
 	ships := map[string]bool{}
@@ -105,11 +115,13 @@ func (p *Prefab) Normalize() []string {
 			e.Kind = "vehicle"
 		}
 		if !validKinds[e.Kind] {
-			issues = append(issues, fmt.Sprintf("elements[%d].kind %q unbekannt (ship|vehicle|static|plane|helicopter)", i, e.Kind))
+			issues = append(issues, i18n.Sprintf("elements[%d].kind %q unbekannt (ship|vehicle|static|plane|helicopter)", "elements[%d].kind %q unknown (ship|vehicle|static|plane|helicopter)", i, e.Kind))
+			hard = true
 		}
 		e.Type = strings.TrimSpace(e.Type)
 		if e.Type == "" {
-			issues = append(issues, fmt.Sprintf("elements[%d].type fehlt", i))
+			issues = append(issues, i18n.Sprintf("elements[%d].type fehlt", "elements[%d].type missing", i))
+			hard = true
 		}
 		if strings.TrimSpace(e.Name) == "" {
 			e.Name = fmt.Sprintf("%s %d", e.Type, i+1)
@@ -143,16 +155,17 @@ func (p *Prefab) Normalize() []string {
 				}
 			}
 			if e.Category == "" {
-				issues = append(issues, fmt.Sprintf("elements[%d] (%s): Static-Typ nicht im Katalog und ohne category - wird als Fahrzeug platziert", i, e.Type))
+				issues = append(issues, i18n.Sprintf("elements[%d] (%s): Static-Typ nicht im Katalog und ohne category - wird als Fahrzeug platziert", "elements[%d] (%s): static type not in the catalog and without category - placed as a vehicle", i, e.Type))
 			}
 		}
 	}
 	for i, e := range p.Elements {
 		if e.LinkTo != "" && !ships[e.LinkTo] {
-			issues = append(issues, fmt.Sprintf("elements[%d].linkTo %q ist kein Schiff im Prefab", i, e.LinkTo))
+			issues = append(issues, i18n.Sprintf("elements[%d].linkTo %q ist kein Schiff im Prefab", "elements[%d].linkTo %q is not a ship in the prefab", i, e.LinkTo))
+			hard = true
 		}
 	}
-	return issues
+	return issues, hard
 }
 
 var slugRe = regexp.MustCompile(`[^a-z0-9]+`)
@@ -233,13 +246,9 @@ func (l *Library) Find(nameOrID string) (*Prefab, bool) {
 
 // Save normalizes and writes the prefab; an existing id is overwritten.
 func (l *Library) Save(p Prefab) (Prefab, error) {
-	if issues := p.Normalize(); len(issues) > 0 {
-		for _, is := range issues {
-			// only hard errors block saving
-			if strings.Contains(is, "fehlt") || strings.Contains(is, "unbekannt") || strings.Contains(is, "leer") || strings.Contains(is, "linkTo") {
-				return p, fmt.Errorf("Prefab ungueltig: %s", strings.Join(issues, "; "))
-			}
-		}
+	// only hard errors block saving
+	if issues, hard := p.normalize(); hard {
+				return p, i18n.Errorf("Prefab ungueltig: %s", "Invalid prefab: %s", strings.Join(issues, "; "))
 	}
 	if p.Created == "" {
 		p.Created = time.Now().Format(time.RFC3339)
@@ -257,7 +266,7 @@ func (l *Library) Save(p Prefab) (Prefab, error) {
 func (l *Library) Delete(id string) error {
 	id = Slug(id)
 	if id == "" {
-		return fmt.Errorf("Prefab-ID fehlt")
+		return i18n.Errorf("Prefab-ID fehlt", "Prefab ID missing")
 	}
 	return os.Remove(l.path(id))
 }

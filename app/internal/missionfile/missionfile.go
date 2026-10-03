@@ -19,6 +19,7 @@ import (
 	"unicode/utf16"
 
 	"airborne/internal/dcs"
+	"airborne/internal/i18n"
 	"airborne/internal/media"
 	"airborne/internal/plan"
 )
@@ -75,7 +76,7 @@ func Open(p string) (*Mission, error) {
 		return nil, err
 	}
 	if st.IsDir() {
-		return nil, fmt.Errorf("%s ist ein Ordner", p)
+		return nil, i18n.Errorf("%s ist ein Ordner", "%s is a folder", p)
 	}
 	m := &Mission{path: p, files: map[string][]byte{}}
 	switch strings.ToLower(filepath.Ext(p)) {
@@ -90,7 +91,7 @@ func Open(p string) (*Mission, error) {
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("unbekannter Missionstyp %q (erwartet .miz oder .Mission)", filepath.Ext(p))
+		return nil, i18n.Errorf("unbekannter Missionstyp %q (erwartet .miz oder .Mission)", "unknown mission type %q (expected .miz or .Mission)", filepath.Ext(p))
 	}
 	return m, nil
 }
@@ -98,7 +99,7 @@ func Open(p string) (*Mission, error) {
 func (m *Mission) openMiz() error {
 	zr, err := zip.OpenReader(m.path)
 	if err != nil {
-		return fmt.Errorf(".miz ist kein ZIP-Archiv: %w", err)
+		return i18n.Errorf(".miz ist kein ZIP-Archiv: %w", ".miz is not a ZIP archive: %w", err)
 	}
 	defer zr.Close()
 	for _, f := range zr.File {
@@ -117,10 +118,10 @@ func (m *Mission) openMiz() error {
 		m.files[path.Clean(strings.ReplaceAll(f.Name, "\\", "/"))] = data
 	}
 	if _, ok := m.files["mission"]; !ok {
-		return fmt.Errorf("Archiv enthaelt keine 'mission'-Datei")
+		return i18n.Errorf("Archiv enthaelt keine 'mission'-Datei", "Archive contains no 'mission' file")
 	}
 	if m.protected() {
-		m.note("Die 'mission'-Datei ist kein Lua-Text (geschuetzte/binaere Mission) - nur Kneeboards und Bilder koennen geaendert werden")
+		m.note("Die 'mission'-Datei ist kein Lua-Text (geschuetzte/binaere Mission) - nur Kneeboards und Bilder koennen geaendert werden", "The 'mission' file is not Lua text (protected/binary mission) - only kneeboards and images can be changed")
 	}
 	return nil
 }
@@ -139,16 +140,16 @@ func (m *Mission) openIL2() error {
 		m.files[filepath.Base(p)] = data
 	}
 	if _, ok := m.files[filepath.Base(m.path)]; !ok {
-		return fmt.Errorf("%s nicht lesbar", m.path)
+		return i18n.Errorf("%s nicht lesbar", "%s is not readable", m.path)
 	}
 	if _, ok := m.files[filepath.Base(base)+".msnbin"]; ok {
-		m.note("Eine .msnbin liegt daneben - sie wird beim Speichern entfernt, damit die Text-.Mission wieder gilt (Editor erzeugt sie neu)")
+		m.note("Eine .msnbin liegt daneben - sie wird beim Speichern entfernt, damit die Text-.Mission wieder gilt (Editor erzeugt sie neu)", "A .msnbin sits next to it - it is removed on save so the text .Mission applies again (the editor recreates it)")
 	}
 	return nil
 }
 
-func (m *Mission) note(format string, args ...any) {
-	m.notes = append(m.notes, fmt.Sprintf(format, args...))
+func (m *Mission) note(de, en string, args ...any) {
+	m.notes = append(m.notes, i18n.Sprintf(de, en, args...))
 }
 
 func (m *Mission) protected() bool {
@@ -208,10 +209,10 @@ func (m *Mission) Doc() Doc {
 func (m *Mission) Read(name string) (string, error) {
 	data, ok := m.files[name]
 	if !ok {
-		return "", fmt.Errorf("Eintrag %q nicht vorhanden", name)
+		return "", i18n.Errorf("Eintrag %q nicht vorhanden", "Entry %q does not exist", name)
 	}
 	if !m.isText(name) {
-		return "", fmt.Errorf("%q ist keine Textdatei", name)
+		return "", i18n.Errorf("%q ist keine Textdatei", "%q is not a text file", name)
 	}
 	if m.game == "il2" && il2LangExts[strings.ToLower(filepath.Ext(name))] {
 		return decodeUTF16(data), nil
@@ -222,10 +223,10 @@ func (m *Mission) Read(name string) (string, error) {
 // Write replaces a text entry.
 func (m *Mission) Write(name, text string) error {
 	if _, ok := m.files[name]; !ok {
-		return fmt.Errorf("Eintrag %q nicht vorhanden", name)
+		return i18n.Errorf("Eintrag %q nicht vorhanden", "Entry %q does not exist", name)
 	}
 	if !m.isText(name) {
-		return fmt.Errorf("%q ist keine Textdatei", name)
+		return i18n.Errorf("%q ist keine Textdatei", "%q is not a text file", name)
 	}
 	if m.game == "il2" && il2LangExts[strings.ToLower(filepath.Ext(name))] {
 		m.files[name] = encodeUTF16(text)
@@ -239,12 +240,12 @@ func (m *Mission) Write(name, text string) error {
 // Remove deletes an entry (kneeboard page, picture, ...). Core files are protected.
 func (m *Mission) Remove(name string) error {
 	if _, ok := m.files[name]; !ok {
-		return fmt.Errorf("Eintrag %q nicht vorhanden", name)
+		return i18n.Errorf("Eintrag %q nicht vorhanden", "Entry %q does not exist", name)
 	}
 	if m.game == "dcs" {
 		switch name {
 		case "mission", "options", "theatre", "warehouses", "l10n/DEFAULT/dictionary", "l10n/DEFAULT/mapResource":
-			return fmt.Errorf("%q gehoert zum Kern der Mission und kann nicht entfernt werden", name)
+			return i18n.Errorf("%q gehoert zum Kern der Mission und kann nicht entfernt werden", "%q is part of the mission core and cannot be removed", name)
 		}
 		if strings.HasPrefix(name, "l10n/") {
 			m.unreferenceResource(path.Base(name))
@@ -252,7 +253,7 @@ func (m *Mission) Remove(name string) error {
 	} else {
 		ext := strings.ToLower(filepath.Ext(name))
 		if ext == ".mission" || il2LangExts[ext] {
-			return fmt.Errorf("%q gehoert zum Kern der Mission und kann nicht entfernt werden", name)
+			return i18n.Errorf("%q gehoert zum Kern der Mission und kann nicht entfernt werden", "%q is part of the mission core and cannot be removed", name)
 		}
 	}
 	delete(m.files, name)
@@ -263,7 +264,7 @@ func (m *Mission) Remove(name string) error {
 // AddKneeboard appends a PNG/JPG as kneeboard page (DCS only).
 func (m *Mission) AddKneeboard(p string) error {
 	if m.game != "dcs" {
-		return fmt.Errorf("Kneeboards gibt es nur in DCS")
+		return i18n.Errorf("Kneeboards gibt es nur in DCS", "Kneeboards exist only in DCS")
 	}
 	data, err := media.LoadPNG(p)
 	if err != nil {
@@ -291,7 +292,7 @@ func (m *Mission) AddKneeboard(p string) error {
 // AddBriefingText renders text as a kneeboard page (DCS only).
 func (m *Mission) AddBriefingText(title, body string) error {
 	if m.game != "dcs" {
-		return fmt.Errorf("Kneeboards gibt es nur in DCS")
+		return i18n.Errorf("Kneeboards gibt es nur in DCS", "Kneeboards exist only in DCS")
 	}
 	data, err := media.RenderTextPage(title, body)
 	if err != nil {
@@ -323,7 +324,7 @@ func (m *Mission) SetBriefingImage(p string) error {
 		return nil
 	}
 	if m.protected() {
-		return fmt.Errorf("geschuetzte Mission: Briefing-Bild kann nicht verknuepft werden")
+		return i18n.Errorf("geschuetzte Mission: Briefing-Bild kann nicht verknuepft werden", "protected mission: briefing image cannot be linked")
 	}
 	name := media.SafeName(p) + ".png"
 	m.files["l10n/DEFAULT/"+name] = data
@@ -438,7 +439,7 @@ func (m *Mission) SaveAs(p string) error {
 		}
 	}
 	if err := os.Remove(filepath.Join(dir, newBase+".msnbin")); err == nil {
-		m.note("%s.msnbin entfernt (wird beim Speichern im IL-2 Editor neu erzeugt)", newBase)
+		m.note("%s.msnbin entfernt (wird beim Speichern im IL-2 Editor neu erzeugt)", "%s.msnbin removed (recreated when saving in the IL-2 editor)", newBase)
 	}
 	_ = oldBase
 	m.files = renamed

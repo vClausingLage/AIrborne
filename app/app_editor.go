@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
 	"path/filepath"
 
+	"airborne/internal/i18n"
 	"airborne/internal/logging"
 	"airborne/internal/missionfile"
 	"airborne/internal/pipeline"
@@ -15,16 +15,18 @@ import (
 // ---------------------------------------------------------------------------
 // Files without the LLM: pictures
 
-var imageFilters = []runtime.FileFilter{{DisplayName: "Bilder (*.png, *.jpg)", Pattern: "*.png;*.jpg;*.jpeg"}}
+func imageFilters() []runtime.FileFilter {
+	return []runtime.FileFilter{{DisplayName: i18n.T("Bilder", "Images") + " (*.png, *.jpg)", Pattern: "*.png;*.jpg;*.jpeg"}}
+}
 
 // PickImage opens a PNG/JPG file picker ("" when cancelled).
 func (a *App) PickImage(title string) (string, error) {
-	return runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: title, Filters: imageFilters})
+	return runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: title, Filters: imageFilters()})
 }
 
 // PickImages opens a multi-select PNG/JPG file picker.
 func (a *App) PickImages(title string) ([]string, error) {
-	paths, err := runtime.OpenMultipleFilesDialog(a.ctx, runtime.OpenDialogOptions{Title: title, Filters: imageFilters})
+	paths, err := runtime.OpenMultipleFilesDialog(a.ctx, runtime.OpenDialogOptions{Title: title, Filters: imageFilters()})
 	if paths == nil {
 		paths = []string{}
 	}
@@ -34,13 +36,15 @@ func (a *App) PickImages(title string) ([]string, error) {
 // ---------------------------------------------------------------------------
 // Mission editor (existing .miz / .Mission files, see internal/missionfile)
 
-var missionFilters = []runtime.FileFilter{
-	{DisplayName: "Missionen (*.miz, *.Mission)", Pattern: "*.miz;*.Mission"},
-	{DisplayName: "DCS World (*.miz)", Pattern: "*.miz"},
-	{DisplayName: "IL-2 Korea (*.Mission)", Pattern: "*.Mission"},
+func missionFilters() []runtime.FileFilter {
+	return []runtime.FileFilter{
+		{DisplayName: i18n.T("Missionen", "Missions") + " (*.miz, *.Mission)", Pattern: "*.miz;*.Mission"},
+		{DisplayName: "DCS World (*.miz)", Pattern: "*.miz"},
+		{DisplayName: "IL-2 Korea (*.Mission)", Pattern: "*.Mission"},
+	}
 }
 
-func errNoMission() error { return fmt.Errorf("Keine Mission geoeffnet") }
+func errNoMission() error { return i18n.Errorf("Keine Mission geoeffnet", "No mission open") }
 
 // PickMissionFile asks for an existing mission, starting in the game folder.
 func (a *App) PickMissionFile() (string, error) {
@@ -49,7 +53,7 @@ func (a *App) PickMissionFile() (string, error) {
 	if a.pl != nil && a.pl.State().Game == "dcs" {
 		dir = paths.DCSMissionsDir
 	}
-	return runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: "Mission öffnen", DefaultDirectory: dir, Filters: missionFilters})
+	return runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: i18n.T("Mission öffnen", "Open mission"), DefaultDirectory: dir, Filters: missionFilters()})
 }
 
 // OpenMission loads a mission into the editor.
@@ -70,7 +74,7 @@ func (a *App) OpenGeneratedMission() (missionfile.Doc, error) {
 	}
 	out := a.pl.State().Output
 	if out == nil {
-		return missionfile.Doc{}, fmt.Errorf("Noch keine Mission generiert")
+		return missionfile.Doc{}, i18n.Errorf("Noch keine Mission generiert", "No mission generated yet")
 	}
 	return a.OpenMission(out.MainFile)
 }
@@ -181,12 +185,12 @@ func (a *App) PickMissionSavePath() (string, error) {
 	if a.mission == nil {
 		return "", errNoMission()
 	}
-	filter := missionFilters[1]
+	filter := missionFilters()[1]
 	if a.mission.Game() == "il2" {
-		filter = missionFilters[2]
+		filter = missionFilters()[2]
 	}
 	return runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
-		Title:            "Mission speichern unter",
+		Title:            i18n.T("Mission speichern unter", "Save mission as"),
 		DefaultDirectory: filepath.Dir(a.mission.Path()),
 		DefaultFilename:  filepath.Base(a.mission.Path()),
 		Filters:          []runtime.FileFilter{filter},

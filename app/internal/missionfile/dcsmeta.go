@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"airborne/internal/i18n"
 	"airborne/internal/plan"
 )
 
@@ -125,7 +126,7 @@ func appendLuaArrayValue(mission, field, value string) (string, error) {
 	re := regexp.MustCompile(`(?s)(` + top(field) + `)\{(.*?)\}`)
 	mm := re.FindStringSubmatchIndex(mission)
 	if mm == nil {
-		return "", fmt.Errorf("Feld %s nicht in der mission-Datei gefunden", field)
+		return "", i18n.Errorf("Feld %s nicht in der mission-Datei gefunden", "Field %s not found in the mission file", field)
 	}
 	body := mission[mm[4]:mm[5]]
 	for _, v := range luaArrayValues(mission, field) {
@@ -212,7 +213,7 @@ func (m *Mission) metaDCS() Meta {
 
 func (m *Mission) setMetaDCS(meta Meta) error {
 	if m.protected() {
-		return fmt.Errorf("geschuetzte Mission: Metadaten koennen nicht geaendert werden")
+		return i18n.Errorf("geschuetzte Mission: Metadaten koennen nicht geaendert werden", "protected mission: metadata cannot be changed")
 	}
 	mission := string(m.files["mission"])
 	dict := string(m.files["l10n/DEFAULT/dictionary"])
@@ -229,21 +230,21 @@ func (m *Mission) setMetaDCS(meta Meta) error {
 	if meta.Time != "" {
 		var h, mi, s int
 		if n, err := fmt.Sscanf(meta.Time, "%d:%d:%d", &h, &mi, &s); err != nil && n < 2 {
-			return fmt.Errorf("Zeit %q nicht im Format HH:MM:SS", meta.Time)
+			return i18n.Errorf("Zeit %q nicht im Format HH:MM:SS", "Time %q is not in HH:MM:SS format", meta.Time)
 		}
 		if !dcsStartTimeRe.MatchString(mission) {
-			return fmt.Errorf("start_time nicht in der mission-Datei gefunden")
+			return i18n.Errorf("start_time nicht in der mission-Datei gefunden", "start_time not found in the mission file")
 		}
 		mission = dcsStartTimeRe.ReplaceAllString(mission, fmt.Sprintf("${1}%d", h*3600+mi*60+s))
 	}
 	if meta.Date != "" {
 		var y, mo, d int
 		if _, err := fmt.Sscanf(meta.Date, "%d-%d-%d", &y, &mo, &d); err != nil {
-			return fmt.Errorf("Datum %q nicht im Format YYYY-MM-DD", meta.Date)
+			return i18n.Errorf("Datum %q nicht im Format YYYY-MM-DD", "Date %q is not in YYYY-MM-DD format", meta.Date)
 		}
 		loc := dcsDateBlockRe.FindStringSubmatchIndex(mission)
 		if loc == nil {
-			return fmt.Errorf("date nicht in der mission-Datei gefunden")
+			return i18n.Errorf("date nicht in der mission-Datei gefunden", "date not found in the mission file")
 		}
 		vals := map[string]int{"Day": d, "Year": y, "Month": mo}
 		block := dcsDateFieldRe.ReplaceAllStringFunc(mission[loc[2]:loc[3]], func(s string) string {

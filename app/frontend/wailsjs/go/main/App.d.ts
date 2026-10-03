@@ -75,6 +75,10 @@ export function SaveProject(arg1:string):Promise<string>;
 
 export function SetGame(arg1:string):Promise<void>;
 
+export function SetLanguage(arg1:string):Promise<pipeline.State>;
+
+export function SetMaxTokens(arg1:number):Promise<pipeline.State>;
+
 export function SetMedia(arg1:plan.Media):Promise<pipeline.State>;
 
 export function SetPlanJSON(arg1:string):Promise<pipeline.State>;

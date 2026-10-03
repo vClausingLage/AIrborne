@@ -18,6 +18,7 @@ import {
   PickImage,
   PickImages,
 } from '../wailsjs/go/main/App'
+import { useT } from './i18n'
 
 interface Props {
   busy: string
@@ -37,6 +38,7 @@ function fmtSize(n: number): string {
 // pictures/kneeboards, and the raw text of every text entry. Nothing else in
 // the mission is touched (see internal/missionfile).
 export default function MissionEditor({ busy, hasOutput, run }: Props) {
+  const t = useT()
   const [doc, setDoc] = useState<missionfile.Doc | null>(null)
   const [meta, setMeta] = useState<missionfile.Meta | null>(null)
   const [entry, setEntry] = useState('')
@@ -71,7 +73,7 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
       setTextDirty(false)
     })
   const close = () => {
-    if (doc?.dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) return
+    if (doc?.dirty && !confirm(t.discardUnsaved)) return
     MissionClose()
     setDoc(null)
     setMeta(null)
@@ -80,7 +82,7 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
   }
   const selectEntry = (name: string) =>
     run('mission-read', async () => {
-      if (textDirty && !confirm('Textänderungen an der aktuellen Datei verwerfen?')) return
+      if (textDirty && !confirm(t.discardText)) return
       setEntry(name)
       setText(await MissionRead(name))
       setTextDirty(false)
@@ -93,12 +95,12 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
   const saveMeta = () => meta && run('mission-meta', async () => apply(await MissionSetMeta(meta)))
   const setBriefingImage = () =>
     run('mission-media', async () => {
-      const p = await PickImage('Briefing-Bild wählen (PNG/JPG)')
+      const p = await PickImage(t.pickBriefingDialog)
       if (p) apply(await MissionSetBriefingImage(p))
     })
   const addKneeboards = () =>
     run('mission-media', async () => {
-      const ps = await PickImages('Kneeboard-Seiten wählen (PNG/JPG)')
+      const ps = await PickImages(t.pickKneeboardDialog)
       if (ps.length) apply(await MissionAddKneeboards(ps))
     })
   const addTextPage = () =>
@@ -108,7 +110,7 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
     })
   const remove = (name: string) =>
     run('mission-media', async () => {
-      if (!confirm(`„${name}“ aus der Mission entfernen?`)) return
+      if (!confirm(t.removeEntryConfirm(name))) return
       apply(await MissionRemove(name))
       if (entry === name) {
         setEntry('')
@@ -133,13 +135,13 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
     return (
       <section className="pane">
         <div className="pane-col narrow">
-          <h3>🛠 Mission bearbeiten</h3>
+          <h3>{t.editMission}</h3>
           <button className="primary" onClick={open} disabled={disabled}>
-            {busy === 'mission-open' ? 'Öffnet…' : 'Mission öffnen (.miz / .Mission)'}
+            {busy === 'mission-open' ? t.opening : t.openMission}
           </button>
           {hasOutput && (
             <button onClick={openGenerated} disabled={disabled} style={{ marginTop: 8 }}>
-              Zuletzt exportierte Mission öffnen
+              {t.openLastExport}
             </button>
           )}
           <div className="row" style={{ alignItems: 'center' }}>
@@ -147,21 +149,18 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
               className="media-input"
               style={{ margin: 0, flex: 1 }}
               value={pathInput}
-              placeholder="…oder Pfad einfügen"
+              placeholder={t.pastePath}
               onChange={(e) => setPathInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && pathInput.trim()) openPath(pathInput.trim().replace(/^"|"$/g, ''))
               }}
             />
             <button onClick={() => openPath(pathInput.trim().replace(/^"|"$/g, ''))} disabled={disabled || pathInput.trim() === ''}>
-              Öffnen
+              {t.open}
             </button>
           </div>
           <div className="hint" style={{ marginTop: 16, lineHeight: 1.6, wordBreak: 'normal' }}>
-            Öffnet bestehende Missionen ohne KI: <b>DCS .miz</b> (ZIP mit mission/options/dictionary…) oder <b>IL-2 .Mission</b>{' '}
-            samt Sprachdateien. Titel, Briefing, Datum/Zeit lassen sich im Formular ändern, Briefing-Bild und Kneeboards anhängen und
-            jede Textdatei direkt bearbeiten. Alles andere bleibt Byte für Byte erhalten; beim ersten Speichern wird eine{' '}
-            <code>.bak</code>-Kopie angelegt.
+            {t.editorIntro}
           </div>
         </div>
         <div className="pane-col" />
@@ -178,12 +177,12 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
         <div className="row" style={{ alignItems: 'center', marginTop: 0 }}>
           <h3 style={{ margin: 0, flex: 1 }}>
             {isDcs ? 'DCS' : 'IL-2'} · {doc.name}
-            {doc.dirty ? ' (geändert)' : ''}
+            {doc.dirty ? t.changedSuffix : ''}
           </h3>
-          <button className="small" onClick={close} disabled={disabled}>Schließen</button>
+          <button className="small" onClick={close} disabled={disabled}>{t.close}</button>
         </div>
         <div className="hint" title={doc.path}>{doc.path}</div>
-        {doc.protected && <ul className="issues"><li>⚠ Geschützte Mission – nur Bilder/Kneeboards änderbar</li></ul>}
+        {doc.protected && <ul className="issues"><li>{t.protectedMission}</li></ul>}
         {doc.notes.length > 0 && (
           <ul className="issues">
             {doc.notes.map((n, i) => (
@@ -193,33 +192,33 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
         )}
         <div className="row">
           <button className="primary" style={{ marginTop: 0 }} onClick={save} disabled={disabled || !doc.dirty || textDirty || metaDirty}
-            title={textDirty || metaDirty ? 'Erst Text-/Formularänderungen übernehmen' : ''}>
-            {busy === 'mission-save' ? 'Speichert…' : 'Speichern'}
+            title={textDirty || metaDirty ? t.applyTextFirst : ''}>
+            {busy === 'mission-save' ? t.saving : t.save}
           </button>
-          <button onClick={saveAs} disabled={disabled || textDirty || metaDirty}>Speichern unter…</button>
-          <button onClick={openFolder} disabled={disabled}>Ordner</button>
+          <button onClick={saveAs} disabled={disabled || textDirty || metaDirty}>{t.saveAs}</button>
+          <button onClick={openFolder} disabled={disabled}>{t.folder}</button>
         </div>
 
         {!doc.protected && (
           <>
             <div className="row" style={{ alignItems: 'center', marginTop: 16 }}>
-              <h3 style={{ margin: 0, flex: 1 }}>Metadaten{metaDirty ? ' (geändert)' : ''}</h3>
-              <button className="small" onClick={saveMeta} disabled={disabled || !metaDirty}>Übernehmen</button>
+              <h3 style={{ margin: 0, flex: 1 }}>{t.metadata}{metaDirty ? t.changedSuffix : ''}</h3>
+              <button className="small" onClick={saveMeta} disabled={disabled || !metaDirty}>{t.apply}</button>
             </div>
             <div className="form-grid">
-              <label>Titel{isDcs ? '' : ' DE'}</label>
+              <label>{t.title}{isDcs ? '' : ' DE'}</label>
               <input value={meta.title.de} onChange={(e) => setMeta({ ...meta, title: { ...meta.title, de: e.target.value } } as missionfile.Meta)} />
               {!isDcs && (
                 <>
-                  <label>Titel EN</label>
+                  <label>{t.title} EN</label>
                   <input value={meta.title.en} onChange={(e) => setMeta({ ...meta, title: { ...meta.title, en: e.target.value } } as missionfile.Meta)} />
-                  <label>Autor</label>
+                  <label>{t.author}</label>
                   <input value={meta.author} onChange={(e) => setMeta({ ...meta, author: e.target.value } as missionfile.Meta)} />
                 </>
               )}
-              <label>Datum</label>
+              <label>{t.date}</label>
               <input value={meta.date} placeholder="YYYY-MM-DD" onChange={(e) => setMeta({ ...meta, date: e.target.value } as missionfile.Meta)} />
-              <label>Zeit</label>
+              <label>{t.time}</label>
               <input value={meta.time} placeholder="HH:MM:SS" onChange={(e) => setMeta({ ...meta, time: e.target.value } as missionfile.Meta)} />
             </div>
             <label className="hint">Briefing{isDcs ? '' : ' DE'}</label>
@@ -241,11 +240,11 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
           </>
         )}
 
-        <h3 style={{ marginTop: 16 }}>Medien</h3>
+        <h3 style={{ marginTop: 16 }}>{t.media}</h3>
         <div className="media-row">
-          <span className="media-label">Briefing-Bild</span>
-          {doc.briefingImages.length === 0 && <span className="hint" style={{ margin: 0 }}>(keins)</span>}
-          <button className="small" onClick={setBriefingImage} disabled={disabled || doc.protected}>Wählen</button>
+          <span className="media-label">{t.briefingImage}</span>
+          {doc.briefingImages.length === 0 && <span className="hint" style={{ margin: 0 }}>{t.none}</span>}
+          <button className="small" onClick={setBriefingImage} disabled={disabled || doc.protected}>{t.pick}</button>
         </div>
         {doc.briefingImages.length > 0 && (
           <ul className="media-list">
@@ -261,7 +260,7 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
           <>
             <div className="media-row" style={{ marginTop: 8 }}>
               <span className="media-label">Kneeboard</span>
-              <button className="small" onClick={addKneeboards} disabled={disabled}>Bilder hinzufügen</button>
+              <button className="small" onClick={addKneeboards} disabled={disabled}>{t.addImages}</button>
             </div>
             {doc.kneeboards.length > 0 && (
               <ul className="media-list">
@@ -273,28 +272,28 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
                 ))}
               </ul>
             )}
-            <div className="hint">Textseite erzeugen (z. B. Briefing, Funkplan):</div>
-            <input className="media-input" value={kbTitle} placeholder="Überschrift" onChange={(e) => setKbTitle(e.target.value)} />
-            <textarea className="io short" value={kbBody} placeholder="Text der Kneeboard-Seite…" onChange={(e) => setKbBody(e.target.value)} />
+            <div className="hint">{t.textPageHint}</div>
+            <input className="media-input" value={kbTitle} placeholder={t.heading} onChange={(e) => setKbTitle(e.target.value)} />
+            <textarea className="io short" value={kbBody} placeholder={t.kneeboardTextPlaceholder} onChange={(e) => setKbBody(e.target.value)} />
             <div className="row">
               <button className="small" onClick={() => { setKbTitle(meta.title.de); setKbBody(meta.briefing.de) }} disabled={disabled || doc.protected}>
-                Briefing übernehmen
+                {t.takeBriefing}
               </button>
-              <button className="small" onClick={addTextPage} disabled={disabled || kbBody.trim() === ''}>Als Seite hinzufügen</button>
+              <button className="small" onClick={addTextPage} disabled={disabled || kbBody.trim() === ''}>{t.addAsPage}</button>
             </div>
           </>
         )}
       </div>
 
       <div className="pane-col narrow">
-        <h3>Dateien ({doc.entries.length})</h3>
+        <h3>{t.files(doc.entries.length)}</h3>
         <div className="entry-list">
           {doc.entries.map((e) => (
             <div
               key={e.name}
               className={(entry === e.name ? 'entry active' : 'entry') + (e.text ? '' : ' binary')}
               onClick={() => e.text && selectEntry(e.name)}
-              title={e.text ? 'Als Text bearbeiten' : 'Binärdatei'}
+              title={e.text ? t.editAsText : t.binaryFile}
             >
               <span className="entry-name">{e.name}</span>
               <span className="entry-size">{fmtSize(e.size)}</span>
@@ -306,13 +305,13 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
       <div className="pane-col">
         <div className="row" style={{ alignItems: 'center', marginTop: 0 }}>
           <h3 style={{ margin: 0, flex: 1 }}>
-            {entry || 'Text'} {textDirty ? '(geändert)' : ''}
+            {entry || t.text} {textDirty ? t.changed : ''}
           </h3>
           <button onClick={saveText} disabled={disabled || !textDirty}>
-            {busy === 'mission-write' ? 'Übernimmt…' : 'Änderungen übernehmen'}
+            {busy === 'mission-write' ? t.applying : t.applyChanges}
           </button>
         </div>
-        {bigEntry > BIG && <div className="hint">Große Datei ({fmtSize(bigEntry)}) – der Editor kann träge reagieren.</div>}
+        {bigEntry > BIG && <div className="hint">{t.bigFile(fmtSize(bigEntry))}</div>}
         <textarea
           className="io result mono"
           value={text}
@@ -320,7 +319,7 @@ export default function MissionEditor({ busy, hasOutput, run }: Props) {
             setText(e.target.value)
             setTextDirty(true)
           }}
-          placeholder="(links eine Textdatei wählen)"
+          placeholder={t.pickTextFile}
           spellCheck={false}
           disabled={!entry}
         />

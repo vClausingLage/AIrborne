@@ -1,5 +1,6 @@
 import { plan as planNS } from '../wailsjs/go/models'
 import { PickImage, PickImages } from '../wailsjs/go/main/App'
+import { useT } from './i18n'
 
 interface Props {
   game: string
@@ -17,6 +18,7 @@ function baseName(p: string): string {
 // and kneeboard pages (DCS). Files stay where they are; the generator
 // copies them into the mission on export.
 export default function MediaPanel({ game, media, busy, onChange }: Props) {
+  const t = useT()
   const isDcs = game === 'dcs'
   const m: planNS.Media = {
     briefingImage: media?.briefingImage || '',
@@ -26,11 +28,11 @@ export default function MediaPanel({ game, media, busy, onChange }: Props) {
   const disabled = busy !== ''
 
   const pickBriefing = async () => {
-    const p = await PickImage('Briefing-Bild wählen (PNG/JPG)')
+    const p = await PickImage(t.pickBriefingDialog)
     if (p) onChange({ ...m, briefingImage: p } as planNS.Media)
   }
   const addKneeboards = async () => {
-    const ps = await PickImages('Kneeboard-Seiten wählen (PNG/JPG)')
+    const ps = await PickImages(t.pickKneeboardDialog)
     if (ps.length) onChange({ ...m, kneeboards: [...(m.kneeboards || []), ...ps] } as planNS.Media)
   }
   const removeKneeboard = (i: number) =>
@@ -38,17 +40,17 @@ export default function MediaPanel({ game, media, busy, onChange }: Props) {
 
   return (
     <div className="media">
-      <h3 style={{ marginTop: 20 }}>Medien (ohne KI)</h3>
+      <h3 style={{ marginTop: 20 }}>{t.mediaHeading}</h3>
       <div className="media-row">
-        <span className="media-label">Briefing-Bild</span>
+        <span className="media-label">{t.briefingImage}</span>
         {m.briefingImage ? (
           <span className="media-file" title={m.briefingImage}>
             {baseName(m.briefingImage)}
           </span>
         ) : (
-          <span className="hint" style={{ margin: 0 }}>(keins)</span>
+          <span className="hint" style={{ margin: 0 }}>{t.none}</span>
         )}
-        <button className="small" onClick={pickBriefing} disabled={disabled}>Wählen</button>
+        <button className="small" onClick={pickBriefing} disabled={disabled}>{t.pick}</button>
         {m.briefingImage && (
           <button className="small" onClick={() => onChange({ ...m, briefingImage: '' } as planNS.Media)} disabled={disabled}>
             ✕
@@ -57,14 +59,14 @@ export default function MediaPanel({ game, media, busy, onChange }: Props) {
       </div>
       <div className="hint">
         {isDcs
-          ? 'Wird als l10n/DEFAULT/<name>.png in die .miz gepackt und über mapResource als Briefing-Bild der Spielerseite verknüpft.'
-          : 'Wird als <Mission>.png neben die .Mission gelegt (Konvention der mitgelieferten Kampagnen-Missionen).'}
+          ? t.briefingImageHintDcs
+          : t.briefingImageHintIl2}
       </div>
       {isDcs && (
         <>
           <div className="media-row" style={{ marginTop: 8 }}>
             <span className="media-label">Kneeboard</span>
-            <button className="small" onClick={addKneeboards} disabled={disabled}>Seiten hinzufügen</button>
+            <button className="small" onClick={addKneeboards} disabled={disabled}>{t.addPages}</button>
           </div>
           <label className="check">
             <input
@@ -73,7 +75,7 @@ export default function MediaPanel({ game, media, busy, onChange }: Props) {
               disabled={disabled}
               onChange={(e) => onChange({ ...m, kneeboardBriefing: e.target.checked } as planNS.Media)}
             />
-            Briefing-Text als Seite 1 rendern
+            {t.kneeboardBriefing}
           </label>
           {(m.kneeboards || []).length > 0 && (
             <ul className="media-list">
@@ -85,7 +87,7 @@ export default function MediaPanel({ game, media, busy, onChange }: Props) {
               ))}
             </ul>
           )}
-          <div className="hint">Landet in KNEEBOARD/IMAGES der .miz (alle Flugzeuge). PNG oder JPG, Hochformat 3:4 empfohlen.</div>
+          <div className="hint">{t.kneeboardHint}</div>
         </>
       )}
     </div>

@@ -15,6 +15,7 @@ import (
 	"unicode"
 
 	"airborne/internal/gen"
+	"airborne/internal/i18n"
 	"airborne/internal/media"
 	"airborne/internal/plan"
 )
@@ -35,6 +36,8 @@ type writer struct {
 	next  int
 	lang  []plan.Localized
 	notes []string
+	// problems: plan defects the author can fix (subset of notes, see gen.Result).
+	problems []string
 
 	payloads      *PayloadTable
 	payloadWarned bool
@@ -50,8 +53,13 @@ func (w *writer) text(l plan.Localized) int {
 	return len(w.lang) - 1
 }
 
-func (w *writer) note(format string, args ...any) {
-	w.notes = append(w.notes, fmt.Sprintf(format, args...))
+func (w *writer) note(de, en string, args ...any) {
+	w.notes = append(w.notes, i18n.Sprintf(de, en, args...))
+}
+
+func (w *writer) problem(de, en string, args ...any) {
+	w.note(de, en, args...)
+	w.problems = append(w.problems, i18n.Sprintf(de, en, args...))
 }
 
 func (w *writer) line(format string, args ...any) {
@@ -91,7 +99,7 @@ func Generate(mp *plan.MissionPlan, outDir string) (*gen.Result, error) {
 // per aircraft group (nil = PayloadId 0 everywhere).
 func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (*gen.Result, error) {
 	if len(mp.PlayerGroups) == 0 || mp.PlayerGroups[0].Start == nil {
-		return nil, fmt.Errorf("Plan hat keine Spielergruppe mit Startposition")
+		return nil, i18n.Errorf("Plan hat keine Spielergruppe mit Startposition", "Plan has no player group with a start position")
 	}
 	name := gen.MissionName(mp.Title.Pick("en"))
 	w := &writer{payloads: payloads}
@@ -107,7 +115,7 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (
 	w.build(mp)
 
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
-		return nil, fmt.Errorf("Missionsordner nicht erreichbar: %w", err)
+		return nil, i18n.Errorf("Missionsordner nicht erreichbar: %w", "Mission folder not reachable: %w", err)
 	}
 	base := filepath.Join(outDir, name)
 	files := []string{}
@@ -139,7 +147,7 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (
 	if mp.Media != nil && mp.Media.BriefingImage != "" {
 		img, err := media.LoadPNG(mp.Media.BriefingImage)
 		if err != nil {
-			return nil, fmt.Errorf("Briefing-Bild: %w", err)
+			return nil, i18n.Errorf("Briefing-Bild: %w", "Briefing image: %w", err)
 		}
 		if err := write(base+".png", img); err != nil {
 			return nil, err
@@ -148,15 +156,15 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (
 		os.Remove(base + ".png")
 	}
 	if mp.Media != nil && (len(mp.Media.Kneeboards) > 0 || mp.Media.KneeboardBriefing) {
-		w.note("Kneeboards gibt es nur in DCS - fuer IL-2 ignoriert")
+		w.note("Kneeboards gibt es nur in DCS - fuer IL-2 ignoriert", "Kneeboards exist only in DCS - ignored for IL-2")
 	}
 	// Stale binary mirror from a previous editor save would shadow the new text mission.
 	if err := os.Remove(base + ".msnbin"); err == nil {
-		w.note("Alte %s.msnbin entfernt (wird beim Speichern im Editor neu erzeugt)", name)
+		w.note("Alte %s.msnbin entfernt (wird beim Speichern im Editor neu erzeugt)", "Old %s.msnbin removed (recreated when saving in the editor)", name)
 	}
 	return &gen.Result{
 		Game: "il2", Name: name, OutputDir: outDir, MainFile: base + ".Mission",
-		Files: files, Notes: gen.NonNil(w.notes),
+		Files: files, Notes: gen.NonNil(w.notes), Problems: gen.NonNil(w.problems),
 	}, nil
 }
 
@@ -187,6 +195,19 @@ type asset struct {
 	model  string
 }
 
+// Ground units the game ships under vehicles/ resp. fixedobjects/ (see
+// pipeline/gameContext.go); used to correct the folder the planner chose.
+var vehicleNames = set("willysmb", "studebakerus6", "gaz67b", "m16-mgmc", "m3a1-halftrack", "m4a3e8", "m46", "t34-85", "su76m", "isu122")
+var fixedObjectNames = set("boforsl60", "dshk-aa", "m2cal50-aa", "ks19", "s60")
+
+func set(names ...string) map[string]bool {
+	m := make(map[string]bool, len(names))
+	for _, n := range names {
+		m[n] = true
+	}
+	return m
+}
+
 // resolve turns "vehicles/studebakerus6" (or a bare name with a default folder)
 // into the Script/Model pair used by IL-2.
 func resolve(ref, defaultFolder string) asset {
@@ -201,6 +222,13 @@ func resolve(ref, defaultFolder string) asset {
 		name = s[i+1:]
 	}
 	name = strings.ToLower(name)
+	// The planner mixes up mobile AA (vehicles) and towed/static guns
+	// (fixedobjects); a wrong folder yields a Script path the editor cannot load.
+	if folder == "fixedobjects" && vehicleNames[name] {
+		folder = "vehicles"
+	} else if folder == "vehicles" && fixedObjectNames[name] {
+		folder = "fixedobjects"
+	}
 	switch folder {
 	case "planes", "plane", "aircraft":
 		return asset{
@@ -274,7 +302,7 @@ func (w *writer) build(mp *plan.MissionPlan) {
 	if t := strings.ToLower(start.Type); t == "runway" || t == "parking" || t == "ground" {
 		startType = 1
 		startPos.y = alt(start.Alt, 0)
-		w.note("Bodenstart (StartType=1): Position/Hoehe im Editor am Flugplatz pruefen")
+		w.note("Bodenstart (StartType=1): Position/Hoehe im Editor am Flugplatz pruefen", "Ground start (StartType=1): check position/altitude at the airfield in the editor")
 	}
 	playerPayload, playerMod := w.payloadFor(player, playerAsset, true)
 	for i := 0; i < player.Units(); i++ {
@@ -303,7 +331,7 @@ func (w *writer) build(mp *plan.MissionPlan) {
 	if len(route) == 0 {
 		route = autoRoute(mp, startPos)
 	}
-	w.waypoints(route, startPos, []int{leaderEntity}, false, "WP")
+	w.waypoints(route, startPos, []int{leaderEntity}, false, "WP", player.Speed)
 
 	// ---- ground / air groups -----------------------------------------------
 	// MCUs that must fire shortly after mission begin (AI routes / attack timers)
@@ -381,7 +409,7 @@ func (w *writer) build(mp *plan.MissionPlan) {
 		w.counter(counterIdx, "CNT_ALLE_ZIELE", logicPos, counter, []int{killTimer})
 		w.timer(killTimer, "T_4S_NACH_LETZTEM_KILL", logicPos, 4, killTargets)
 	} else {
-		w.note("Keine zerstoerbaren Ziele in enemyGroups - Missionsziel wird nie als erfuellt gemeldet")
+		w.problem("Keine zerstoerbaren Ziele in enemyGroups - Missionsziel wird nie als erfuellt gemeldet (mindestens eine Fahrzeug-/Schiffsgruppe als Ziel)", "No destructible targets in enemyGroups - the objective is never reported as complete (at least one vehicle/ship group as target)")
 	}
 	if len(mp.Objectives) > 0 {
 		o := mp.Objectives[0]
@@ -392,7 +420,7 @@ func (w *writer) build(mp *plan.MissionPlan) {
 		w.objective(objIdx, logicPos, w.text(title), w.text(o.Desc), playerCoalition)
 	}
 	if mp.Challenge && len(mp.Icons) > 0 {
-		w.note("Herausforderung: %d Karten-Icons nicht exportiert (Zielgebiet bleibt verborgen)", len(mp.Icons))
+		w.note("Herausforderung: %d Karten-Icons nicht exportiert (Zielgebiet bleibt verborgen)", "Challenge: %d map icons not exported (target area stays hidden)", len(mp.Icons))
 	}
 	for i, ic := range mp.Icons {
 		if mp.Challenge {
@@ -520,7 +548,7 @@ func (w *writer) options(mp *plan.MissionPlan, mpPlaneScript string, countries m
 	sky = strings.ReplaceAll(sky, `\\`, `\`)
 	if !cloudConfigRe.MatchString(sky) {
 		if sky != "" {
-			w.note("cloudConfig %q unbekannt - Standard %s verwendet", we.CloudConfig, defaultSky)
+			w.problem("cloudConfig %q unbekannt - Standard %s verwendet (Muster summer\\00_Clear_00\\sky.ini)", "Unknown cloudConfig %q - default %s used (pattern summer\\00_Clear_00\\sky.ini)", we.CloudConfig, defaultSky)
 		}
 		sky = defaultSky
 		if season == "wi" {
@@ -556,7 +584,7 @@ func (w *writer) options(mp *plan.MissionPlan, mpPlaneScript string, countries m
 	w.line(`  Forests = "graphics\LANDSCAPE_Korea_%s\trees\woods.wds";`, season)
 	w.line(`  Layers = "";`)
 	w.line(`  GuiMap = "landscape_korea_su";`)
-	w.line(`  SeasonPrefix = "%s";`, season)
+	w.line(`  SeasonPrefix = "%s";`, seasonPrefixFor(season))
 	w.line("  MissionType = 1;")
 	w.line("  AqmId = 0;")
 	w.line("  CloudLevel = %d;", cloudLevel)
@@ -791,7 +819,8 @@ func (w *writer) waypoint(idx int, name string, p pos, area, speed int, targets,
 
 // waypoints writes a chain of waypoints for the given entities and returns the
 // index of the first one. Ground routes loop back to the first waypoint.
-func (w *writer) waypoints(route []plan.Position, ref pos, objects []int, ground bool, prefix string) int {
+// planSpeed (km/h, plan field `speed`) overrides the type default when > 0.
+func (w *writer) waypoints(route []plan.Position, ref pos, objects []int, ground bool, prefix string, planSpeed float64) int {
 	if len(route) == 0 {
 		return 0
 	}
@@ -813,6 +842,9 @@ func (w *writer) waypoints(route []plan.Position, ref pos, objects []int, ground
 			y = 100
 		} else if i+1 < len(route) && i > 0 {
 			area, speed = 1200, 260
+		}
+		if planSpeed > 0 {
+			speed = int(planSpeed + 0.5)
 		}
 		w.waypoint(idxs[i], fmt.Sprintf("%s_%d", prefix, i+1), pos{r.X, y, r.Z}, area, speed, targets, objects)
 	}
@@ -938,7 +970,7 @@ func (w *writer) group(g plan.Group, counterIdx int, enemy bool) []int {
 		}
 	}
 	if g.Moves() {
-		first := w.waypoints(g.Route, base, []int{leaderEnt}, true, "GWP_"+asciiName(g.Name))
+		first := w.waypoints(g.Route, base, []int{leaderEnt}, true, "GWP_"+asciiName(g.Name), g.Speed)
 		return []int{first}
 	}
 	return nil
@@ -962,7 +994,7 @@ func (w *writer) aiPlanes(g plan.Group, anchor plan.Position, c int, enemy bool)
 	if len(route) == 0 {
 		route = []plan.Position{{X: anchor.X, Z: anchor.Z, Alt: base.y}}
 	}
-	first := w.waypoints(route, base, ents[:1], false, "AWP_"+asciiName(g.Name))
+	first := w.waypoints(route, base, ents[:1], false, "AWP_"+asciiName(g.Name), g.Speed)
 	if enemy {
 		// last waypoint -> attack command; we re-emit the chain end by adding a
 		// command the final waypoint targets. Simplest: a timer chained from the
@@ -1004,7 +1036,7 @@ func (w *writer) statics(s plan.StaticObject) {
 	c := country(s.Country, 0)
 	positions := s.Positions
 	if len(positions) == 0 {
-		w.note("statics %q ohne positions uebersprungen", s.Script)
+		w.problem("statics %q ohne positions uebersprungen", "statics %q without positions skipped", s.Script)
 		return
 	}
 	n := s.Count
@@ -1049,6 +1081,7 @@ func parseTime(s string) (h, m, sec int) {
 	return 12, 0, 0
 }
 
+// seasonFor picks the LANDSCAPE_Korea_<season> folder for a month.
 func seasonFor(month int) string {
 	switch month {
 	case 12, 1, 2:
@@ -1057,6 +1090,17 @@ func seasonFor(month int) string {
 		return "su"
 	}
 	return "sp"
+}
+
+// seasonPrefixFor maps the landscape folder to Options.SeasonPrefix, which
+// selects seasonal object textures and only knows "su"/"wi". The bundled
+// missions use "su" even on the _sp and _sw landscapes; "sp" makes the editor
+// refuse to open the mission.
+func seasonPrefixFor(landscape string) string {
+	if landscape == "wi" {
+		return "wi"
+	}
+	return "su"
 }
 
 func temperatureFor(month int) int {

@@ -190,6 +190,10 @@ func TestGenerateStructure(t *testing.T) {
 	if !strings.Contains(text, `HMap = "graphics\LANDSCAPE_Korea_sp\height.hini";`) {
 		t.Fatal("september should map to spring/autumn landscape")
 	}
+	// SeasonPrefix only knows su/wi; "sp" makes the editor refuse the file.
+	if !strings.Contains(text, `SeasonPrefix = "su";`) {
+		t.Fatal("SeasonPrefix must be su on the spring landscape")
+	}
 	if !strings.Contains(text, "Date = 14.9.1950;") || !strings.Contains(text, "Time = 15:35:0;") {
 		t.Fatal("date/time not rendered")
 	}
@@ -227,6 +231,8 @@ func TestResolveAssets(t *testing.T) {
 	cases := map[string][2]string{
 		"vehicles/studebakerus6":                  {`LuaScripts\WorldObjects\vehicles\studebakerus6.txt`, `graphics\vehicles\studebakerus6\studebakerus6.mgm`},
 		"fixedobjects/boforsl60":                  {`LuaScripts\WorldObjects\fixedobjects\boforsl60.txt`, `graphics\fixedobjects\boforsl60\boforsl60.mgm`},
+		"fixedobjects/m16-mgmc":                   {`LuaScripts\WorldObjects\vehicles\m16-mgmc.txt`, `graphics\vehicles\m16-mgmc\m16-mgmc.mgm`},
+		"vehicles/dshk-aa":                        {`LuaScripts\WorldObjects\fixedobjects\dshk-aa.txt`, `graphics\fixedobjects\dshk-aa\dshk-aa.mgm`},
 		"blocks/mil_camonet":                      {`LuaScripts\WorldObjects\Blocks\Mil_camonet.txt`, `graphics\blocks\mil_camonet.mgm`},
 		`LuaScripts\WorldObjects\Planes\il10.txt`: {`LuaScripts\WorldObjects\Planes\il10.txt`, `graphics\planes\il10\il10.mgm`},
 	}

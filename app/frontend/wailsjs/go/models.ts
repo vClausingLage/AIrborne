@@ -1,3 +1,24 @@
+export namespace ai {
+	
+	export class Usage {
+	    prompt_tokens: number;
+	    completion_tokens: number;
+	    total_tokens: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Usage(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.prompt_tokens = source["prompt_tokens"];
+	        this.completion_tokens = source["completion_tokens"];
+	        this.total_tokens = source["total_tokens"];
+	    }
+	}
+
+}
+
 export namespace gen {
 	
 	export class Result {
@@ -7,6 +28,7 @@ export namespace gen {
 	    mainFile: string;
 	    files: string[];
 	    notes: string[];
+	    problems: string[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Result(source);
@@ -20,6 +42,7 @@ export namespace gen {
 	        this.mainFile = source["mainFile"];
 	        this.files = source["files"];
 	        this.notes = source["notes"];
+	        this.problems = source["problems"];
 	    }
 	}
 
@@ -160,6 +183,11 @@ export namespace pipeline {
 	    il2MissionsDir: string;
 	    il2Editor: string;
 	    dcsMissionsDir: string;
+	    maxTokens: number;
+	    maxTokensEnv: number;
+	    settingsPath: string;
+	    language: string;
+	    lastUsage?: ai.Usage;
 	
 	    static createFrom(source: any = {}) {
 	        return new ConfigState(source);
@@ -175,6 +203,47 @@ export namespace pipeline {
 	        this.il2MissionsDir = source["il2MissionsDir"];
 	        this.il2Editor = source["il2Editor"];
 	        this.dcsMissionsDir = source["dcsMissionsDir"];
+	        this.maxTokens = source["maxTokens"];
+	        this.maxTokensEnv = source["maxTokensEnv"];
+	        this.settingsPath = source["settingsPath"];
+	        this.language = source["language"];
+	        this.lastUsage = this.convertValues(source["lastUsage"], ai.Usage);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class RepairInfo {
+	    found: string[];
+	    repaired: boolean;
+	    remaining: string[];
+	    note?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new RepairInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.found = source["found"];
+	        this.repaired = source["repaired"];
+	        this.remaining = source["remaining"];
+	        this.note = source["note"];
 	    }
 	}
 	export class RoleState {
@@ -206,6 +275,7 @@ export namespace pipeline {
 	    projectPath: string;
 	    root: string;
 	    issues: string[];
+	    repair?: RepairInfo;
 	    output?: gen.Result;
 	    prefabs: prefab.Prefab[];
 	    aircraft: Record<string, Array<AircraftOption>>;
@@ -225,6 +295,7 @@ export namespace pipeline {
 	        this.projectPath = source["projectPath"];
 	        this.root = source["root"];
 	        this.issues = source["issues"];
+	        this.repair = this.convertValues(source["repair"], RepairInfo);
 	        this.output = this.convertValues(source["output"], gen.Result);
 	        this.prefabs = this.convertValues(source["prefabs"], prefab.Prefab);
 	        this.aircraft = this.convertValues(source["aircraft"], Array<AircraftOption>, true);
@@ -390,6 +461,7 @@ export namespace plan {
 	    route?: Position[];
 	    payload?: string;
 	    task?: string;
+	    speed?: number;
 	    notes?: string;
 	
 	    static createFrom(source: any = {}) {
@@ -413,6 +485,7 @@ export namespace plan {
 	        this.route = this.convertValues(source["route"], Position);
 	        this.payload = source["payload"];
 	        this.task = source["task"];
+	        this.speed = source["speed"];
 	        this.notes = source["notes"];
 	    }
 	

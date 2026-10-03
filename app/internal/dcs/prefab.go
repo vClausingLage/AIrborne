@@ -34,17 +34,17 @@ func asStatic(e prefab.Element) bool {
 func (b *builder) placePrefabs() {
 	for i, pp := range b.mp.Prefabs {
 		if b.prefabs == nil {
-			b.note("Prefab %q: keine Prefab-Bibliothek verfuegbar", pp.Prefab)
+			b.note("Prefab %q: keine Prefab-Bibliothek verfuegbar", "Prefab %q: no prefab library available", pp.Prefab)
 			continue
 		}
 		pf, ok := b.prefabs.Find(pp.Prefab)
 		if !ok {
-			b.note("Prefab %q nicht gefunden - uebersprungen", pp.Prefab)
+			b.problem("Prefab %q nicht gefunden - uebersprungen (nur IDs aus dem Spiel-Kontext verwenden)", "Prefab %q not found - skipped (use only IDs from the game context)", pp.Prefab)
 			continue
 		}
 		pfc := *pf
 		for _, is := range pfc.Normalize() {
-			b.note("Prefab %s: %s", pfc.Name, is)
+			b.note("Prefab %s: %s", "Prefab %s: %s", pfc.Name, is)
 		}
 		b.placePrefab(pfc, pp, i)
 	}
@@ -148,7 +148,7 @@ func (b *builder) placePrefab(pf prefab.Prefab, pp plan.PrefabPlacement, idx int
 		if ship {
 			action = "Turning Point"
 		}
-		points := arr(groundPoint(units[0].x, units[0].y, 0, action))
+		points := arr(groundPoint(units[0].x, units[0].y, 0, 0, action, true))
 		sd.add(country, key.cat, groundGroupTable(key.name, gid, ut, units[0].x, units[0].y, points))
 	}
 
@@ -164,7 +164,7 @@ func (b *builder) placePrefab(pf prefab.Prefab, pp plan.PrefabPlacement, idx int
 				sl := locals[si][0]
 				link = &linkInfo{unitID: uid, shipDX: sl.dx, shipDY: sl.dy, shipHdg: sl.hdg}
 			} else {
-				b.note("Prefab %s: linkTo %q nicht aufloesbar - Static frei platziert", pf.Name, e.LinkTo)
+				b.note("Prefab %s: linkTo %q nicht aufloesbar - Static frei platziert", "Prefab %s: linkTo %q cannot be resolved - static placed freely", pf.Name, e.LinkTo)
 			}
 		}
 		for u, l := range locals[i] {

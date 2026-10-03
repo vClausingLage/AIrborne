@@ -5,7 +5,6 @@ package media
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -23,6 +22,8 @@ import (
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
+
+	"airborne/internal/i18n"
 )
 
 // Kneeboard page size (portrait 3:4, the DCS default kneeboard aspect).
@@ -35,17 +36,17 @@ const (
 func LoadPNG(path string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("Bild nicht lesbar: %w", err)
+		return nil, i18n.Errorf("Bild nicht lesbar: %w", "Image not readable: %w", err)
 	}
 	if strings.EqualFold(filepath.Ext(path), ".png") {
 		if _, err := png.DecodeConfig(bytes.NewReader(data)); err != nil {
-			return nil, fmt.Errorf("%s ist kein gueltiges PNG: %w", filepath.Base(path), err)
+			return nil, i18n.Errorf("%s ist kein gueltiges PNG: %w", "%s is not a valid PNG: %w", filepath.Base(path), err)
 		}
 		return data, nil
 	}
 	img, _, err := image.Decode(bytes.NewReader(data))
 	if err != nil {
-		return nil, fmt.Errorf("%s: Bildformat nicht unterstuetzt (PNG/JPG): %w", filepath.Base(path), err)
+		return nil, i18n.Errorf("%s: Bildformat nicht unterstuetzt (PNG/JPG): %w", "%s: image format not supported (PNG/JPG): %w", filepath.Base(path), err)
 	}
 	var buf bytes.Buffer
 	if err := png.Encode(&buf, img); err != nil {

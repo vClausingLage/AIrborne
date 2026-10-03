@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"airborne/internal/i18n"
 	"airborne/internal/logging"
 )
 
@@ -35,7 +36,16 @@ type chatRequest struct {
 	MaxTokens   int       `json:"max_tokens,omitempty"`
 }
 
+// Usage is the token accounting the API reports for one request (prompt =
+// input incl. system prompt, completion = output incl. reasoning tokens).
+type Usage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+	TotalTokens      int `json:"total_tokens"`
+}
+
 type chatResponse struct {
+	Usage   *Usage `json:"usage"`
 	Choices []struct {
 		FinishReason string `json:"finish_reason"`
 		Message      struct {
@@ -98,18 +108,28 @@ func LoadConfig() Config {
 	}
 }
 
+// Chat sends one chat completion and returns the assistant text.
 func (c Config) Chat(ctx context.Context, messages []Message) (string, error) {
+	out, _, err := c.ChatUsage(ctx, messages)
+	return out, err
+}
+
+// ChatUsage is Chat plus the token usage the API reported (zero if absent).
+// MaxTokens caps the output tokens of this single request; with reasoning
+// models the cap covers thinking and answer together.
+func (c Config) ChatUsage(ctx context.Context, messages []Message) (string, Usage, error) {
+	var usage Usage
 	if c.Model == "" {
-		return "", fmt.Errorf("AI_MODEL ist nicht gesetzt (.env)")
+		return "", usage, i18n.Errorf("AI_MODEL ist nicht gesetzt (.env)", "AI_MODEL is not set (.env)")
 	}
 	model := c.Model
 	body, err := json.Marshal(chatRequest{Model: model, Messages: messages, Temperature: 0.7, MaxTokens: c.MaxTokens})
 	if err != nil {
-		return "", err
+		return "", usage, err
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.Base+"/chat/completions", bytes.NewReader(body))
 	if err != nil {
-		return "", err
+		return "", usage, err
 	}
 	req.Header.Set("Content-Type", "application/json")
 	if c.Key != "" {
@@ -119,29 +139,33 @@ func (c Config) Chat(ctx context.Context, messages []Message) (string, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		logging.Errorf("LLM-Verbindung fehlgeschlagen (%s, model=%s): %v", c.Base, model, err)
-		return "", fmt.Errorf("LLM-Anfrage fehlgeschlagen: %w", err)
+		return "", usage, i18n.Errorf("LLM-Anfrage fehlgeschlagen: %w", "LLM request failed: %w", err)
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", usage, err
 	}
 	logging.Infof("LLM-HTTP %d, %d bytes", resp.StatusCode, len(data))
 	var cr chatResponse
 	if err := json.Unmarshal(data, &cr); err != nil {
 		logging.Errorf("LLM-Antwort nicht parsebar (HTTP %d): %s", resp.StatusCode, truncate(string(data), 300))
-		return "", fmt.Errorf("ungültige LLM-Antwort (HTTP %d): %s", resp.StatusCode, truncate(string(data), 300))
+		return "", usage, i18n.Errorf("ungültige LLM-Antwort (HTTP %d): %s", "invalid LLM response (HTTP %d): %s", resp.StatusCode, truncate(string(data), 300))
 	}
 	if cr.Error != nil {
 		logging.Errorf("LLM-Fehler: %s", cr.Error.Message)
-		return "", fmt.Errorf("LLM-Fehler: %s", cr.Error.Message)
+		return "", usage, i18n.Errorf("LLM-Fehler: %s", "LLM error: %s", cr.Error.Message)
 	}
 	if resp.StatusCode != http.StatusOK {
 		logging.Errorf("LLM-HTTP %d: %s", resp.StatusCode, truncate(string(data), 300))
-		return "", fmt.Errorf("LLM-HTTP %d: %s", resp.StatusCode, truncate(string(data), 300))
+		return "", usage, fmt.Errorf("LLM-HTTP %d: %s", resp.StatusCode, truncate(string(data), 300))
+	}
+	if cr.Usage != nil {
+		usage = *cr.Usage
+		logging.Infof("LLM-Tokens: prompt=%d completion=%d total=%d (max_tokens=%d)", usage.PromptTokens, usage.CompletionTokens, usage.TotalTokens, c.MaxTokens)
 	}
 	if len(cr.Choices) == 0 {
-		return "", fmt.Errorf("LLM-Antwort ohne choices")
+		return "", usage, i18n.Errorf("LLM-Antwort ohne choices", "LLM response without choices")
 	}
 	content := cr.Choices[0].Message.Content
 	if strings.TrimSpace(content) == "" {
@@ -155,9 +179,9 @@ func (c Config) Chat(ctx context.Context, messages []Message) (string, error) {
 	}
 	if strings.TrimSpace(content) == "" {
 		logging.Block("LLM RAW BODY (content leer)", truncate(string(data), 8000))
-		return "", fmt.Errorf("LLM lieferte leeren content (finish=%s) - ggf. AI_MAX_TOKENS erhoehen (Details im Log)", cr.Choices[0].FinishReason)
+		return "", usage, i18n.Errorf("LLM lieferte leeren content (finish=%s, max_tokens=%d) - Token-Limit in den Einstellungen erhoehen (Details im Log)", "LLM returned empty content (finish=%s, max_tokens=%d) - raise the token limit in the settings (details in the log)", cr.Choices[0].FinishReason, c.MaxTokens)
 	}
-	return content, nil
+	return content, usage, nil
 }
 
 func FindEnvFile(startDirs ...string) []string {
@@ -191,7 +215,7 @@ func ExtractJSON(s string) ([]byte, error) {
 	start := strings.Index(s, "{")
 	end := strings.LastIndex(s, "}")
 	if start < 0 || end <= start {
-		return nil, fmt.Errorf("kein JSON-Objekt in der Antwort gefunden")
+		return nil, i18n.Errorf("kein JSON-Objekt in der Antwort gefunden", "no JSON object found in the response")
 	}
 	return []byte(s[start : end+1]), nil
 }

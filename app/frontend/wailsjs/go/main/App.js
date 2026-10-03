@@ -142,6 +142,14 @@ export function SetGame(arg1) {
   return window['go']['main']['App']['SetGame'](arg1);
 }
 
+export function SetLanguage(arg1) {
+  return window['go']['main']['App']['SetLanguage'](arg1);
+}
+
+export function SetMaxTokens(arg1) {
+  return window['go']['main']['App']['SetMaxTokens'](arg1);
+}
+
 export function SetMedia(arg1) {
   return window['go']['main']['App']['SetMedia'](arg1);
 }

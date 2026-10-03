@@ -13,6 +13,7 @@ import (
 	"airborne/internal/ai"
 	"airborne/internal/dcs"
 	"airborne/internal/gen"
+	"airborne/internal/i18n"
 	"airborne/internal/il2"
 	"airborne/internal/logging"
 	"airborne/internal/plan"
@@ -23,28 +24,48 @@ import (
 // The user writes free text per section; the sections are merged into ONE
 // structured prompt (prompts/06-merge.md) - there are no per-role LLM calls.
 type RoleDef struct {
-	Key         string `json:"key"`
-	Title       string `json:"title"`
-	Placeholder string `json:"placeholder"`
-	Hint        string `json:"hint"`
+	Key         string
+	Title       plan.Localized
+	Placeholder plan.Localized
+	Hint        plan.Localized
 }
 
 var Roles = []RoleDef{
-	{Key: "story", Title: "1 · Story / Lage",
-		Hint:        "Krieg, Jahr/Monat, Region, taktische Lage, warum dieser Einsatz, Wetter, Tageszeit",
-		Placeholder: "z. B. September 1950, Vorabend der Landung bei Inchon. Nordkoreanische Il-10 sollen UN-Aufklärungstrupps im Hügelland nordwestlich der Stadt ausschalten…"},
-	{Key: "player", Title: "2 · Player",
-		Hint:        "Flugzeugtyp, Anzahl Spielerplätze, Fraktion, Callsign, Startart/Ort, Bewaffnung",
-		Placeholder: "z. B. 2x Il-10, KPAF, Luftstart über der Küste westlich von Inchon, Bomben + Raketen…"},
-	{Key: "enemy", Title: "3 · Gegner",
-		Hint:        "Feindliche Einheiten Luft/Boden, Typen, Anzahl, Positionen, Verhalten (statisch/Patrouille/Kolonne)",
-		Placeholder: "z. B. Lastwagen und Jeeps unter Tarnnetzen im Hügelland, eine Jeep-Patrouille Richtung Kimpo, evtl. ein Paar F-51D als Jagdschutz…"},
-	{Key: "resistance", Title: "4 · Widerstand",
-		Hint:        "Flak/Luftabwehr, Bodenwiderstand, Verbündete, statische Objekte – realistisch dosiert",
-		Placeholder: "z. B. zwei Bofors-Geschütze und ein M16-Flakpanzer beim Hauptversteck, Tarnnetze über den Fahrzeugen…"},
-	{Key: "briefing", Title: "5 · Briefing / Funk",
-		Hint:        "Ton und Sprache des Briefings, Callsigns, Funksprüche (Intro, Kontakt, Erfolg, Zeitlimit)",
-		Placeholder: "z. B. propagandistischer KPA-Ton, Callsign „Sowol“, Meldungen von „Basis“: Einleitung nach 10 s, Feindkontakt im Zielgebiet, Erfolgsmeldung, Zeitlimit 25 min…"},
+	{Key: "story", Title: plan.Localized{De: "1 · Story / Lage", En: "1 · Story / situation"},
+		Hint: plan.Localized{
+			De: "Krieg, Jahr/Monat, Region, taktische Lage, warum dieser Einsatz, Wetter, Tageszeit",
+			En: "War, year/month, region, tactical situation, why this sortie, weather, time of day"},
+		Placeholder: plan.Localized{
+			De: "z. B. September 1950, Vorabend der Landung bei Inchon. Nordkoreanische Il-10 sollen UN-Aufklärungstrupps im Hügelland nordwestlich der Stadt ausschalten…",
+			En: "e.g. September 1950, eve of the Inchon landing. North Korean Il-10s are to take out UN recon teams in the hills northwest of the city…"}},
+	{Key: "player", Title: plan.Localized{De: "2 · Player", En: "2 · Player"},
+		Hint: plan.Localized{
+			De: "Flugzeugtyp, Anzahl Spielerplätze, Fraktion, Callsign, Startart/Ort, Bewaffnung",
+			En: "Aircraft type, number of player slots, faction, callsign, start type/location, loadout"},
+		Placeholder: plan.Localized{
+			De: "z. B. 2x Il-10, KPAF, Luftstart über der Küste westlich von Inchon, Bomben + Raketen…",
+			En: "e.g. 2x Il-10, KPAF, air start over the coast west of Inchon, bombs + rockets…"}},
+	{Key: "enemy", Title: plan.Localized{De: "3 · Gegner", En: "3 · Enemy"},
+		Hint: plan.Localized{
+			De: "Feindliche Einheiten Luft/Boden, Typen, Anzahl, Positionen, Verhalten (statisch/Patrouille/Kolonne)",
+			En: "Enemy air/ground units, types, numbers, positions, behaviour (static/patrol/column)"},
+		Placeholder: plan.Localized{
+			De: "z. B. Lastwagen und Jeeps unter Tarnnetzen im Hügelland, eine Jeep-Patrouille Richtung Kimpo, evtl. ein Paar F-51D als Jagdschutz…",
+			En: "e.g. trucks and jeeps under camouflage nets in the hills, a jeep patrol heading for Kimpo, maybe a pair of F-51Ds as fighter cover…"}},
+	{Key: "resistance", Title: plan.Localized{De: "4 · Widerstand", En: "4 · Resistance"},
+		Hint: plan.Localized{
+			De: "Flak/Luftabwehr, Bodenwiderstand, Verbündete, statische Objekte – realistisch dosiert",
+			En: "Flak/air defence, ground resistance, allies, static objects – in realistic doses"},
+		Placeholder: plan.Localized{
+			De: "z. B. zwei Bofors-Geschütze und ein M16-Flakpanzer beim Hauptversteck, Tarnnetze über den Fahrzeugen…",
+			En: "e.g. two Bofors guns and an M16 AA half-track at the main hideout, camouflage nets over the vehicles…"}},
+	{Key: "briefing", Title: plan.Localized{De: "5 · Briefing / Funk", En: "5 · Briefing / radio"},
+		Hint: plan.Localized{
+			De: "Ton und Sprache des Briefings, Callsigns, Funksprüche (Intro, Kontakt, Erfolg, Zeitlimit)",
+			En: "Tone and language of the briefing, callsigns, radio messages (intro, contact, success, time limit)"},
+		Placeholder: plan.Localized{
+			De: "z. B. propagandistischer KPA-Ton, Callsign „Sowol“, Meldungen von „Basis“: Einleitung nach 10 s, Feindkontakt im Zielgebiet, Erfolgsmeldung, Zeitlimit 25 min…",
+			En: "e.g. propagandistic KPA tone, callsign \"Sowol\", messages from \"Base\": intro after 10 s, enemy contact in the target area, success report, time limit 25 min…"}},
 }
 
 const (
@@ -53,6 +74,7 @@ const (
 	quickFile     = "07-quick.md"
 	prefabFile    = "08-prefab.md"
 	challengeFile = "09-challenge.md"
+	repairFile    = "10-repair.md"
 	schemaFile    = "schema.md"
 )
 
@@ -61,6 +83,9 @@ type Project struct {
 	Inputs map[string]string `json:"inputs"`
 	Plan   *plan.MissionPlan `json:"plan,omitempty"`
 	Output *gen.Result       `json:"output,omitempty"`
+	// Repair is the outcome of the repair round for Plan (nil = no problems
+	// were found, or the plan was edited by hand).
+	Repair *RepairInfo `json:"repair,omitempty"`
 }
 
 func NewProject() *Project {
@@ -84,6 +109,15 @@ type ConfigState struct {
 	IL2MissionsDir string `json:"il2MissionsDir"`
 	IL2Editor      string `json:"il2Editor"`
 	DCSMissionsDir string `json:"dcsMissionsDir"`
+	// MaxTokens is the effective per-plan output limit, MaxTokensEnv the
+	// .env default it falls back to when the user setting is 0.
+	MaxTokens    int    `json:"maxTokens"`
+	MaxTokensEnv int    `json:"maxTokensEnv"`
+	SettingsPath string `json:"settingsPath"`
+	// Language is the UI and message language ("de" or "en").
+	Language string `json:"language"`
+	// LastUsage is the token accounting of the most recent LLM call.
+	LastUsage *ai.Usage `json:"lastUsage"`
 }
 
 type State struct {
@@ -95,6 +129,7 @@ type State struct {
 	ProjectPath string            `json:"projectPath"`
 	Root        string            `json:"root"`
 	Issues      []string          `json:"issues"`
+	Repair      *RepairInfo       `json:"repair"`
 	Output      *gen.Result       `json:"output"`
 	Prefabs     []prefab.Prefab   `json:"prefabs"`
 	// Aircraft lists the flyable types offered in the challenge mode (per game).
@@ -111,6 +146,10 @@ type Pipeline struct {
 	proj       *Project
 	projPath   string
 	Lib        *prefab.Library
+	settings   Settings
+	lastUsage  *ai.Usage
+	// chatFn overrides the LLM transport (tests); nil = ai.Config.ChatUsage.
+	chatFn func(context.Context, []ai.Message) (string, ai.Usage, error)
 }
 
 func New(root string) (*Pipeline, error) {
@@ -120,6 +159,7 @@ func New(root string) (*Pipeline, error) {
 		return nil, err
 	}
 	p.Lib = prefab.NewLibrary(filepath.Join(root, "prefabs"))
+	p.loadSettings()
 	p.proj = NewProject()
 	p.projPath = filepath.Join(root, "projects", "current.json")
 	if data, err := os.ReadFile(p.projPath); err == nil {
@@ -136,10 +176,10 @@ func New(root string) (*Pipeline, error) {
 
 func (p *Pipeline) loadTemplates() error {
 	p.tmpl = map[string]string{}
-	for _, f := range []string{systemFile, mergeFile, quickFile, prefabFile, challengeFile, schemaFile} {
+	for _, f := range []string{systemFile, mergeFile, quickFile, prefabFile, challengeFile, repairFile, schemaFile} {
 		data, err := os.ReadFile(filepath.Join(p.PromptsDir, f))
 		if err != nil {
-			return fmt.Errorf("Prompt-Template fehlt: %s (%w)", f, err)
+			return i18n.Errorf("Prompt-Template fehlt: %s (%w)", "Prompt template missing: %s (%w)", f, err)
 		}
 		p.tmpl[f] = string(data)
 	}
@@ -210,8 +250,12 @@ func fill(tmpl string, ph map[string]string) string {
 }
 
 func (p *Pipeline) State() State {
-	cfg := ai.LoadConfig()
+	env := ai.LoadConfig()
+	cfg := p.aiConfig()
 	paths := LoadPaths()
+	p.mu.Lock()
+	lastUsage := p.lastUsage
+	p.mu.Unlock()
 	st := State{
 		Roles:  []RoleState{},
 		Issues: []string{},
@@ -219,9 +263,12 @@ func (p *Pipeline) State() State {
 			Base: cfg.Base, Model: cfg.Model, HasKey: cfg.Key != "",
 			PromptsDir: p.PromptsDir, LogPath: logging.Path(),
 			IL2MissionsDir: paths.IL2MissionsDir, IL2Editor: paths.IL2Editor, DCSMissionsDir: paths.DCSMissionsDir,
+			MaxTokens: cfg.MaxTokens, MaxTokensEnv: env.MaxTokens, SettingsPath: p.settingsPath(), Language: i18n.Lang(),
+			LastUsage: lastUsage,
 		},
 		Game:        p.proj.Game,
 		Plan:        p.proj.Plan,
+		Repair:      p.proj.Repair,
 		ProjectPath: p.projPath,
 		Root:        p.Root,
 		Output:      p.proj.Output,
@@ -232,9 +279,10 @@ func (p *Pipeline) State() State {
 		}
 		st.Issues = p.proj.Plan.Validate()
 	}
+	lang := i18n.Lang()
 	for _, r := range Roles {
 		st.Roles = append(st.Roles, RoleState{
-			Key: r.Key, Title: r.Title, Hint: r.Hint, Placeholder: r.Placeholder,
+			Key: r.Key, Title: r.Title.Pick(lang), Hint: r.Hint.Pick(lang), Placeholder: r.Placeholder.Pick(lang),
 			Input: p.proj.Inputs[r.Key],
 		})
 	}
@@ -278,6 +326,7 @@ func (p *Pipeline) SetPlanJSON(text string) error {
 	}
 	p.proj.Plan = &mp
 	p.proj.Output = nil
+	p.proj.Repair = nil
 	return nil
 }
 
@@ -286,8 +335,7 @@ func (p *Pipeline) runPlanPrompt(ctx context.Context, label, game, prompt string
 	system := p.systemPrompt(game)
 	logging.Block("SYSTEM "+label, system)
 	logging.Block("PROMPT "+label, prompt)
-	cfg := ai.LoadConfig()
-	out, err := cfg.Chat(ctx, []ai.Message{{Role: "system", Content: system}, {Role: "user", Content: prompt}})
+	out, err := p.chat(ctx, []ai.Message{{Role: "system", Content: system}, {Role: "user", Content: prompt}})
 	if err != nil {
 		logging.Errorf("%s fehlgeschlagen: %v", label, err)
 		return plan.MissionPlan{}, err
@@ -301,7 +349,9 @@ func (p *Pipeline) runPlanPrompt(ctx context.Context, label, game, prompt string
 	return mp, nil
 }
 
-func (p *Pipeline) storePlan(mp plan.MissionPlan, game string) {
+// storePlan makes mp the project plan; repair is the outcome of the repair
+// round (nil when the plan had no problems).
+func (p *Pipeline) storePlan(mp plan.MissionPlan, game string, repair *RepairInfo) {
 	if mp.Game == "" {
 		mp.Game = game
 	}
@@ -312,6 +362,7 @@ func (p *Pipeline) storePlan(mp plan.MissionPlan, game string) {
 	}
 	p.proj.Plan = &mp
 	p.proj.Output = nil
+	p.proj.Repair = repair
 	p.mu.Unlock()
 }
 
@@ -320,7 +371,7 @@ func (p *Pipeline) SetMedia(m plan.Media) error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	if p.proj.Plan == nil {
-		return fmt.Errorf("Kein Missionsplan vorhanden - erst Blitz, Herausforderung oder Merge ausfuehren")
+		return i18n.Errorf("Kein Missionsplan vorhanden - erst Blitz, Herausforderung oder Merge ausfuehren", "No mission plan yet - run Blitz, Challenge or Merge first")
 	}
 	if m.IsEmpty() {
 		p.proj.Plan.Media = nil
@@ -356,13 +407,23 @@ func (p *Pipeline) challengePrompt(game, aircraft, mapHint string) string {
 	})
 }
 
+// challengeTrim applies the challenge-mode invariants the LLM must not
+// override: flagged as challenge, no map icons, a single player slot.
+func challengeTrim(mp *plan.MissionPlan) {
+	mp.Challenge = true
+	mp.Icons = nil
+	if len(mp.PlayerGroups) > 0 {
+		mp.PlayerGroups[0].Count = 1
+	}
+}
+
 // Challenge builds a blind skirmish for the chosen aircraft: the LLM designs
 // the whole scenario and is told to keep every enemy detail out of the
 // player-facing texts; the plan is flagged so the generators hide the rest.
 func (p *Pipeline) Challenge(ctx context.Context, aircraft, mapHint string) (plan.MissionPlan, error) {
 	aircraft = strings.TrimSpace(aircraft)
 	if aircraft == "" {
-		return plan.MissionPlan{}, fmt.Errorf("Bitte ein Flugzeug waehlen")
+		return plan.MissionPlan{}, i18n.Errorf("Bitte ein Flugzeug waehlen", "Please choose an aircraft")
 	}
 	p.mu.Lock()
 	game := p.proj.Game
@@ -373,12 +434,12 @@ func (p *Pipeline) Challenge(ctx context.Context, aircraft, mapHint string) (pla
 	if err != nil {
 		return plan.MissionPlan{}, err
 	}
-	mp.Challenge = true
-	mp.Icons = nil
-	if len(mp.PlayerGroups) > 0 {
-		mp.PlayerGroups[0].Count = 1
-	}
-	p.storePlan(mp, game)
+	// The challenge flag must be set before the check so leaked enemy details
+	// count as problems; the LLM may re-add icons, so the trim runs twice.
+	challengeTrim(&mp)
+	mp, repair := p.repair(ctx, "challenge", game, mp)
+	challengeTrim(&mp)
+	p.storePlan(mp, game, repair)
 	logging.Infof("Challenge erfolgreich: %s (%s)", mp.Title.De, aircraft)
 	return mp, nil
 }
@@ -397,7 +458,8 @@ func (p *Pipeline) QuickMission(ctx context.Context, input string) (plan.Mission
 	if err != nil {
 		return plan.MissionPlan{}, err
 	}
-	p.storePlan(mp, game)
+	mp, repair := p.repair(ctx, "quick", game, mp)
+	p.storePlan(mp, game, repair)
 	logging.Infof("QuickMission erfolgreich: %s", mp.Title.De)
 	return mp, nil
 }
@@ -415,7 +477,7 @@ func (p *Pipeline) Merge(ctx context.Context) (plan.MissionPlan, error) {
 	}
 	if filled == 0 {
 		p.mu.Unlock()
-		return plan.MissionPlan{}, fmt.Errorf("Bitte mindestens einen Abschnitt (z. B. Story) ausfuellen")
+		return plan.MissionPlan{}, i18n.Errorf("Bitte mindestens einen Abschnitt (z. B. Story) ausfuellen", "Please fill in at least one section (e.g. Story)")
 	}
 	prompt := fill(p.tmpl[mergeFile], map[string]string{
 		"GAME_CONTEXT":    p.gameContext(game),
@@ -432,7 +494,8 @@ func (p *Pipeline) Merge(ctx context.Context) (plan.MissionPlan, error) {
 	if err != nil {
 		return plan.MissionPlan{}, err
 	}
-	p.storePlan(mp, game)
+	mp, repair := p.repair(ctx, "merge", game, mp)
+	p.storePlan(mp, game, repair)
 	logging.Infof("Merge erfolgreich: %s", mp.Title.De)
 	return mp, nil
 }
@@ -444,34 +507,20 @@ func (p *Pipeline) Generate() (*gen.Result, error) {
 	mp := p.proj.Plan
 	p.mu.Unlock()
 	if mp == nil {
-		return nil, fmt.Errorf("Kein Missionsplan vorhanden - erst Blitz oder Merge ausfuehren")
+		return nil, i18n.Errorf("Kein Missionsplan vorhanden - erst Blitz oder Merge ausfuehren", "No mission plan yet - run Blitz or Merge first")
 	}
 	paths := LoadPaths()
-	var (
-		res *gen.Result
-		err error
-	)
-	switch mp.Game {
-	case "il2":
-		if paths.IL2MissionsDir == "" {
-			return nil, fmt.Errorf("IL2_MISSIONS_DIR ist nicht gesetzt (.env)")
-		}
-		table, terr := il2.LoadPayloadTable(filepath.Join(p.Root, "reference", "il2-payloads.json"))
-		if terr != nil {
-			logging.Errorf("IL-2 Payload-Tabelle: %v", terr)
-		}
-		logging.Infof("IL-2 Payload-Tabelle: %d Flugzeuge (%s)", len(table.Planes), table.Path)
-		res, err = il2.GenerateOpts(mp, paths.IL2MissionsDir, table)
-	case "dcs":
-		if paths.DCSMissionsDir == "" {
-			return nil, fmt.Errorf("DCS_SAVED_GAMES ist nicht gesetzt (.env)")
-		}
-		payloads := dcs.LoadPayloadDB(paths.DCSRoot, paths.DCSSavedGames)
-		logging.Infof("DCS-Bewaffnungs-Presets: %d Typen (DCS_ROOT=%s)", payloads.Files, paths.DCSRoot)
-		res, err = dcs.GenerateOpts(mp, paths.DCSMissionsDir, p.Lib, payloads)
-	default:
-		return nil, fmt.Errorf("unbekanntes Spiel im Plan: %q", mp.Game)
+	outDir := paths.IL2MissionsDir
+	if mp.Game == "dcs" {
+		outDir = paths.DCSMissionsDir
 	}
+	if outDir == "" {
+		if mp.Game == "dcs" {
+			return nil, i18n.Errorf("DCS_SAVED_GAMES ist nicht gesetzt (.env)", "DCS_SAVED_GAMES is not set (.env)")
+		}
+		return nil, i18n.Errorf("IL2_MISSIONS_DIR ist nicht gesetzt (.env)", "IL2_MISSIONS_DIR is not set (.env)")
+	}
+	res, err := p.generateTo(mp, outDir)
 	if err != nil {
 		logging.Errorf("Generate (%s) fehlgeschlagen: %v", mp.Game, err)
 		return nil, err
@@ -486,6 +535,28 @@ func (p *Pipeline) Generate() (*gen.Result, error) {
 	return res, nil
 }
 
+// generateTo runs the plan's generator into outDir with the payload data the
+// export uses (IL-2 table, DCS presets, prefab library). The repair loop
+// calls it with a scratch folder to learn what the generator complains about.
+func (p *Pipeline) generateTo(mp *plan.MissionPlan, outDir string) (*gen.Result, error) {
+	paths := LoadPaths()
+	switch mp.Game {
+	case "il2":
+		table, terr := il2.LoadPayloadTable(filepath.Join(p.Root, "reference", "il2-payloads.json"))
+		if terr != nil {
+			logging.Errorf("IL-2 Payload-Tabelle: %v", terr)
+		}
+		logging.Infof("IL-2 Payload-Tabelle: %d Flugzeuge (%s)", len(table.Planes), table.Path)
+		return il2.GenerateOpts(mp, outDir, table)
+	case "dcs":
+		payloads := dcs.LoadPayloadDB(paths.DCSRoot, paths.DCSSavedGames)
+		logging.Infof("DCS-Bewaffnungs-Presets: %d Typen (DCS_ROOT=%s)", payloads.Files, paths.DCSRoot)
+		return dcs.GenerateOpts(mp, outDir, p.Lib, payloads)
+	default:
+		return nil, i18n.Errorf("unbekanntes Spiel im Plan: %q", "unknown game in plan: %q", mp.Game)
+	}
+}
+
 var intFields = map[string]bool{
 	"country": true, "count": true, "taskType": true, "success": true,
 	"counter": true, "delay": true,
@@ -493,7 +564,7 @@ var intFields = map[string]bool{
 }
 
 var floatFields = map[string]bool{
-	"x": true, "z": true, "alt": true, "lat": true, "lon": true, "heading": true, "r": true, "radius": true,
+	"x": true, "z": true, "alt": true, "lat": true, "lon": true, "heading": true, "r": true, "radius": true, "speed": true,
 	"dx": true, "dy": true, "spacing": true,
 }
 
@@ -556,11 +627,11 @@ func normalizeJSON(v any) any {
 func decodePlan(out string) (plan.MissionPlan, error) {
 	raw, err := ai.ExtractJSON(out)
 	if err != nil {
-		return plan.MissionPlan{}, fmt.Errorf("Antwort enthaelt kein JSON: %w", err)
+		return plan.MissionPlan{}, i18n.Errorf("Antwort enthaelt kein JSON: %w", "Response contains no JSON: %w", err)
 	}
 	var generic any
 	if err := json.Unmarshal(raw, &generic); err != nil {
-		return plan.MissionPlan{}, fmt.Errorf("JSON ungueltig: %w", err)
+		return plan.MissionPlan{}, i18n.Errorf("JSON ungueltig: %w", "Invalid JSON: %w", err)
 	}
 	normalized := normalizeJSON(generic)
 	data, err := json.Marshal(normalized)
@@ -570,7 +641,7 @@ func decodePlan(out string) (plan.MissionPlan, error) {
 	logging.Block("PLAN JSON (normalisiert)", string(data))
 	var mp plan.MissionPlan
 	if err := json.Unmarshal(data, &mp); err != nil {
-		return plan.MissionPlan{}, fmt.Errorf("Missionsplan-JSON ungueltig: %w (Details im Log airborne.log)", err)
+		return plan.MissionPlan{}, i18n.Errorf("Missionsplan-JSON ungueltig: %w (Details im Log airborne.log)", "Invalid mission plan JSON: %w (details in airborne.log)", err)
 	}
 	return mp, nil
 }
@@ -607,7 +678,7 @@ func (p *Pipeline) LoadProject(path string) error {
 	}
 	proj := NewProject()
 	if err := json.Unmarshal(data, proj); err != nil {
-		return fmt.Errorf("Projektdatei ungueltig: %w", err)
+		return i18n.Errorf("Projektdatei ungueltig: %w", "Invalid project file: %w", err)
 	}
 	if proj.Inputs == nil {
 		proj.Inputs = map[string]string{}

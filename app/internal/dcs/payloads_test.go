@@ -109,7 +109,7 @@ func TestPylonsInMiz(t *testing.T) {
 	if !strings.Contains(notes, "Bewaffnung Rakete (MiG-21Bis, CAS): FAB-250*2") {
 		t.Fatalf("missing payload note:\n%s", notes)
 	}
-	if !strings.Contains(notes, "keine Presets fuer Typ \"F-5E-3\"") {
+	if !strings.Contains(notes, "keine Presets fuer Typ \"F-5E-3\"") || len(res.Problems) != 2 {
 		t.Fatalf("missing no-preset note:\n%s", notes)
 	}
 }

@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 
+	"airborne/internal/i18n"
 	"airborne/internal/plan"
 )
 
@@ -258,6 +259,9 @@ func TestGenerateMiz(t *testing.T) {
 	if n := len(get(t, pg, "route", "points").(map[string]any)); n != 2 {
 		t.Fatalf("player route points = %d", n)
 	}
+	// DCS derives waypoint times from ground speed: only WP1 is time-locked,
+	// later points carry ETA_locked=false and an ETA = leg length / speed.
+	assertRouteTiming(t, "player", get(t, pg, "route", "points").(map[string]any), 200)
 	if _, ok := syria["helicopter"]; !ok {
 		t.Fatal("friendly helicopters missing on red side")
 	}
@@ -265,6 +269,10 @@ func TestGenerateMiz(t *testing.T) {
 	vgroups := get(t, israel, "vehicle", "group").(map[string]any)
 	if len(vgroups) != 3 { // APC, tanks, flak
 		t.Fatalf("expected 3 vehicle groups, got %d", len(vgroups))
+	}
+	assertRouteTiming(t, "tanks", get(t, vgroups, "2", "route", "points").(map[string]any), 5.5)
+	if get(t, vgroups, "1", "route", "points", "1", "ETA_locked") != true {
+		t.Fatal("static group: WP1 must stay time-locked")
 	}
 	if _, ok := get(t, israel, "plane", "group", "1").(map[string]any)["units"]; !ok {
 		t.Fatal("enemy CAP missing")
@@ -308,6 +316,78 @@ func TestGenerateMiz(t *testing.T) {
 	if get(t, m, "coalitions", "red", "1") != 47.0 {
 		t.Fatal("coalitions.red should list Syria")
 	}
+}
+
+// assertRouteTiming checks the DCS waypoint timing rule for a route: WP1 has
+// ETA 0 and ETA_locked=true, every later point is unlocked with an ETA equal
+// to the cumulative leg length divided by the (locked) speed.
+func assertRouteTiming(t *testing.T, label string, points map[string]any, wantSpeed float64) {
+	t.Helper()
+	if len(points) < 2 {
+		t.Fatalf("%s: need at least 2 points, got %d", label, len(points))
+	}
+	prev := points["1"].(map[string]any)
+	if prev["ETA_locked"] != true || prev["ETA"] != 0.0 || prev["speed_locked"] != true {
+		t.Fatalf("%s WP1: ETA=%v ETA_locked=%v speed_locked=%v", label, prev["ETA"], prev["ETA_locked"], prev["speed_locked"])
+	}
+	eta := 0.0
+	for i := 2; i <= len(points); i++ {
+		p := points[strconv.Itoa(i)].(map[string]any)
+		if p["ETA_locked"] != false {
+			t.Fatalf("%s WP%d: ETA_locked must be false (DCS computes the time from ground speed)", label, i)
+		}
+		if math.Abs(p["speed"].(float64)-wantSpeed) > 0.01 {
+			t.Fatalf("%s WP%d: speed=%v want %v", label, i, p["speed"], wantSpeed)
+		}
+		leg := math.Hypot(p["x"].(float64)-prev["x"].(float64), p["y"].(float64)-prev["y"].(float64))
+		eta += leg / wantSpeed
+		if got := p["ETA"].(float64); got <= 0 || math.Abs(got-eta) > 0.5 {
+			t.Fatalf("%s WP%d: ETA=%.1f want %.1f (leg %.0f m at %.1f m/s)", label, i, got, eta, leg, wantSpeed)
+		}
+		prev = p
+	}
+}
+
+// DCS has one text per field: the UI language comes first, the other one is
+// appended below it.
+func TestGenerateMizEnglishTexts(t *testing.T) {
+	i18n.SetLang(i18n.EN)
+	t.Cleanup(func() { i18n.SetLang(i18n.Default) })
+	res, err := Generate(samplePlan(), t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	files := readMiz(t, res.MainFile)
+	m := parseLua(t, "mission", string(files["mission"]))
+	dict := parseLua(t, "dictionary", string(files["l10n/DEFAULT/dictionary"]))
+	if got := dict[get(t, m, "sortie").(string)]; got != "Wadi Strike" {
+		t.Fatalf("sortie = %q, want the English title", got)
+	}
+	desc := dict[get(t, m, "descriptionText").(string)].(string)
+	if !strings.HasPrefix(desc, "Briefing EN\n\n--- DE ---\n") || !strings.Contains(desc, "Zeile 2") {
+		t.Fatalf("briefing should be English first, German appended: %q", desc)
+	}
+	for _, n := range res.Notes {
+		if strings.Contains(n, "Bewaffnung") {
+			t.Fatalf("generator note not translated: %q", n)
+		}
+	}
+}
+
+func TestRouteSpeedFromPlan(t *testing.T) {
+	mp := samplePlan()
+	mp.PlayerGroups[0].Speed = 900 // km/h -> 250 m/s
+	mp.EnemyGroups[1].Speed = 36   // km/h -> 10 m/s
+	mp.EnemyGroups[1].Route = append(mp.EnemyGroups[1].Route, plan.Position{Lat: 33.085, Lon: 35.75})
+	res, err := Generate(mp, t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := parseLua(t, "mission", readZipEntry(t, res.MainFile, "mission"))
+	red := get(t, m, "coalition", "red", "country", "1").(map[string]any)
+	blue := get(t, m, "coalition", "blue", "country", "1").(map[string]any)
+	assertRouteTiming(t, "player", get(t, red, "plane", "group", "1", "route", "points").(map[string]any), 250)
+	assertRouteTiming(t, "tanks", get(t, blue, "vehicle", "group", "2", "route", "points").(map[string]any), 10)
 }
 
 func keys(m map[string]string) []string {

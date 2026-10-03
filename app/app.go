@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 
 	"airborne/internal/ai"
 	"airborne/internal/gen"
+	"airborne/internal/i18n"
 	"airborne/internal/logging"
 	"airborne/internal/missionfile"
 	"airborne/internal/pipeline"
@@ -43,6 +43,7 @@ func (a *App) startup(ctx context.Context) {
 	pl, err := pipeline.New(root)
 	if err == nil {
 		a.pl = pl
+		runtime.WindowSetTitle(ctx, windowTitle())
 	}
 }
 
@@ -150,7 +151,7 @@ func (a *App) OpenOutputFolder() error {
 	}
 	out := a.pl.State().Output
 	if out == nil {
-		return fmt.Errorf("Noch keine Mission generiert")
+		return i18n.Errorf("Noch keine Mission generiert", "No mission generated yet")
 	}
 	return exec.Command("explorer.exe", "/select,", out.MainFile).Start()
 }
@@ -160,14 +161,43 @@ func (a *App) OpenOutputFolder() error {
 func (a *App) OpenIL2Editor() error {
 	paths := pipeline.LoadPaths()
 	if paths.IL2Editor == "" {
-		return fmt.Errorf("IL2_EDITOR ist nicht gesetzt (.env)")
+		return i18n.Errorf("IL2_EDITOR ist nicht gesetzt (.env)", "IL2_EDITOR is not set (.env)")
 	}
 	if _, err := os.Stat(paths.IL2Editor); err != nil {
-		return fmt.Errorf("IL-2 Editor nicht gefunden: %s", paths.IL2Editor)
+		return i18n.Errorf("IL-2 Editor nicht gefunden: %s", "IL-2 editor not found: %s", paths.IL2Editor)
 	}
 	cmd := exec.Command(paths.IL2Editor)
 	cmd.Dir = filepath.Dir(paths.IL2Editor)
 	return cmd.Start()
+}
+
+// SetMaxTokens stores the per-plan output token limit in <root>/settings.json
+// (0 = use AI_MAX_TOKENS from .env).
+func (a *App) SetMaxTokens(n int) (pipeline.State, error) {
+	if a.pl == nil {
+		return pipeline.State{}, errNoProject()
+	}
+	if err := a.pl.SetMaxTokens(n); err != nil {
+		return pipeline.State{}, err
+	}
+	return a.pl.State(), nil
+}
+
+// SetLanguage switches the UI and message language ("de" or "en") and
+// stores it in <root>/settings.json.
+func (a *App) SetLanguage(lang string) (pipeline.State, error) {
+	if a.pl == nil {
+		return pipeline.State{}, errNoProject()
+	}
+	if err := a.pl.SetLanguage(lang); err != nil {
+		return pipeline.State{}, err
+	}
+	runtime.WindowSetTitle(a.ctx, windowTitle())
+	return a.pl.State(), nil
+}
+
+func windowTitle() string {
+	return i18n.T("AIrborne - Missionsbaukasten", "AIrborne - Mission Builder")
 }
 
 func (a *App) SaveProject(path string) (string, error) {
@@ -227,7 +257,7 @@ func (a *App) saveQuietly() {
 }
 
 func errNoProject() error {
-	return fmt.Errorf("Projekt-Root nicht gefunden (prompts/ fehlt). AIrborne aus dem Projektordner starten oder .env/PROMPTS_DIR pruefen")
+	return i18n.Errorf("Projekt-Root nicht gefunden (prompts/ fehlt). AIrborne aus dem Projektordner starten oder .env/PROMPTS_DIR pruefen", "Project root not found (prompts/ missing). Start AIrborne from the project folder or check .env/PROMPTS_DIR")
 }
 
 // keep gen imported for the binding generator (Result is part of State).
