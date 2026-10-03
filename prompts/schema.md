@@ -53,3 +53,15 @@
 **Bewaffnung DCS:** Jede Flugzeug-/Hubschraubergruppe (Spieler, Gegner, Verbündete) bekommt `task` (Pflicht) = Rolle: "CAP" | "Intercept" | "FighterSweep" | "Escort" | "CAS" | "GroundAttack" | "Strike" | "SEAD" | "AntiShip" | "Transport" | "Recon", und `payload` (Klartext-Wunsch mit DCS-Waffenbezeichnungen, z. B. "AIM-120C*4, AIM-9X*2" oder "S-8KOM, 9M114 Shturm" oder "AGM-88 HARM"). Der Generator wählt daraus das passende Mission-Editor-Preset des Typs; die Rolle steuert auch das Verhalten der KI (CAP greift Luftziele an, SEAD Luftabwehr, AntiShip Schiffe).
 
 **Prefabs (nur DCS, optional):** Wenn im Spiel-Kontext Prefabs gelistet sind, kann der Plan sie über `"prefabs": [{"prefab":"<id>","name":"...","side":"player|friendly|enemy","country":"USA","position":{"lat":35.40,"lon":35.95,"heading":270}}]` platzieren (Ursprung + Ausrichtung des Prefabs; `country` optional). Die Einheiten eines Prefabs nicht zusätzlich einzeln auflisten. Ohne passende Prefabs das Feld weglassen.
+
+**Verhalten (`behaviors`, optional, derzeit nur DCS):** Dynamik über die statischen Gruppen hinaus. Nur verwenden, wenn es die Mission spürbar besser macht (max. 3 Einträge); sonst Feld weglassen. Jede Gruppe darf in höchstens einem Verhalten stehen; Namen müssen exakt den `name` einer Gruppe treffen. `side` = "enemy" (Standard, `enemyGroups`) oder "friendly" (`friendlyGroups`).
+```json
+"behaviors": [
+  {"type":"iads","groups":["SA-8 Stellung","SA-15 Stellung"],"sensors":["EWR Nord"]},
+  {"type":"scramble","groups":["MiG-23 Alarmrotte"],"zone":{"lat":33.10,"lon":35.72,"r":30000}},
+  {"type":"respawn","groups":["Nachschubkolonne"],"waves":2,"interval":300}
+]
+```
+- `iads`: Luftverteidigungsnetz. `groups` = SAM-Bodengruppen aus **eigenständigen** Systemen mit eigenem Radar ("Osa 9A33 ln", "Tor 9A331", "2S6 Tunguska", "Roland ADS") – eine Gruppe hat nur einen Typ, Batterien aus getrennten Radar- und Startfahrzeugen (SA-2/3/6/10/11, Hawk, Patriot) funktionieren so NICHT; `sensors` = mindestens eine Frühwarnradar-Gruppe (z. B. "1L13 EWR", "55G6 EWR", "FPS-117"). SAM-Radare bleiben aus, bis das Netz ein Ziel erfasst – gut für SEAD/Strike-Missionen.
+- `scramble`: Flugzeug-/Hubschraubergruppen (mit `route`) erscheinen erst, wenn der Spieler die `zone` (Radius `r` in m) erreicht – Alarmrotte/Abfangjäger statt Dauer-CAP.
+- `respawn`: die Gruppen kehren nach ihrer Vernichtung zurück, höchstens `waves`-mal (1-10, Standard 2), geprüft alle `interval` Sekunden (≥ 60, Standard 300). Mindestens eine Zielgruppe für `all_destroyed` ohne respawn lassen.

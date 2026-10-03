@@ -146,6 +146,7 @@ type Pipeline struct {
 	proj       *Project
 	projPath   string
 	Lib        *prefab.Library
+	places     []Place
 	settings   Settings
 	lastUsage  *ai.Usage
 	// chatFn overrides the LLM transport (tests); nil = ai.Config.ChatUsage.
@@ -159,6 +160,7 @@ func New(root string) (*Pipeline, error) {
 		return nil, err
 	}
 	p.Lib = prefab.NewLibrary(filepath.Join(root, "prefabs"))
+	p.places = loadPlaces(root)
 	p.loadSettings()
 	p.proj = NewProject()
 	p.projPath = filepath.Join(root, "projects", "current.json")
@@ -400,7 +402,7 @@ func (p *Pipeline) challengePrompt(game, aircraft, mapHint string) string {
 		}
 	}
 	return fill(p.tmpl[challengeFile], map[string]string{
-		"GAME_CONTEXT": p.gameContext(game),
+		"GAME_CONTEXT": p.gameContext(game, mapHint),
 		"AIRCRAFT":     label,
 		"MAP_HINT":     hint,
 		"SCHEMA":       p.tmpl[schemaFile],
@@ -448,7 +450,7 @@ func (p *Pipeline) QuickMission(ctx context.Context, input string) (plan.Mission
 	p.mu.Lock()
 	game := p.proj.Game
 	prompt := fill(p.tmpl[quickFile], map[string]string{
-		"GAME_CONTEXT": p.gameContext(game),
+		"GAME_CONTEXT": p.gameContext(game, input),
 		"QUICK_INPUT":  strings.TrimSpace(input),
 		"SCHEMA":       p.tmpl[schemaFile],
 	})
@@ -480,7 +482,7 @@ func (p *Pipeline) Merge(ctx context.Context) (plan.MissionPlan, error) {
 		return plan.MissionPlan{}, i18n.Errorf("Bitte mindestens einen Abschnitt (z. B. Story) ausfuellen", "Please fill in at least one section (e.g. Story)")
 	}
 	prompt := fill(p.tmpl[mergeFile], map[string]string{
-		"GAME_CONTEXT":    p.gameContext(game),
+		"GAME_CONTEXT":    p.gameContext(game, userText(p.proj.Inputs)),
 		"USER_STORY":      userSection(p.proj.Inputs["story"]),
 		"USER_PLAYER":     userSection(p.proj.Inputs["player"]),
 		"USER_ENEMY":      userSection(p.proj.Inputs["enemy"]),
@@ -551,7 +553,11 @@ func (p *Pipeline) generateTo(mp *plan.MissionPlan, outDir string) (*gen.Result,
 	case "dcs":
 		payloads := dcs.LoadPayloadDB(paths.DCSRoot, paths.DCSSavedGames)
 		logging.Infof("DCS-Bewaffnungs-Presets: %d Typen (DCS_ROOT=%s)", payloads.Files, paths.DCSRoot)
-		return dcs.GenerateOpts(mp, outDir, p.Lib, payloads)
+		scripts := dcs.LoadScripts(p.Root)
+		if scripts == nil && len(mp.Behaviors) > 0 {
+			logging.Errorf("MOOSE nicht gefunden: %s", filepath.Join(p.Root, dcs.MooseRelPath))
+		}
+		return dcs.GenerateOpts(mp, outDir, p.Lib, payloads, scripts)
 	default:
 		return nil, i18n.Errorf("unbekanntes Spiel im Plan: %q", "unknown game in plan: %q", mp.Game)
 	}
@@ -559,7 +565,7 @@ func (p *Pipeline) generateTo(mp *plan.MissionPlan, outDir string) (*gen.Result,
 
 var intFields = map[string]bool{
 	"country": true, "count": true, "taskType": true, "success": true,
-	"counter": true, "delay": true,
+	"counter": true, "delay": true, "interval": true, "waves": true,
 	"cloudLevel": true, "cloudHeight": true, "precLevel": true, "seaState": true, "turbulence": true,
 }
 

@@ -13,12 +13,13 @@ import (
 	"airborne/internal/prefab"
 )
 
-// gameContext is GameContext plus, for DCS, the list of saved prefabs the
+// gameContext is GameContext plus, for IL-2, the map's named places (cities
+// only when text names them) and, for DCS, the list of saved prefabs the
 // mission LLM may place via plan.prefabs.
-func (p *Pipeline) gameContext(game string) string {
+func (p *Pipeline) gameContext(game, text string) string {
 	ctx := GameContext(game)
 	if game != "dcs" {
-		return ctx
+		return ctx + placesContext(p.places, text)
 	}
 	list, _ := p.Lib.List()
 	if len(list) == 0 {

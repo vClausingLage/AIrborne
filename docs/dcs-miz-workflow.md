@@ -72,6 +72,26 @@ mission =
 
 Achtung: DCS-Koordinaten sind **nicht Meter wie in IL-2**, sondern interne Kartekoordinaten (doppelte Genauigkeit, mapabhängig, `x` ≈ Nord, `y` ≈ Ost); Konversion nur über Map-Daten (Terrain-Script oder aus bestehenden Missionen ableiten).
 
+### Skripte laden (MISSION START + DO SCRIPT FILE) – verifiziert
+
+Abgeglichen mit den mitgelieferten F-14-Missionen (`Mods/aircraft/F14/Missions/…`, laden MIST/CTLD so). Ein Trigger existiert immer in zwei Formen mit demselben Index `N`:
+
+```lua
+-- trig (kompiliertes Lua)
+["actions"][N]     = "a_do_script_file(getValueResourceByKey(\"ResKey_Action_535\"));a_do_script_file(...);"
+["conditions"][N]  = "return(true)"
+["funcStartup"][N] = "if mission.trig.conditions[N]() then mission.trig.actions[N]() end"
+["flag"][N]        = true
+-- trigrules (Editor-Darstellung)
+[N] = { ["predicate"]="triggerStart", ["rules"]={}, ["actions"]={ [1]={ ["predicate"]="a_do_script_file", ["file"]="ResKey_Action_535" } } }
+```
+
+- **MISSION START** (`triggerStart`) steht in `trig.funcStartup`, *nicht* in `trig.func`, und die Action endet ohne `mission.trig.func[N]=nil;`. ONCE-Trigger (`triggerOnce`) dagegen: `trig.func[N]` + `…; mission.trig.func[N]=nil;`.
+- Die Lua-Datei liegt in `l10n/DEFAULT/<datei>.lua`, `mapResource` mappt `ResKey_Action_N` darauf (wie Bilder/Sounds).
+- Gruppe per Trigger aktivieren: Action `a_activate_group(<groupId>)`, Regel `{["group"]=<groupId>, ["predicate"]="a_activate_group"}`; die Gruppe braucht `["lateActivation"] = true`.
+
+**AIrborne-Behaviors** (`plan.behaviors`, `app/internal/dcs/behaviors.go`): ein MISSION-START-Trigger lädt zuerst das gepinnte `Moose_.lua` (`scripts/moose/`, Version in `VERSION`), danach das generierte `AIrborne_behaviors.lua` (je Verhalten ein `pcall`-Block, Fehler landen in `dcs.log`). `iads` → `MANTIS:New(...)`; die Gruppen werden dafür in `AB_IADS<n>_SAM …` / `AB_IADS<n>_EWR …` umbenannt, weil MANTIS per Namenspräfix sucht. `respawn` → spät aktivierte Vorlage + `SPAWN:New(name):InitLimit(units, waves+1):SpawnScheduled(interval, 0.3)`; solche Vorlagen zählen nicht für „alle Ziele vernichtet“ (`c_group_dead` auf eine nie aktivierte Gruppe). `scramble` braucht kein MOOSE: Zone + `c_part_of_group_in_zone` → `a_activate_group`. Das Skript wird in `go test` mit gopher-lua gegen MOOSE-Stubs ausgeführt (`TestBehaviorsMiz`); ob MOOSE in DCS dann wirklich so reagiert, zeigt nur ein Testflug.
+
 ## 3. Verifizierter Roundtrip (PowerShell)
 
 ```powershell

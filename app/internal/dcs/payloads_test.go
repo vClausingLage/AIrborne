@@ -94,7 +94,7 @@ func TestPylonsInMiz(t *testing.T) {
 	mp.PlayerGroups[0].Task = "CAS"
 	mp.PlayerGroups[0].Payload = "2x FAB-250, 2x UB-16"
 	mp.EnemyGroups[2].Task = "Intercept"
-	res, err := GenerateOpts(mp, t.TempDir(), nil, db)
+	res, err := GenerateOpts(mp, t.TempDir(), nil, db, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

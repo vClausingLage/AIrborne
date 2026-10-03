@@ -28,6 +28,10 @@ type MissionPlan struct {
 	Briefing       Localized         `json:"briefing"`
 	Icons          []Icon            `json:"icons"`
 	Prefabs        []PrefabPlacement `json:"prefabs,omitempty"`
+	// Behaviors are dynamic elements beyond static groups (air defence network,
+	// reinforcements, scrambles). They describe intent only; each generator maps
+	// them to what its sim offers (DCS: MOOSE scripts and triggers).
+	Behaviors []Behavior `json:"behaviors,omitempty"`
 	// Media is user-provided content that never passes through the LLM
 	// (briefing picture, kneeboard pages). Preserved when a plan is regenerated.
 	Media *Media `json:"media,omitempty"`
@@ -70,6 +74,56 @@ func (pp PrefabPlacement) IsEnemy() bool {
 		return true
 	}
 	return false
+}
+
+// Behavior types (Behavior.Type).
+const (
+	BehaviorIADS     = "iads"     // Groups = SAM sites, Sensors = early-warning radars; radars stay dark until the network detects a target
+	BehaviorRespawn  = "respawn"  // Groups come back after being destroyed, up to Waves times, checked every Interval seconds
+	BehaviorScramble = "scramble" // air Groups take off (appear) once the player enters Zone
+)
+
+// Behavior is a game-neutral dynamic element of the mission. Groups and
+// Sensors reference groups of the given side by name.
+type Behavior struct {
+	Type     string   `json:"type"`
+	Side     string   `json:"side,omitempty"` // enemy (default) | friendly
+	Groups   []string `json:"groups"`
+	Sensors  []string `json:"sensors,omitempty"`
+	Zone     *Zone    `json:"zone,omitempty"`
+	Interval int      `json:"interval,omitempty"` // respawn: seconds between checks (default 300)
+	Waves    int      `json:"waves,omitempty"`    // respawn: how often a group comes back (default 2)
+}
+
+// IsFriendly reports whether the behavior applies to the player's side.
+func (bh Behavior) IsFriendly() bool {
+	switch strings.ToLower(strings.TrimSpace(bh.Side)) {
+	case "friendly", "player", "blue", "own", "allied":
+		return true
+	}
+	return false
+}
+
+// RespawnWaves returns the number of respawns, clamped to 1..10 (default 2).
+func (bh Behavior) RespawnWaves() int {
+	switch {
+	case bh.Waves <= 0:
+		return 2
+	case bh.Waves > 10:
+		return 10
+	}
+	return bh.Waves
+}
+
+// RespawnInterval returns the check interval in seconds, at least 60 (default 300).
+func (bh Behavior) RespawnInterval() int {
+	switch {
+	case bh.Interval <= 0:
+		return 300
+	case bh.Interval < 60:
+		return 60
+	}
+	return bh.Interval
 }
 
 type Localized struct {
@@ -375,8 +429,68 @@ func (p *MissionPlan) Validate() []string {
 			issues = append(issues, i18n.T("media.kneeboards: Kneeboards gibt es nur in DCS (werden ignoriert)", "media.kneeboards: kneeboards exist only in DCS (ignored)"))
 		}
 	}
+	issues = append(issues, p.behaviorIssues()...)
 	if p.Challenge {
 		issues = append(issues, p.challengeLeaks()...)
+	}
+	return issues
+}
+
+// behaviorIssues checks that every behavior references existing groups of its
+// side with the right kind, and that no group is driven by two behaviors.
+func (p *MissionPlan) behaviorIssues() []string {
+	var issues []string
+	used := map[string]int{}
+	for i, bh := range p.Behaviors {
+		groups, sideName := p.EnemyGroups, "enemyGroups"
+		if bh.IsFriendly() {
+			groups, sideName = p.FriendlyGroups, "friendlyGroups"
+		}
+		byName := map[string]Group{}
+		for _, g := range groups {
+			byName[g.Name] = g
+		}
+		check := func(field string, names []string, wantAir *bool) {
+			for _, n := range names {
+				g, ok := byName[n]
+				if !ok {
+					issues = append(issues, i18n.Sprintf("behaviors[%d].%s: Gruppe %q fehlt in %s (exakten Gruppennamen verwenden)", "behaviors[%d].%s: group %q not found in %s (use the exact group name)", i, field, n, sideName))
+					continue
+				}
+				if wantAir != nil && g.IsAir() != *wantAir {
+					if *wantAir {
+						issues = append(issues, i18n.Sprintf("behaviors[%d].%s: %q ist keine Flugzeug-/Hubschraubergruppe", "behaviors[%d].%s: %q is not an aircraft/helicopter group", i, field, n))
+					} else {
+						issues = append(issues, i18n.Sprintf("behaviors[%d].%s: %q muss eine Bodengruppe sein", "behaviors[%d].%s: %q must be a ground group", i, field, n))
+					}
+				}
+				if prev, dup := used[n]; dup {
+					issues = append(issues, i18n.Sprintf("behaviors[%d]: Gruppe %q steckt schon in behaviors[%d] (jede Gruppe nur in einem Verhalten)", "behaviors[%d]: group %q is already used by behaviors[%d] (one behavior per group)", i, n, prev))
+				}
+				used[n] = i
+			}
+		}
+		air, ground := true, false
+		if len(bh.Groups) == 0 {
+			issues = append(issues, i18n.Sprintf("behaviors[%d].groups ist leer", "behaviors[%d].groups is empty", i))
+		}
+		switch strings.ToLower(strings.TrimSpace(bh.Type)) {
+		case BehaviorIADS:
+			check("groups", bh.Groups, &ground)
+			if len(bh.Sensors) == 0 {
+				issues = append(issues, i18n.Sprintf("behaviors[%d]: iads braucht mindestens eine Radargruppe in sensors (z. B. \"1L13 EWR\" oder \"55G6 EWR\")", "behaviors[%d]: iads needs at least one radar group in sensors (e.g. \"1L13 EWR\" or \"55G6 EWR\")", i))
+			}
+			check("sensors", bh.Sensors, nil)
+		case BehaviorRespawn:
+			check("groups", bh.Groups, nil)
+		case BehaviorScramble:
+			check("groups", bh.Groups, &air)
+			if bh.Zone == nil || (bh.Zone.Lat == 0 && bh.Zone.Lon == 0 && bh.Zone.X == 0 && bh.Zone.Z == 0) {
+				issues = append(issues, i18n.Sprintf("behaviors[%d]: scramble braucht eine zone (Ausloesebereich fuer den Spieler)", "behaviors[%d]: scramble needs a zone (trigger area for the player)", i))
+			}
+		default:
+			issues = append(issues, i18n.Sprintf("behaviors[%d].type %q unbekannt (iads | respawn | scramble)", "behaviors[%d].type %q unknown (iads | respawn | scramble)", i, bh.Type))
+		}
 	}
 	return issues
 }

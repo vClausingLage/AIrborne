@@ -84,3 +84,58 @@ func TestMediaValidation(t *testing.T) {
 		t.Fatal("IsEmpty")
 	}
 }
+
+// Behaviors must reference existing groups of their side with the right kind,
+// and each group may be driven by one behavior only.
+func TestBehaviorValidation(t *testing.T) {
+	base := func() *MissionPlan {
+		mp := challengePlan()
+		mp.Challenge = false
+		mp.EnemyGroups[0].Name = "Fighters"
+		mp.EnemyGroups[1].Name = "SAM"
+		mp.EnemyGroups = append(mp.EnemyGroups, Group{Name: "Radar", Kind: "vehicle", Script: "1L13 EWR", Position: &Position{Lat: 33.2, Lon: 35.6}})
+		mp.FriendlyGroups = []Group{{Name: "Convoy", Kind: "vehicle", Script: "Ural-375", Position: &Position{Lat: 33.3, Lon: 36}}}
+		return mp
+	}
+	ok := base()
+	ok.Behaviors = []Behavior{
+		{Type: "iads", Groups: []string{"SAM"}, Sensors: []string{"Radar"}},
+		{Type: "scramble", Groups: []string{"Fighters"}, Zone: &Zone{Lat: 33, Lon: 35.7, R: 20000}},
+		{Type: "respawn", Side: "friendly", Groups: []string{"Convoy"}},
+	}
+	if issues := ok.Validate(); len(issues) != 0 {
+		t.Fatalf("valid behaviors reported: %v", issues)
+	}
+
+	cases := map[string]struct {
+		bh   []Behavior
+		want string
+	}{
+		"unknown group":    {[]Behavior{{Type: "respawn", Groups: []string{"Nobody"}}}, `"Nobody"`},
+		"wrong side":       {[]Behavior{{Type: "respawn", Groups: []string{"Convoy"}}}, "enemyGroups"},
+		"iads no sensors":  {[]Behavior{{Type: "iads", Groups: []string{"SAM"}}}, "sensors"},
+		"iads air sam":     {[]Behavior{{Type: "iads", Groups: []string{"Fighters"}, Sensors: []string{"Radar"}}}, "behaviors[0].groups"},
+		"scramble ground":  {[]Behavior{{Type: "scramble", Groups: []string{"SAM"}, Zone: &Zone{Lat: 33, Lon: 35}}}, "behaviors[0].groups"},
+		"scramble no zone": {[]Behavior{{Type: "scramble", Groups: []string{"Fighters"}}}, "zone"},
+		"unknown type":     {[]Behavior{{Type: "gci", Groups: []string{"Fighters"}}}, `"gci"`},
+		"empty groups":     {[]Behavior{{Type: "respawn"}}, "groups"},
+		"group used twice": {[]Behavior{{Type: "respawn", Groups: []string{"SAM"}}, {Type: "iads", Groups: []string{"SAM"}, Sensors: []string{"Radar"}}}, "behaviors[0]"},
+	}
+	for name, c := range cases {
+		mp := base()
+		mp.Behaviors = c.bh
+		issues := strings.Join(mp.Validate(), "\n")
+		if !strings.Contains(issues, "behaviors[") || !strings.Contains(issues, c.want) {
+			t.Errorf("%s: want issue containing %q, got %q", name, c.want, issues)
+		}
+	}
+}
+
+func TestBehaviorDefaults(t *testing.T) {
+	if (Behavior{}).RespawnWaves() != 2 || (Behavior{Waves: 99}).RespawnWaves() != 10 {
+		t.Fatal("RespawnWaves clamp")
+	}
+	if (Behavior{}).RespawnInterval() != 300 || (Behavior{Interval: 5}).RespawnInterval() != 60 {
+		t.Fatal("RespawnInterval clamp")
+	}
+}

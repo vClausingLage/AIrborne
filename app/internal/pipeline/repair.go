@@ -67,7 +67,7 @@ func (p *Pipeline) repair(ctx context.Context, label, game string, mp plan.Missi
 	}
 	p.mu.Lock()
 	prompt := fill(p.tmpl[repairFile], map[string]string{
-		"GAME_CONTEXT": p.gameContext(game),
+		"GAME_CONTEXT": p.gameContext(game, string(planJSON)),
 		"ISSUES":       "- " + strings.Join(found, "\n- "),
 		"PLAN_JSON":    string(planJSON),
 		"SCHEMA":       p.tmpl[schemaFile],

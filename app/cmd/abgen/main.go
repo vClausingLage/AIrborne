@@ -65,7 +65,7 @@ func main() {
 	}
 	var res *gen.Result
 	if mp.Game == "dcs" {
-		res, err = dcs.GenerateWith(&mp, *out, prefab.NewLibrary(filepath.Join(root, "prefabs")))
+		res, err = dcs.GenerateOpts(&mp, *out, prefab.NewLibrary(filepath.Join(root, "prefabs")), nil, dcs.LoadScripts(root))
 	} else {
 		table, terr := il2.LoadPayloadTable(filepath.Join(root, "reference", "il2-payloads.json"))
 		if terr != nil {

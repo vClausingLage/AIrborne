@@ -51,6 +51,8 @@ These have bitten before and are not visible from the code:
 - In Bash here, never use `python -` or `cat > "$UNSET/x"` — both hang waiting on stdin.
 - No Lua interpreter is installed. DCS output is verified with the mini Lua parser in
   `app/internal/dcs/dcs_test.go` (`parseLua`), IL-2 output with `parseMission` in `il2_test.go`.
+  Generated *script* Lua (plan behaviors) is executed in tests with gopher-lua (Lua 5.1, like DCS)
+  against MOOSE stubs (`runBehaviorScript` in `behaviors_test.go`).
 
 ## Layout
 
@@ -74,8 +76,11 @@ app/
   frontend/src/        App.tsx (tabs/modes) + ChallengePane, MediaPanel, MissionEditor, SettingsPane
 prompts/               versioned prompt templates (see below)
 prefabs/               saved prefabs, one JSON per file
+scripts/moose/         pinned MOOSE build (Moose_.lua + VERSION) embedded into .miz files for plan behaviors
 projects/current.json  autosaved current project (inputs + plan + output)
 reference/il2-payloads.json   IL-2 PayloadId table
+reference/il2-korea-places.json  IL-2 Korea airfields/cities/sites (x/z), copied from the zeno repo;
+                 fed into the IL-2 prompt by pipeline/places.go (cities only when named)
 docs/                  format and workflow documentation
 ```
 

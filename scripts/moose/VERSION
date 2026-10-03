@@ -1,0 +1,10 @@
+MOOSE 2.9.18 (released 2026-06-14, commit 73d3ed119cd9e7e3f2cfcabbaa34513d30529b54)
+File:    Moose_.lua (release asset, comments stripped)
+Source:  https://github.com/FlightControl-Master/MOOSE/releases/download/2.9.18/Moose_.lua
+SHA-256: b3d83d9791186e74e45325ae65f3fff7b58169da2f53f62edf551b202890af13
+License: GPL-3.0 (see LICENSE in this folder)
+
+AIrborne embeds this file unchanged into every .miz that uses plan behaviors
+(iads, respawn). Update it deliberately: download the new release asset,
+replace Moose_.lua, update this file and run `go test ./internal/dcs`
+(TestPinnedMooseCompiles + TestBehaviorsMiz), then test one mission in DCS.

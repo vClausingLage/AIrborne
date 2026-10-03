@@ -113,6 +113,11 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, payloads *PayloadTable) (
 	w.lang[langAuthor] = plan.Localized{De: author, En: author}
 
 	w.build(mp)
+	if len(mp.Behaviors) > 0 {
+		// Not a plan defect: the behaviors are valid, IL-2 just has no
+		// mapping for them yet (MCU logic is a later step).
+		w.note("%d behaviors (iads/respawn/scramble) werden fuer IL-2 noch nicht umgesetzt", "%d behaviors (iads/respawn/scramble) are not implemented for IL-2 yet", len(mp.Behaviors))
+	}
 
 	if err := os.MkdirAll(outDir, 0o755); err != nil {
 		return nil, i18n.Errorf("Missionsordner nicht erreichbar: %w", "Mission folder not reachable: %w", err)

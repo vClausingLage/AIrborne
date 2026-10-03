@@ -64,8 +64,17 @@ type builder struct {
 	enemyGroupIDs []int
 	center        [2]float64
 
-	resources T                 // l10n/DEFAULT/mapResource: ResKey -> file name
-	extra     map[string][]byte // additional zip entries (pictures, kneeboards)
+	resources  T                 // l10n/DEFAULT/mapResource: ResKey -> file name
+	pictureKey string            // ResKey of the briefing picture ("" = none)
+	extra      map[string][]byte // additional zip entries (pictures, kneeboards, scripts)
+
+	// behaviors (see behaviors.go)
+	scripts     *Scripts
+	mods        map[string]groupMod // side-qualified plan group name -> change
+	groupIDs    map[string]int      // side-qualified plan group name -> groupId
+	groupUnits  map[string]int      // side-qualified plan group name -> unit count
+	startFuncs  T                   // trig.funcStartup (MISSION START triggers)
+	lateTargets int                 // enemy groups left out of "all destroyed" (late activation)
 
 	// lang is the primary text language (UI language); DCS has one text per
 	// field, so the other language is appended below it.
@@ -93,12 +102,13 @@ func Generate(mp *plan.MissionPlan, outDir string) (*gen.Result, error) {
 
 // GenerateWith writes NAME.miz into outDir; prefabs resolves plan.Prefabs.
 func GenerateWith(mp *plan.MissionPlan, outDir string, prefabs PrefabSource) (*gen.Result, error) {
-	return GenerateOpts(mp, outDir, prefabs, nil)
+	return GenerateOpts(mp, outDir, prefabs, nil, nil)
 }
 
 // GenerateOpts is GenerateWith plus the mission-editor payload presets used
-// to arm aircraft (nil = empty pylons).
-func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, payloads *PayloadDB) (*gen.Result, error) {
+// to arm aircraft (nil = empty pylons) and the scripting libraries for
+// plan.Behaviors (nil = MOOSE behaviors are skipped).
+func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, payloads *PayloadDB, scripts *Scripts) (*gen.Result, error) {
 	if len(mp.PlayerGroups) == 0 || mp.PlayerGroups[0].Start == nil {
 		return nil, i18n.Errorf("Plan hat keine Spielergruppe mit Startposition", "Plan has no player group with a start position")
 	}
@@ -107,7 +117,8 @@ func GenerateOpts(mp *plan.MissionPlan, outDir string, prefabs PrefabSource, pay
 		return nil, i18n.Errorf("DCS-Karte %q unbekannt (bekannt: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)", "Unknown DCS map %q (known: Caucasus, Syria, PersianGulf, Nevada, Normandy, TheChannel, MarianaIslands, Falklands, Sinai, Kola)", mp.Map)
 	}
 	b := &builder{mp: mp, terr: terr, zoneID: 100, assigned: map[string]string{}, prefabs: prefabs, payloads: payloads,
-		extra: map[string][]byte{}, lang: i18n.Lang()}
+		extra: map[string][]byte{}, lang: i18n.Lang(), scripts: scripts,
+		groupIDs: map[string]int{}, groupUnits: map[string]int{}}
 	if err := b.media(); err != nil {
 		return nil, err
 	}
@@ -156,7 +167,8 @@ func (b *builder) media() error {
 		}
 		name := media.SafeName(m.BriefingImage) + ".png"
 		b.extra["l10n/DEFAULT/"+name] = data
-		b.resources = append(b.resources, k("ResKey_ImageBriefing_1", name))
+		b.pictureKey = "ResKey_ImageBriefing_1"
+		b.resources = append(b.resources, k(b.pictureKey, name))
 	}
 	page := 0
 	add := func(label string, data []byte) {
@@ -250,6 +262,7 @@ func (b *builder) build() T {
 	sx, sy := b.xy(player.Start.Position())
 	b.center = [2]float64{sx, sy}
 
+	b.prepareBehaviors()
 	b.playerGroupID = b.airGroup(player, b.player, true, playerCountry)
 	for _, g := range mp.EnemyGroups {
 		c := b.sideCountry(g.Country, b.enemy)
@@ -257,7 +270,13 @@ func (b *builder) build() T {
 			b.airGroup(g, b.enemy, false, c)
 		} else {
 			id := b.groundGroup(g, b.enemy, c)
-			b.enemyGroupIDs = append(b.enemyGroupIDs, id)
+			// Late-activated groups (respawn templates) are not alive at
+			// mission start, so they cannot be part of "all destroyed".
+			if b.mods[b.sideKey(b.enemy, g.Name)].late {
+				b.lateTargets++
+			} else {
+				b.enemyGroupIDs = append(b.enemyGroupIDs, id)
+			}
 		}
 	}
 	for _, g := range mp.FriendlyGroups {
@@ -312,6 +331,7 @@ func (b *builder) build() T {
 	for _, r := range mp.RadioQueue {
 		b.radio(r)
 	}
+	b.emitBehaviors()
 
 	// ---- assemble ----------------------------------------------------------
 	day, month, year := parseDate(mp.Date)
@@ -351,8 +371,8 @@ func (b *builder) build() T {
 
 	// Briefing picture for the player's coalition (the other side gets none).
 	pictureB, pictureR := tbl(), tbl()
-	if len(b.resources) > 0 {
-		pic := arr(b.resources[0].key)
+	if b.pictureKey != "" {
+		pic := arr(b.pictureKey)
 		if playerRed {
 			pictureR = pic
 		} else {
@@ -379,7 +399,7 @@ func (b *builder) build() T {
 			k("flag", b.flags),
 			k("conditions", b.conds),
 			k("customStartup", tbl()),
-			k("funcStartup", tbl()),
+			k("funcStartup", b.startFuncs),
 		)),
 		k("maxDictId", b.dictN),
 		k("result", tbl(
@@ -530,6 +550,11 @@ func (b *builder) resolveSide(v any, preferred *side) (string, *side) {
 
 func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string) int {
 	b.assigned[country] = s.name
+	key := b.sideKey(s, g.Name)
+	var mod groupMod
+	if !isPlayer {
+		mod = b.applyMod(s, &g)
+	}
 	typ := g.TypeName()
 	heli := strings.ToLower(g.Kind) == "helicopter" || isHelicopterType(typ)
 	cat := "plane"
@@ -647,8 +672,14 @@ func (b *builder) airGroup(g plan.Group, s *side, isPlayer bool, country string)
 		k("start_time", 0),
 		k("frequency", freq),
 	)
+	if mod.late {
+		grp = setKey(grp, "lateActivation", true)
+	}
 	s.add(country, cat, grp)
-	if len(b.enemyGroupIDs) == 0 && s == b.enemy {
+	if !isPlayer {
+		b.groupIDs[key], b.groupUnits[key] = gid, g.Units()
+	}
+	if len(b.enemyGroupIDs) == 0 && s == b.enemy && !mod.late {
 		// air-only enemies still count as targets for "all destroyed"
 		b.enemyGroupIDs = append(b.enemyGroupIDs, gid)
 	}
@@ -688,6 +719,8 @@ func airPoint(x, y, alt, speed, eta float64, tasks T, first bool) T {
 
 func (b *builder) groundGroup(g plan.Group, s *side, country string) int {
 	b.assigned[country] = s.name
+	key := b.sideKey(s, g.Name)
+	mod := b.applyMod(s, &g)
 	typ := g.TypeName()
 	anchor := g.Anchor()
 	x, y := b.xy(anchor)
@@ -724,7 +757,12 @@ func (b *builder) groundGroup(g plan.Group, s *side, country string) int {
 			points = append(points, k(i+2, groundPoint(rx, ry, speed, eta, action, false)))
 		}
 	}
-	s.add(country, cat, groundGroupTable(g.Name, gid, units, x, y, points))
+	grp := groundGroupTable(g.Name, gid, units, x, y, points)
+	if mod.late {
+		grp = setKey(grp, "lateActivation", true)
+	}
+	s.add(country, cat, grp)
+	b.groupIDs[key], b.groupUnits[key] = gid, g.Units()
 	return gid
 }
 
@@ -811,29 +849,67 @@ func (b *builder) dictKey(kind, text string) string {
 	return key
 }
 
+// addRule adds a ONCE trigger that shows a dictionary text.
 func (b *builder) addRule(comment string, rules T, expr string, textKey string, seconds int) {
-	n := len(b.rules) + 1
 	// Quotes are escaped by luaString on output, matching the mission editor.
-	lua := fmt.Sprintf(`a_out_text_delay(getValueDictByKey("%s"), %d, false, 0); mission.trig.func[%d]=nil;`, textKey, seconds, n)
+	call := fmt.Sprintf(`a_out_text_delay(getValueDictByKey("%s"), %d, false, 0)`, textKey, seconds)
+	b.addTrigger(comment, false, rules, expr, []string{call}, arr(tbl(
+		k("seconds", seconds),
+		k("start_delay", 0),
+		k("KeyDict_text", textKey),
+		k("text", textKey),
+		k("predicate", "a_out_text_delay"),
+		k("clearview", false),
+	)))
+}
+
+// addTrigger appends one mission-editor trigger in both forms DCS stores:
+// the compiled Lua (trig.*) and the editor rules (trigrules). start=true makes
+// it a MISSION START trigger (trig.funcStartup, condition always true),
+// otherwise a ONCE trigger that removes itself after firing. The layout
+// follows missions saved by the DCS editor (e.g. the bundled F-14 missions).
+func (b *builder) addTrigger(comment string, start bool, rules T, expr string, calls []string, actions T) {
+	n := len(b.rules) + 1
+	lua := strings.Join(calls, ";") + ";"
+	run := fmt.Sprintf("if mission.trig.conditions[%d]() then mission.trig.actions[%d]() end", n, n)
+	predicate := "triggerOnce"
+	if start {
+		predicate = "triggerStart"
+		b.startFuncs = append(b.startFuncs, k(n, run))
+		b.conds = append(b.conds, k(n, "return(true)"))
+	} else {
+		lua += fmt.Sprintf(" mission.trig.func[%d]=nil;", n)
+		b.funcs = append(b.funcs, k(n, run))
+		b.conds = append(b.conds, k(n, "return("+expr+" )"))
+	}
 	b.actions = append(b.actions, k(n, lua))
-	b.conds = append(b.conds, k(n, "return("+expr+" )"))
-	b.funcs = append(b.funcs, k(n, fmt.Sprintf("if mission.trig.conditions[%d]() then mission.trig.actions[%d]() end", n, n)))
 	b.flags = append(b.flags, k(n, true))
 	b.rules = append(b.rules, k(n, tbl(
 		k("rules", rules),
 		k("comment", comment),
 		k("eventlist", ""),
-		k("actions", arr(tbl(
-			k("seconds", seconds),
-			k("start_delay", 0),
-			k("KeyDict_text", textKey),
-			k("text", textKey),
-			k("predicate", "a_out_text_delay"),
-			k("clearview", false),
-		))),
-		k("predicate", "triggerOnce"),
+		k("actions", actions),
+		k("predicate", predicate),
 		k("colorItem", "0x000000ff"),
 	)))
+}
+
+// addZone adds a circular trigger zone and returns its id.
+func (b *builder) addZone(x, y, radius float64) int {
+	zid := b.nextZone()
+	b.zones = append(b.zones, k(len(b.zones)+1, tbl(
+		k("radius", radius),
+		k("zoneId", zid),
+		k("color", arr(1, 1, 1, 0.15)),
+		k("properties", tbl()),
+		k("hidden", false),
+		k("y", y),
+		k("x", x),
+		k("name", fmt.Sprintf("AB_ZONE_%d", zid)),
+		k("type", 0),
+		k("heading", 0),
+	)))
+	return zid
 }
 
 func (b *builder) radio(r plan.Radio) {
@@ -844,6 +920,10 @@ func (b *builder) radio(r plan.Radio) {
 	key := b.dictKey("ActionText", text)
 	switch strings.ToLower(strings.TrimSpace(r.Trigger)) {
 	case "all_destroyed", "targets_destroyed", "success":
+		if len(b.enemyGroupIDs) == 0 && b.lateTargets > 0 {
+			b.problem("all_destroyed-Funkspruch uebersprungen: alle Zielgruppen sind respawn-Gruppen - mindestens eine Bodengruppe ohne respawn lassen", "all_destroyed radio message skipped: every target group is a respawn group - keep at least one ground group without respawn")
+			return
+		}
 		if len(b.enemyGroupIDs) == 0 {
 			b.problem("all_destroyed-Funkspruch ohne Gegnergruppen uebersprungen - enemyGroups fehlen oder Trigger aendern", "all_destroyed radio message without enemy groups skipped - enemyGroups missing, or change the trigger")
 			return
@@ -869,19 +949,7 @@ func (b *builder) radio(r plan.Radio) {
 				radius = r.Zone.R
 			}
 		}
-		zid := b.nextZone()
-		b.zones = append(b.zones, k(len(b.zones)+1, tbl(
-			k("radius", radius),
-			k("zoneId", zid),
-			k("color", arr(1, 1, 1, 0.15)),
-			k("properties", tbl()),
-			k("hidden", false),
-			k("y", zy),
-			k("x", zx),
-			k("name", fmt.Sprintf("AB_ZONE_%d", zid)),
-			k("type", 0),
-			k("heading", 0),
-		)))
+		zid := b.addZone(zx, zy, radius)
 		rules := arr(tbl(k("group", b.playerGroupID), k("predicate", "c_part_of_group_in_zone"), k("zone", zid)))
 		b.addRule("AIRBORNE Zone erreicht", rules, fmt.Sprintf("c_part_of_group_in_zone(%d, %d)", b.playerGroupID, zid), key, 20)
 	default:
