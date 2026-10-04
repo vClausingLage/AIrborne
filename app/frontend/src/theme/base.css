@@ -1,0 +1,103 @@
+/* Element defaults and small shared utility classes. */
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+#root {
+  height: 100vh;
+}
+
+h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+button {
+  background: var(--bg2);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+button.small {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.error {
+  background: var(--err-bg);
+  border: 1px solid var(--err);
+  color: var(--err);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 8px 0;
+  white-space: pre-wrap;
+}
+
+.issues {
+  list-style: none;
+  padding: 0;
+  color: var(--warn);
+  font-size: 13px;
+}
+
+.ok {
+  color: var(--ok);
+  margin-top: 8px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+  word-break: break-all;
+}
+
+.hint.warn {
+  color: var(--warn);
+}
+
+.loading {
+  color: var(--muted);
+  padding: 24px;
+  white-space: pre-wrap;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-top: 6px;
+}

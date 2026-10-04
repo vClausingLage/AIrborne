@@ -59,7 +59,7 @@ export default function SettingsPane({ config, busy, lang, onSaveMaxTokens, onSe
                 </button>
               )}
             </div>
-            {!valid && <div className="hint" style={{ color: '#f0a050' }}>{t.maxTokensInvalid}</div>}
+            {!valid && <div className="hint warn">{t.maxTokensInvalid}</div>}
             <div className="hint" style={{ lineHeight: 1.6 }}>
               {t.maxTokensHint}
               {usesEnv ? t.maxTokensUsesEnv : t.maxTokensEnvDefault(fmt(config.maxTokensEnv))}

@@ -4,6 +4,7 @@ import ChallengePane from './ChallengePane'
 import MediaPanel from './MediaPanel'
 import MissionEditor from './MissionEditor'
 import SettingsPane from './SettingsPane'
+import StartScreen from './StartScreen'
 import { Lang, LangContext, cacheLang, cachedLang, messages } from './i18n'
 import {
   GetState,
@@ -69,6 +70,8 @@ function prefabSummary(p: prefab.Prefab): string {
 
 function App() {
   const [state, setState] = useState<State | null>(null)
+  // false = start screen (simulator selection)
+  const [started, setStarted] = useState(false)
   const [lang, setLang] = useState<Lang>(cachedLang)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState('')
@@ -182,15 +185,20 @@ function App() {
     run('prefab-place', () => PlacePrefab(placement.id, placement.side, lat, lon, hdg, placement.country), () => setActiveTab('plan'))
   }
 
-  const switchGame = async (game: string) => {
-    try {
-      await SetGame(game)
-      if (state) setState({ ...state, game })
-      if (game !== 'dcs' && mode === 'prefab') setMode('steps')
-    } catch (e: any) {
-      setError(String(e))
-    }
-  }
+  // The simulator is chosen once on the start screen; the work UI has no game switch.
+  const pickGame = (game: string) =>
+    run(
+      'game',
+      async () => {
+        await SetGame(game)
+        return await GetState()
+      },
+      () => {
+        if (game !== 'dcs' && mode === 'prefab') setMode('steps')
+        setActiveTab('input')
+        setStarted(true)
+      },
+    )
 
   const save = () =>
     run('save', async () => {
@@ -225,6 +233,21 @@ function App() {
     SetRoleInput(key, value).catch((e) => setError(String(e)))
   }
 
+  if (!started) {
+    return (
+      <LangContext.Provider value={t}>
+        <StartScreen
+          lang={lang}
+          busy={busy}
+          error={error}
+          currentGame={state?.plan ? state.game : ''}
+          onPick={pickGame}
+          onSetLanguage={switchLanguage}
+        />
+      </LangContext.Provider>
+    )
+  }
+
   if (!state) {
     return (
       <div className="wrap">
@@ -242,17 +265,10 @@ function App() {
     <LangContext.Provider value={t}>
       <div className="wrap">
         <header className="topbar">
-          <div className="brand">
+          <button className="brand" onClick={() => setStarted(false)} disabled={busy !== ''} title={t.startBack}>
             ✈ <span className="brand-ai">AI</span>rborne
-          </div>
-          <div className="gamesel">
-            <button className={!isDcs ? 'gamesel-btn active' : 'gamesel-btn'} onClick={() => switchGame('il2')} disabled={busy !== ''}>
-              IL-2 Korea
-            </button>
-            <button className={isDcs ? 'gamesel-btn active' : 'gamesel-btn'} onClick={() => switchGame('dcs')} disabled={busy !== ''}>
-              DCS World
-            </button>
-          </div>
+          </button>
+          <span className="game-chip">{isDcs ? 'DCS World' : 'IL-2 Korea'}</span>
           <div className="cfg">
             {state.config.hasKey ? '🔑' : '⚠'} {state.config.model || t.noModel} · {state.config.base} ·{' '}
             {t.tokensPerPlan(state.config.maxTokens.toLocaleString(t.locale))}

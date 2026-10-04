@@ -2949,3 +2949,6 @@ Diese Prefabs koennen im Plan ueber `prefabs` platziert werden: `{"prefab":"<id>
 [2026-09-16 16:50:10] INFO    Hinweis: Gruppe Dagger 1: keine Presets fuer Typ "F-14A-135-GR" - Pylons bleiben leer (exakten DCS-type-Namen pruefen; ist der Typ korrekt, so lassen)
 [2026-10-03 13:15:45] INFO  Sprache: en
 [2026-10-03 13:15:59] INFO  Sprache: de
+[2026-10-04 10:45:19] INFO  Sprache: en
+[2026-10-04 10:45:20] INFO  Sprache: de
+[2026-10-04 10:45:21] INFO  Sprache: en

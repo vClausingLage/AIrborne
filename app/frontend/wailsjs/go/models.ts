@@ -325,6 +325,68 @@ export namespace pipeline {
 
 export namespace plan {
 	
+	export class Zone {
+	    x?: number;
+	    z?: number;
+	    lat?: number;
+	    lon?: number;
+	    r: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Zone(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.x = source["x"];
+	        this.z = source["z"];
+	        this.lat = source["lat"];
+	        this.lon = source["lon"];
+	        this.r = source["r"];
+	    }
+	}
+	export class Behavior {
+	    type: string;
+	    side?: string;
+	    groups: string[];
+	    sensors?: string[];
+	    zone?: Zone;
+	    interval?: number;
+	    waves?: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new Behavior(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.type = source["type"];
+	        this.side = source["side"];
+	        this.groups = source["groups"];
+	        this.sensors = source["sensors"];
+	        this.zone = this.convertValues(source["zone"], Zone);
+	        this.interval = source["interval"];
+	        this.waves = source["waves"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Position {
 	    x?: number;
 	    z?: number;
@@ -612,26 +674,6 @@ export namespace plan {
 		    return a;
 		}
 	}
-	export class Zone {
-	    x?: number;
-	    z?: number;
-	    lat?: number;
-	    lon?: number;
-	    r: number;
-	
-	    static createFrom(source: any = {}) {
-	        return new Zone(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.x = source["x"];
-	        this.z = source["z"];
-	        this.lat = source["lat"];
-	        this.lon = source["lon"];
-	        this.r = source["r"];
-	    }
-	}
 	export class Radio {
 	    trigger: string;
 	    delay?: number;
@@ -794,6 +836,7 @@ export namespace plan {
 	    briefing: Localized;
 	    icons: Icon[];
 	    prefabs?: PrefabPlacement[];
+	    behaviors?: Behavior[];
 	    media?: Media;
 	    challenge?: boolean;
 	
@@ -820,6 +863,7 @@ export namespace plan {
 	        this.briefing = this.convertValues(source["briefing"], Localized);
 	        this.icons = this.convertValues(source["icons"], Icon);
 	        this.prefabs = this.convertValues(source["prefabs"], PrefabPlacement);
+	        this.behaviors = this.convertValues(source["behaviors"], Behavior);
 	        this.media = this.convertValues(source["media"], Media);
 	        this.challenge = source["challenge"];
 	    }

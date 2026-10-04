@@ -1,0 +1,85 @@
+/* App frame and top bar. */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+/* the brand doubles as "back to the start screen" */
+button.brand {
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  color: var(--fg);
+}
+
+button.brand:hover:not(:disabled) {
+  color: var(--brand);
+}
+
+.brand-ai {
+  display: inline-block;
+  background: var(--logo-pill-bg);
+  color: var(--logo-pill-fg);
+  border-radius: var(--radius-pill);
+  padding: 1px 7px;
+  margin-right: 1px;
+  line-height: 1.2;
+}
+
+/* the simulator picked on the start screen (not a switch) */
+.game-chip {
+  border: 2px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--brand);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cfg {
+  color: var(--muted);
+  font-size: 12px;
+  margin-right: auto;
+}
+
+/* DE | EN */
+.langsel {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.langsel-btn {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 9px;
+  font-size: 12px;
+}
+
+.langsel-btn.active {
+  background: var(--border);
+  color: var(--fg);
+  font-weight: 600;
+}

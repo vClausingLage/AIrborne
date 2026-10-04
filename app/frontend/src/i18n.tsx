@@ -11,6 +11,19 @@ const de = {
   locale: 'de-DE',
   loading: 'Lade…',
 
+  // start screen
+  startTitle: 'Dein Missions-Creator',
+  startSubtitle: 'Wähle deinen Simulator – AIrborne baut daraus spielbare Missionen.',
+  startCta: 'Los geht’s',
+  startCurrentProject: 'aktuelles Projekt',
+  startBack: 'Zurück zur Simulator-Auswahl',
+  startDcsTag: 'Eagle Dynamics',
+  startDcsDesc: 'Moderne und klassische Jets, Helis und Warbirds auf allen DCS-Karten.',
+  startDcsFeatures: ['⚡ Blitz, 🪜 Schritt für Schritt, 🎯 Herausforderung', '🧩 Prefabs: wiederverwendbare Asset-Gruppen', 'Kneeboards, Briefing-Bilder, MOOSE-Verhalten'],
+  startIl2Tag: '1C Game Studios',
+  startIl2Desc: 'Jets und Kolbenmotor-Flugzeuge über Korea, 1950–1953.',
+  startIl2Features: ['⚡ Blitz, 🪜 Schritt für Schritt, 🎯 Herausforderung', 'Echte Flugplätze und Orte der Korea-Karte', 'Export als .Mission, direkt im IL-2-Editor öffnen'],
+
   // top bar
   noModel: 'kein Modell',
   tokensPerPlan: (n: string) => `max ${n} Tokens/Plan`,
@@ -279,6 +292,18 @@ export type Messages = typeof de
 const en: Messages = {
   locale: 'en-US',
   loading: 'Loading…',
+
+  startTitle: 'Your Mission Creator',
+  startSubtitle: 'Pick your simulator – AIrborne turns your ideas into playable missions.',
+  startCta: 'Let’s go',
+  startCurrentProject: 'current project',
+  startBack: 'Back to simulator selection',
+  startDcsTag: 'Eagle Dynamics',
+  startDcsDesc: 'Modern and classic jets, helicopters and warbirds on every DCS map.',
+  startDcsFeatures: ['⚡ Blitz, 🪜 Step by step, 🎯 Challenge', '🧩 Prefabs: reusable asset groups', 'Kneeboards, briefing images, MOOSE behaviors'],
+  startIl2Tag: '1C Game Studios',
+  startIl2Desc: 'Jets and piston aircraft over Korea, 1950–1953.',
+  startIl2Features: ['⚡ Blitz, 🪜 Step by step, 🎯 Challenge', 'Real airfields and places of the Korea map', 'Exports .Mission files, opens straight in the IL-2 editor'],
 
   noModel: 'no model',
   tokensPerPlan: (n: string) => `max ${n} tokens/plan`,
